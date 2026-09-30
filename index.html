@@ -9,6 +9,9 @@
   <meta name="apple-mobile-web-app-title" content="Glitch Deutsch">
   <meta name="theme-color" content="#0c0f16">
   <title>Glitch Deutsch</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
   <style>
     :root {
       --bg: #0c0f16;
@@ -3705,6 +3708,21 @@ das Geschäft — shop / business  (pl. die Geschäfte)
 `;
 
     document.addEventListener('DOMContentLoaded', () => app.init());
+
+    // Offline support (only works when served over https, e.g. GitHub Pages)
+    if ('serviceWorker' in navigator && location.protocol === 'https:') {
+      window.addEventListener('load', () => {
+        const firstInstall = !navigator.serviceWorker.controller;
+        navigator.serviceWorker.register('sw.js').then(reg => {
+          const done = () => { if (firstInstall) app.toast('Ready to use offline'); };
+          if (reg.active && !reg.installing) return;
+          const w = reg.installing || reg.waiting;
+          if (w) w.addEventListener('statechange', () => { if (w.state === 'activated') done(); });
+        }).catch(() => {});
+        // Ask the browser not to clear saved progress
+        if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+      });
+    }
   </script>
 </body>
 </html>
