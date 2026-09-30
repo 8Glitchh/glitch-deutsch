@@ -553,7 +553,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 13;
+    const APP_VERSION = 14;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -1060,10 +1060,10 @@
         const body = os === 'ios' ? `
             <ol class="inst-list">
               ${li(1, `Open this page in <b>Safari</b>. (Chrome on iPhone can do it too, via its ${g('share')} button.)`)}
-              ${li(2, `Tap the <b>menu</b> button ${g('pageMenu')} on the left of the address bar at the bottom.`)}
+              ${li(2, `Tap the <b>page menu</b> button ${g('pageMenu')} on the left of the address bar at the bottom. (With a different Safari layout it looks like ${g('more')} instead.)`)}
               ${li(3, `Tap <b>Share</b> ${g('share')}. (On older iPhones there's no menu button — the Share button ${g('share')} is right in the bottom bar, so start here.)`)}
-              ${li(4, `Scroll down and tap <b>Add to Home Screen</b> ${g('plusSq')}. If you don't see it, tap <b>More</b> ${g('more')} first.`)}
-              ${li(5, `If you see <b>Open as Web App</b>, leave it switched on. Tap <b>Add</b> at the top right.`)}
+              ${li(4, `Scroll down the list and tap <b>Add to Home Screen</b> ${g('plusSq')}. Not there? Tap <b>Edit Actions</b> at the very bottom and add it.`)}
+              ${li(5, `Leave <b>Open as Web App</b> switched on (it's on by default), then tap <b>Add</b>.`)}
               ${finish(6)}
             </ol>
             <div class="inst-note">Always open it from the icon, not a Safari tab — your progress is saved separately in each.</div>`
@@ -1079,7 +1079,7 @@
             <div class="inst-sub">Chrome</div>
             <ol class="inst-list">
               ${li(1, `Tap the <b>menu</b> ${g('dots')} at the top right.`)}
-              ${li(2, `Tap <b>Add to Home screen</b> or <b>Install app</b>, then <b>Install</b>.`)}
+              ${li(2, `Tap <b>Install and create shortcut</b> — on older Chrome it's called <b>Add to Home screen</b> or <b>Install app</b>. Then tap <b>Install</b>.`)}
             </ol>
             <ol class="inst-list" style="margin-top:8px">${finish('✓')}</ol>
             <div class="inst-note">Always open it from the icon — your progress is saved separately in the app and in the browser.</div>`;
