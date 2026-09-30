@@ -152,6 +152,23 @@
     .ch-switch .sw-t b { display: block; font-size: .95rem; }
     .ch-switch .sw-t span { display: block; font-size: .78rem; color: var(--text-2); }
     .ch-switch .sw-go { color: var(--accent); font-weight: 800; font-size: .85rem; display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
+    .parts-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-top: 16px; }
+    .parts-head b { font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
+    .parts-head span { font-size: .75rem; color: var(--text-3); }
+    .parts { display: grid; gap: 6px; margin-top: 8px; }
+    .part {
+      padding: 8px 4px 8px; border-radius: 12px; background: var(--surface-2); border: 1.5px solid transparent;
+      text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0;
+      transition: background .15s, border-color .15s;
+    }
+    .part:hover { background: var(--surface-3); }
+    .part b { font-size: .85rem; font-weight: 800; display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
+    .part b svg { width: .95em; height: .95em; color: var(--ok); }
+    .part span { font-size: .68rem; color: var(--text-3); font-weight: 650; white-space: nowrap; }
+    .part .pbar { width: 70%; height: 3px; border-radius: 3px; background: var(--surface-3); overflow: hidden; margin-top: 3px; }
+    .part .pbar i { display: block; height: 100%; background: var(--ok); }
+    .part.on { border-color: var(--accent); background: var(--accent-soft); }
+    .part.on b { color: var(--accent); }
     .progress { height: 8px; background: var(--surface-3); border-radius: 99px; overflow: hidden; display: flex; margin: 16px 0 10px; }
     .progress i { display: block; height: 100%; transition: width .4s var(--ease); }
     .progress .p-ok { background: var(--ok); }
@@ -672,6 +689,28 @@
         $('#theme-btn').innerHTML = icon(t === 'light' ? 'moon' : 'sun');
       },
 
+      // Chapters are studied in parts: 3 parts under 50 words, 4 parts from 50 up.
+      partLists(level = this.level, ch = this.chapter) {
+        const list = this.words(level, ch), n = list.length, k = n >= 50 ? 4 : 3, out = [];
+        for (let i = 0; i < k; i++) out.push(list.slice(Math.round(i * n / k), Math.round((i + 1) * n / k)));
+        return out;
+      },
+      get part() {
+        const p = (Store.d.chapterPart || {})[this.chKey()];
+        return p == null ? 1 : p;
+      },
+      setPart(p) {
+        Store.d.chapterPart = Object.assign({}, Store.d.chapterPart, { [this.chKey()]: p });
+        Store.save(); this.s = {}; this.render();
+      },
+      pool() { const p = this.part; return p ? (this.partLists()[p - 1] || this.words()) : this.words(); },
+      poolName() { return this.part ? 'Part ' + this.part : 'this chapter'; },
+      countList(list) {
+        let learned = 0, hard = 0;
+        for (const w of list) { const s = Store.status(w.de); if (s === 'learned') learned++; else if (s === 'hard') hard++; }
+        return { total: list.length, learned, hard, fresh: list.length - learned - hard };
+      },
+
       counts(level = this.level, ch = this.chapter) {
         const list = this.words(level, ch);
         let learned = 0, hard = 0;
@@ -708,6 +747,7 @@
             <span class="sw-t"><b>Change chapter</b><span>Pick any of the 24 ${this.level} chapters</span></span>
             <span class="sw-go">Open ${icon('right')}</span>
           </button>
+          ${this.partsHtml()}
           <div class="progress" role="progressbar" aria-valuenow="${Math.round(pct(c.learned))}" aria-valuemin="0" aria-valuemax="100">
             <i class="p-ok" style="width:${pct(c.learned)}%"></i><i class="p-bad" style="width:${pct(c.hard)}%"></i>
           </div>
@@ -720,8 +760,34 @@
           </div>`;
       },
 
+      partsHtml() {
+        const lists = this.partLists(), cur = this.part;
+        const chips = lists.map((l, i) => {
+          const c = this.countList(l), full = c.total && c.learned === c.total;
+          return `<button class="part ${cur === i + 1 ? 'on' : ''}" data-action="set-part" data-p="${i + 1}">
+              <b>Part ${i + 1}${full ? icon('check') : ''}</b><span>${l.length} words</span>
+              <span class="pbar"><i style="width:${c.total ? c.learned / c.total * 100 : 0}%"></i></span>
+            </button>`;
+        }).join('');
+        const all = this.countList(this.words());
+        return `
+          <div class="parts-head"><b>Study in parts</b><span>${cur ? 'words ' + this.chapterRange() : 'whole chapter'}</span></div>
+          <div class="parts" style="grid-template-columns:repeat(${lists.length + 1}, minmax(0, 1fr))">
+            ${chips}
+            <button class="part ${cur === 0 ? 'on' : ''}" data-action="set-part" data-p="0">
+              <b>All${all.total && all.learned === all.total ? icon('check') : ''}</b><span>${all.total} words</span>
+              <span class="pbar"><i style="width:${all.total ? all.learned / all.total * 100 : 0}%"></i></span>
+            </button>
+          </div>`;
+      },
+      chapterRange() {
+        const lists = this.partLists(); let a = 1;
+        for (let i = 0; i < this.part - 1; i++) a += lists[i].length;
+        return a + '–' + (a + lists[this.part - 1].length - 1);
+      },
+
       renderModes() {
-        const hard = this.counts().hard;
+        const hard = this.countList(this.pool()).hard;
         $('#modes').innerHTML = MODES.map(m => `
           <button class="mode ${this.mode === m.id ? 'active' : ''}" data-action="mode" data-mode="${m.id}">
             ${icon(m.icon)}${m.label}${m.id === 'cards' && hard ? `<span class="badge">${hard}</span>` : ''}
@@ -768,6 +834,7 @@
           case 'pick-ch': this.closeSheet(); return this.setChapter(ds.level, +ds.ch);
           case 'ch-step': return this.setChapter(this.level, Math.min(24, Math.max(1, this.chapter + +ds.dir)));
           case 'close-sheet': if (el.classList.contains('scrim') && e.target !== el) return; return this.closeSheet();
+          case 'set-part': return this.setPart(+ds.p);
           case 'toggle-done': {
             const k = this.chKey();
             Store.d.completedChapters[k] = !Store.d.completedChapters[k]; Store.save();
@@ -912,17 +979,18 @@
         return [...new Set(out)];
       },
       recordBest(key, val, higherIsBetter = true) {
-        const k = `${this.chKey()}_${key}`, prev = Store.d.best[k];
+        const k = this.bestKey(key), prev = Store.d.best[k];
         const better = prev == null || (higherIsBetter ? val > prev : val < prev);
         if (better) { Store.d.best[k] = val; Store.save(); }
         return { prev, better };
       },
-      getBest(key) { return Store.d.best[`${this.chKey()}_${key}`]; },
+      getBest(key) { return Store.d.best[this.bestKey(key)]; },
+      bestKey(key) { return `${this.chKey()}${this.part ? '_p' + this.part : ''}_${key}`; },
 
       /* ================= 1. Flashcards ================= */
       buildDeck() {
         const s = this.s;
-        let list = this.words();
+        let list = this.pool();
         if (s.filter === 'hard') list = list.filter(w => Store.status(w.de) === 'hard');
         if (s.filter === 'new') list = list.filter(w => Store.status(w.de) === 'new');
         if (s.shuffled) list = shuffle(list);
@@ -933,7 +1001,7 @@
         const s = this.s;
         if (!s.deck) { s.filter = s.filter || (this.counts().hard ? 'all' : 'all'); s.shuffled = !!s.shuffled; this.buildDeck(); }
         const dir = Store.d.settings.dir;
-        const c = this.counts();
+        const c = this.countList(this.pool());
         const head = `
           <div class="panel-head">
             <div class="seg" role="tablist">
@@ -949,9 +1017,9 @@
 
         if (!s.deck.length) {
           const msg = s.filter === 'hard'
-            ? `<div class="summary"><div class="big">🎉</div><h2>Nothing to practise</h2><p>No words in this chapter are marked “to practise”.</p><button class="btn btn-primary" data-action="c-filter" data-f="all">Study all words</button></div>`
+            ? `<div class="summary"><div class="big">🎉</div><h2>Nothing to practise</h2><p>No words in ${this.poolName()} are marked “to practise”.</p><button class="btn btn-primary" data-action="c-filter" data-f="all">Study all words</button></div>`
             : s.filter === 'new'
-            ? `<div class="summary"><div class="big">✨</div><h2>No new words left</h2><p>You’ve seen every word in this chapter.</p><button class="btn btn-primary" data-action="c-filter" data-f="all">Review all words</button></div>`
+            ? `<div class="summary"><div class="big">✨</div><h2>No new words left</h2><p>You’ve seen every word in ${this.poolName()}.</p><button class="btn btn-primary" data-action="c-filter" data-f="all">Review all words</button></div>`
             : this.emptyState('No vocabulary in this chapter.');
           return p.innerHTML = head + msg;
         }
@@ -961,7 +1029,7 @@
           return p.innerHTML = head + `
             <div class="summary">
               <div class="big">${perfect ? '🏆' : '💪'}</div>
-              <h2>${perfect ? 'Perfect round!' : 'Round complete'}</h2>
+              <h2>${perfect ? 'Perfect round!' : 'Round complete'}${this.part ? ' · Part ' + this.part : ''}</h2>
               <p>${perfect ? 'You knew every card.' : 'Go again with just the cards you missed.'}</p>
               <div class="stat-row">
                 <div class="stat"><b style="color:var(--ok)">${s.got}</b><span>Got it</span></div>
@@ -970,6 +1038,7 @@
               <div class="btn-row">
                 ${s.again ? `<button class="btn btn-primary" data-action="c-again">${icon('restart')} Practise ${s.again} missed</button>` : ''}
                 <button class="btn" data-action="c-restart">Start over</button>
+                ${this.part && this.part < this.partLists().length ? `<button class="btn ${s.again ? '' : 'btn-primary'}" data-action="set-part" data-p="${this.part + 1}">Next: Part ${this.part + 1} ${icon('right')}</button>` : ''}
               </div>
             </div>`;
         }
@@ -1083,8 +1152,8 @@
 
       /* ================= 2. Quiz (multiple choice) ================= */
       renderQuiz(p) {
-        const s = this.s, list = this.words();
-        if (list.length < 4) return p.innerHTML = this.emptyState('This chapter needs at least 4 words for a quiz.');
+        const s = this.s, list = this.pool();
+        if (list.length < 4) return p.innerHTML = this.emptyState('This part needs at least 4 words for a quiz.');
         if (!s.qs) {
           const src = s.retry || pick(list, Math.min(10, list.length));
           s.qs = src.map(w => {
@@ -1154,7 +1223,7 @@
       norm(t) { return t.toLowerCase().replace(/[.,!?¿¡;:"“”„]/g, '').replace(/\s+/g, ' ').trim(); },
       fold(t) { return this.norm(t).replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss'); },
       renderType(p) {
-        const s = this.s, list = this.words();
+        const s = this.s, list = this.pool();
         if (!list.length) return p.innerHTML = this.emptyState('No vocabulary in this chapter.');
         if (!s.qs) Object.assign(s, { qs: s.retry || pick(list, Math.min(10, list.length)), i: 0, score: 0, missed: [], done: false, retry: null });
         if (s.i >= s.qs.length) {
@@ -1235,8 +1304,8 @@
       /* ================= 4. der / die / das ================= */
       renderArticles(p) {
         const s = this.s;
-        const nouns = this.words().filter(w => w.article);
-        if (nouns.length < 3) return p.innerHTML = this.emptyState('This chapter has too few nouns for the article trainer.');
+        const nouns = this.pool().filter(w => w.article);
+        if (nouns.length < 3) return p.innerHTML = this.emptyState((this.part ? 'This part' : 'This chapter') + ' has too few nouns for the article trainer.' + (this.part ? ' Try another part, or “All”.' : ''));
         if (!s.deck) Object.assign(s, { deck: shuffle(nouns), i: 0, score: 0, streak: 0, bestStreak: 0, answered: false });
         if (s.i >= s.deck.length) {
           const { better } = this.recordBest('articles', s.bestStreak);
@@ -1296,8 +1365,8 @@
 
       /* ================= 5. Match ================= */
       renderMatch(p) {
-        const s = this.s, list = this.words();
-        if (list.length < 3) return p.innerHTML = this.emptyState('This chapter needs at least 3 words for matching.');
+        const s = this.s, list = this.pool();
+        if (list.length < 3) return p.innerHTML = this.emptyState('This part needs at least 3 words for matching.');
         if (!s.pairs) {
           const pairs = pick(list, Math.min(6, list.length));
           Object.assign(s, { pairs, left: shuffle(pairs.map((w, i) => ({ i, text: w.de }))), right: shuffle(pairs.map((w, i) => ({ i, text: w.en }))), sel: null, hits: new Set(), errors: 0, t0: null, time: 0 });
@@ -1346,8 +1415,8 @@
       /* ================= 6. Sprint ================= */
       SPRINT_TIME: 60,
       renderSprint(p) {
-        const s = this.s, list = this.words();
-        if (list.length < 4) return p.innerHTML = this.emptyState('This chapter needs at least 4 words for Sprint.');
+        const s = this.s, list = this.pool();
+        if (list.length < 4) return p.innerHTML = this.emptyState('This part needs at least 4 words for Sprint.');
         if (!s.phase) s.phase = 'intro';
         const best = this.getBest('sprint');
         if (s.phase === 'intro') {
@@ -1356,7 +1425,7 @@
               <div class="hero-icon">${icon('zap')}</div>
               <h2>60-second sprint</h2>
               <p>Answer as many as you can. Right answers build a combo, wrong ones cost 3 seconds.</p>
-              ${best != null ? `<p class="small" style="margin-top:-10px">${icon('trophy')} Best in this chapter: <b style="color:var(--accent)">${best}</b></p>` : ''}
+              ${best != null ? `<p class="small" style="margin-top:-10px">${icon('trophy')} Best in ${this.part ? 'this part' : 'this chapter'}: <b style="color:var(--accent)">${best}</b></p>` : ''}
               <button class="btn btn-primary btn-lg" data-action="s-start" style="padding:0 32px">Start ${icon('zap')}</button>
             </div>`;
         }
@@ -1380,7 +1449,7 @@
         this.timers.push(setInterval(() => this.sprintTick(), 1000));
       },
       sprintQ() {
-        const list = this.words(), w = list[Math.floor(Math.random() * list.length)];
+        const list = this.pool(), w = list[Math.floor(Math.random() * list.length)];
         const toEn = Math.random() < 0.5, f = toEn ? 'en' : 'de';
         return { w, toEn, answer: w[f], opts: shuffle([w[f], ...this.distractors(w, 3, f)]) };
       },
@@ -1426,10 +1495,10 @@
       renderSentences(p) {
         const s = this.s;
         if (!s.qs) {
-          const phrases = this.words().filter(w => !w.article && w.de.split(/\s+/).length >= 3 && !w.de.includes('/') && !w.de.includes('...'));
+          const phrases = this.pool().filter(w => !w.article && w.de.split(/\s+/).length >= 3 && !w.de.includes('/') && !w.de.includes('...'));
           Object.assign(s, { qs: shuffle(phrases).slice(0, 8), i: 0, score: 0, placed: [], checked: null });
         }
-        if (!s.qs.length) return p.innerHTML = `<div class="hero"><div class="hero-icon">${icon('puzzle')}</div><h2>No sentences here</h2><p>This chapter only has single words. Try Flashcards or the Quiz — or pick a chapter with phrases like chapter 1.</p></div>`;
+        if (!s.qs.length) return p.innerHTML = `<div class="hero"><div class="hero-icon">${icon('puzzle')}</div><h2>No sentences here</h2><p>${this.part ? 'This part only has single words. Try another part or “All”.' : 'This chapter only has single words.'} Try Flashcards or the Quiz — or pick a chapter with phrases like chapter 1.</p></div>`;
         if (s.i >= s.qs.length) {
           return p.innerHTML = `
             <div class="summary"><div class="big">🧩</div><h2>${s.score} / ${s.qs.length} built correctly</h2><p>Word order is the hardest part of German — nice work.</p>
@@ -1495,7 +1564,7 @@
         const s = this.s;
         let rows = [];
         if (s.all) { for (const lv of ['A1', 'A2']) for (let ch = 1; ch <= 24; ch++) for (const w of this.words(lv, ch)) rows.push({ w, lv, ch }); }
-        else rows = this.words().map(w => ({ w }));
+        else rows = this.pool().map(w => ({ w }));
         const q = this.fold(s.q || '');
         if (q) rows = rows.filter(({ w }) => this.fold(w.de).includes(q) || w.en.toLowerCase().includes(s.q.toLowerCase().trim()));
         if (s.f !== 'all') rows = rows.filter(({ w }) => Store.status(w.de) === s.f);
