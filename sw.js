@@ -1,6 +1,6 @@
 // Offline support: everything the app needs is cached on first visit.
 // Bump VERSION whenever index.html changes so phones pick up the update.
-const VERSION = 'gd-v3';
+const VERSION = 'gd-v4';
 const FILES = [
   './',
   './index.html',
@@ -30,7 +30,7 @@ self.addEventListener('fetch', e => {
   // Pages: try the network (so updates arrive), fall back to the cached app when offline.
   if (req.mode === 'navigate') {
     e.respondWith(
-      fetch(req)
+      fetch(req.url, { cache: 'no-cache' })
         .then(res => { const copy = res.clone(); caches.open(VERSION).then(c => c.put('./index.html', copy)); return res; })
         .catch(() => caches.match('./index.html', { ignoreSearch: true }))
     );
