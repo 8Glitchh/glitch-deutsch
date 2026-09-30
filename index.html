@@ -479,6 +479,14 @@
     .toggle.on { background: var(--ok); }
     .toggle.on::after { transform: translateX(20px); }
 
+    .update-bar {
+      position: fixed; left: 12px; right: 12px; top: calc(env(safe-area-inset-top) + 10px); z-index: 70;
+      max-width: 520px; margin: 0 auto; display: flex; align-items: center; gap: 12px;
+      padding: 10px 10px 10px 16px; border-radius: 16px; background: var(--accent); color: var(--accent-ink);
+      font-weight: 750; font-size: .9rem; box-shadow: var(--shadow); animation: up .3s var(--ease);
+    }
+    .update-bar span { flex: 1; }
+    .update-bar button { height: 36px; padding: 0 16px; border-radius: 11px; background: var(--accent-ink); color: var(--accent); font-weight: 800; }
     .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 20px); transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: .88rem; z-index: 60; animation: up .25s var(--ease); box-shadow: var(--shadow); }
 
     @media (max-width: 520px) {
@@ -522,6 +530,9 @@
   <div id="overlay"></div>
 
   <script>
+    // Bump on every release; the app compares this with the website to offer updates.
+    const APP_VERSION = 10;
+
     /* ================= Icons ================= */
     const ICONS = {
       cards: '<rect x="3" y="6" width="14" height="14" rx="2.5"/><path d="M7 3h11a3 3 0 0 1 3 3v11"/>',
@@ -917,6 +928,8 @@
             Store.d.settings[ds.key] = !Store.d.settings[ds.key]; Store.save();
             el.classList.toggle('on', Store.d.settings[ds.key]); return;
           }
+          case 'check-update': return this.checkUpdate(el);
+          case 'do-update': return location.reload();
           case 'export': return this.exportProgress();
           case 'import': return $('#import-file').click();
           case 'reset-all': {
@@ -979,6 +992,8 @@
           <div class="sheet-body">
             <div class="set-row"><div class="lbl"><b>Speak German automatically</b><span>Read each German word aloud on flashcards${Speech.ok ? '' : ' (not supported on this device)'}</span></div>
               <button class="toggle ${st.autoSpeak ? 'on' : ''}" data-action="set-toggle" data-key="autoSpeak" aria-label="Auto speak"></button></div>
+            <div class="set-row"><div class="lbl"><b>App version ${APP_VERSION}</b><span id="update-status">Updates install automatically when you're online</span></div>
+              <button class="btn btn-sm" data-action="check-update">Check for updates</button></div>
             <div class="set-row"><div class="lbl"><b>Works offline</b><span id="offline-status">Checking…</span></div><span id="offline-dot" class="dot" style="width:12px;height:12px;margin:0;background:var(--surface-3)"></span></div>
             <div class="set-row"><div class="lbl"><b>Your progress</b><span>${allLearned} words mastered · ${allHard} to practise · ${Store.liveStreak()}-day streak</span></div></div>
             <div class="set-row"><div class="lbl"><b>Back up progress</b><span>Save a file, or restore from one on another device</span></div>
@@ -989,6 +1004,35 @@
           </div>`);
         $('#import-file').addEventListener('change', e => this.importProgress(e.target.files[0]));
         this.checkOffline();
+      },
+
+      // Reads the version number of the copy on the website (null when offline).
+      async remoteVersion() {
+        try {
+          const t = await (await fetch('./index.html?v=' + Date.now(), { cache: 'no-store' })).text();
+          const m = t.match(/const APP_VERSION = (\d+);/);
+          return m ? +m[1] : null;
+        } catch (e) { return null; }
+      },
+      async checkUpdate(btn) {
+        const st = $('#update-status');
+        btn.disabled = true; btn.textContent = 'Checking…';
+        const v = await this.remoteVersion();
+        btn.disabled = false; btn.textContent = 'Check for updates';
+        if (v == null) { if (st) st.textContent = 'Could not check — are you online?'; return; }
+        if (v > APP_VERSION) {
+          if (st) st.textContent = 'Updating to version ' + v + '…';
+          try { const reg = await navigator.serviceWorker.getRegistration(); if (reg) await reg.update(); } catch (e) {}
+          return location.reload();
+        }
+        if (st) st.textContent = "You're up to date ✓";
+      },
+      showUpdateBar() {
+        if ($('.update-bar')) return;
+        const bar = document.createElement('div');
+        bar.className = 'update-bar';
+        bar.innerHTML = '<span>A new version is ready</span><button data-action="do-update">Update</button>';
+        document.body.appendChild(bar);
       },
 
       async checkOffline() {
@@ -3890,11 +3934,22 @@ das Geschäft — shop / business  (pl. die Geschäfte)
 
     document.addEventListener('DOMContentLoaded', () => app.init());
 
-    // Offline support (only works when served over https, e.g. GitHub Pages)
+    // Offline support + updates (only works when served over https, e.g. GitHub Pages)
     if ('serviceWorker' in navigator && location.protocol === 'https:') {
       window.addEventListener('load', () => {
         const firstInstall = !navigator.serviceWorker.controller;
-        navigator.serviceWorker.register('sw.js').then(reg => {
+        // iPhone keeps home-screen apps suspended instead of reloading them,
+        // so look for a newer version every time the app comes back on screen.
+        const lookForUpdate = async () => {
+          const v = await app.remoteVersion();
+          if (v && v > APP_VERSION) {
+            navigator.serviceWorker.getRegistration().then(r => r && r.update()).catch(() => {});
+            app.showUpdateBar();
+          }
+        };
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') lookForUpdate(); });
+        setTimeout(lookForUpdate, 3000);
+        navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => {
           const done = () => { if (firstInstall) app.toast('Ready to use offline'); };
           if (reg.active && !reg.installing) return;
           const w = reg.installing || reg.waiting;
