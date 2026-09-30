@@ -721,7 +721,7 @@
         const t = document.createElement('div');
         t.className = 'toast'; t.textContent = msg;
         document.body.appendChild(t);
-        setTimeout(() => t.remove(), 1800);
+        setTimeout(() => t.remove(), 3500);
       },
 
       /* ---------- Events ---------- */
@@ -813,6 +813,7 @@
           <div class="sheet-body">
             <div class="set-row"><div class="lbl"><b>Speak German automatically</b><span>Read each German word aloud on flashcards${Speech.ok ? '' : ' (not supported on this device)'}</span></div>
               <button class="toggle ${st.autoSpeak ? 'on' : ''}" data-action="set-toggle" data-key="autoSpeak" aria-label="Auto speak"></button></div>
+            <div class="set-row"><div class="lbl"><b>Works offline</b><span id="offline-status">Checking…</span></div><span id="offline-dot" class="dot" style="width:12px;height:12px;margin:0;background:var(--surface-3)"></span></div>
             <div class="set-row"><div class="lbl"><b>Your progress</b><span>${allLearned} words mastered · ${allHard} to practise · ${Store.liveStreak()}-day streak</span></div></div>
             <div class="set-row"><div class="lbl"><b>Back up progress</b><span>Save a file, or restore from one on another device</span></div>
               <div class="btn-row"><button class="btn btn-sm" data-action="export">Export</button><button class="btn btn-sm" data-action="import">Import</button></div></div>
@@ -821,6 +822,18 @@
             <input type="file" id="import-file" accept="application/json,.json" hidden>
           </div>`);
         $('#import-file').addEventListener('change', e => this.importProgress(e.target.files[0]));
+        this.checkOffline();
+      },
+
+      async checkOffline() {
+        const set = (ok, msg) => { const t = $('#offline-status'), d = $('#offline-dot'); if (!t) return; t.textContent = msg; d.style.background = ok ? 'var(--ok)' : 'var(--bad)'; };
+        if (!('serviceWorker' in navigator) || location.protocol !== 'https:') return set(false, 'Only works from the web link (8glitchh.github.io)');
+        try {
+          const reg = await navigator.serviceWorker.getRegistration();
+          const keys = window.caches ? await caches.keys() : [];
+          if (reg && reg.active && keys.length) set(true, 'Ready — you can use it without internet');
+          else set(false, 'Not ready yet — keep it open with internet for a few seconds');
+        } catch (e) { set(false, 'Not available in this browser mode'); }
       },
 
       exportProgress() {
