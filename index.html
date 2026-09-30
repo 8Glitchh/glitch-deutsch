@@ -94,19 +94,10 @@
 
     /* ---------- Header ---------- */
     .top { display: flex; align-items: center; gap: 10px; padding: 6px 0 18px; }
-    .logo { font-size: 1.35rem; font-weight: 850; letter-spacing: -0.02em; position: relative; line-height: 1; }
-    .logo span { color: var(--accent); }
-    .logo::after {
-      content: attr(data-text); position: absolute; left: 0; top: 0; color: transparent;
-      text-shadow: -1.5px 0 rgba(255,0,90,.55), 1.5px 0 rgba(0,220,255,.55);
-      clip-path: inset(0 0 55% 0); animation: glitch 5s infinite steps(1); pointer-events: none;
-    }
-    @keyframes glitch {
-      0%, 92%, 100% { transform: none; opacity: 0; }
-      93% { transform: translate(2px, -1px); opacity: 1; clip-path: inset(10% 0 55% 0); }
-      95% { transform: translate(-2px, 1px); opacity: 1; clip-path: inset(55% 0 10% 0); }
-      97% { transform: translate(1px, 0); opacity: 1; clip-path: inset(30% 0 40% 0); }
-    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand .mark { width: 36px; height: 36px; flex: none; border-radius: 10px; box-shadow: 0 4px 14px rgba(255,200,61,.25); }
+    .brand .wm { font-size: 1.22rem; font-weight: 850; letter-spacing: -0.03em; line-height: 1; }
+    .brand .wm span { font-weight: 550; color: var(--text-2); }
     .top .spacer { flex: 1; }
     .chip {
       display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px;
@@ -152,6 +143,60 @@
     .ch-switch .sw-t b { display: block; font-size: .95rem; }
     .ch-switch .sw-t span { display: block; font-size: .78rem; color: var(--text-2); }
     .ch-switch .sw-go { color: var(--accent); font-weight: 800; font-size: .85rem; display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
+    /* Course header: level tabs, chapter carousel, parts path */
+    .course {
+      background: linear-gradient(170deg, var(--surface) 0%, var(--bg-2) 100%);
+      border: 1px solid var(--line); border-radius: var(--r-xl); margin-bottom: 14px;
+      box-shadow: var(--shadow); overflow: hidden; padding-top: 6px;
+    }
+    .lv-tabs { display: flex; align-items: flex-end; gap: 22px; padding: 0 18px; border-bottom: 1px solid var(--line); }
+    .lv-tab { position: relative; padding: 10px 0 11px; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; color: var(--text-3); text-align: left; }
+    .lv-tab b { font-size: 1.15rem; font-weight: 850; letter-spacing: -0.01em; line-height: 1.1; }
+    .lv-tab small { font-size: .72rem; font-weight: 700; }
+    .lv-tab.on { color: var(--text); }
+    .lv-tab.on small { color: var(--text-2); }
+    .lv-tab.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; border-radius: 3px 3px 0 0; background: var(--accent); }
+    .lv-all { margin-left: auto; align-self: center; display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 99px; background: var(--surface-2); color: var(--text); font-size: .8rem; font-weight: 750; }
+    .lv-all:hover { background: var(--surface-3); }
+    .strip-wrap { position: relative; }
+    .strip { display: flex; gap: 10px; overflow-x: auto; padding: 14px 18px 16px; scroll-snap-type: x mandatory; scroll-padding: 0 18px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .strip::-webkit-scrollbar { display: none; }
+    .cc {
+      flex: 0 0 min(62%, 230px); scroll-snap-align: center; text-align: left; min-height: 108px;
+      display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 18px;
+      background: var(--surface-2); border: 1.5px solid transparent; transition: background .15s, border-color .15s, transform .15s;
+    }
+    .cc:hover { background: var(--surface-3); }
+    .cc:active { transform: scale(.98); }
+    .cc .n { display: flex; justify-content: space-between; align-items: center; font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); }
+    .cc .n svg { width: 1.2em; height: 1.2em; color: var(--ok); }
+    .cc .t { flex: 1; font-weight: 800; font-size: .98rem; line-height: 1.25; color: var(--text); }
+    .cc .bar { height: 4px; border-radius: 4px; background: var(--surface-3); overflow: hidden; }
+    .cc .bar i { display: block; height: 100%; background: var(--ok); }
+    .cc.on { background: linear-gradient(160deg, var(--accent-soft), var(--surface-2) 80%); border-color: var(--accent); }
+    .cc.on .n { color: var(--accent); }
+    .cc.on .t { font-size: 1.05rem; }
+    .strip-hint { position: absolute; right: 0; top: 14px; bottom: 16px; width: 28px; pointer-events: none; background: linear-gradient(90deg, transparent, var(--bg-2)); }
+    .cur { padding: 2px 18px 18px; border-top: 1px solid var(--line); }
+    .cur-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 14px 0 12px; }
+    .cur-head b { font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); }
+    .cur-head span { font-size: .75rem; color: var(--text-3); font-weight: 650; }
+    .steps { display: flex; align-items: flex-start; }
+    .step { flex: none; display: flex; flex-direction: column; align-items: center; gap: 5px; width: 50px; }
+    .step .ring { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--ok) calc(var(--p) * 1%), var(--surface-3) 0); transition: transform .15s; }
+    .step:active .ring { transform: scale(.94); }
+    .step .ring > span { width: 37px; height: 37px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); font-weight: 850; font-size: 1rem; color: var(--text-2); }
+    .step .ring svg { width: 18px; height: 18px; }
+    .step small { font-size: .68rem; font-weight: 750; color: var(--text-3); white-space: nowrap; }
+    .step.full .ring > span { background: var(--ok-soft); color: var(--ok); }
+    .step.on .ring > span { background: var(--accent); color: var(--accent-ink); }
+    .step.on small { color: var(--accent); }
+    .steps .ln { flex: 1; height: 2px; min-width: 6px; margin-top: 22px; background: var(--surface-3); border-radius: 2px; }
+    .steps .ln.full { background: var(--ok); }
+    .steps .gap { flex: 1.4; min-width: 10px; margin-top: 22px; border-top: 2px dotted var(--surface-3); }
+    .cur-info { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+    .cur-stats { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .82rem; color: var(--text-2); }
+    .cur-stats b { color: var(--text); font-variant-numeric: tabular-nums; }
     .parts-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-top: 16px; }
     .parts-head b { font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
     .parts-head span { font-size: .75rem; color: var(--text-3); }
@@ -447,14 +492,22 @@
 <body>
   <div class="wrap">
     <header class="top">
-      <div class="logo" data-text="Glitch Deutsch">Glitch <span>Deutsch</span></div>
+      <div class="brand">
+        <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
+          <rect width="40" height="40" rx="11" fill="#FFC83D"/>
+          <rect x="11.5" y="7" width="6" height="6" rx="1.5" fill="#14110a"/>
+          <rect x="22.5" y="7" width="6" height="6" rx="1.5" fill="#E5312B"/>
+          <path d="M14.2 19.2c1.4-1.3 3.4-2 5.9-2 4.6 0 6.9 2.3 6.9 6.6V33h-4.4v-1.6c-1 1.3-2.6 1.9-4.6 1.9-3.2 0-5.3-1.8-5.3-4.5 0-2.9 2.2-4.4 6.3-4.4h3.4c-.1-1.8-1.2-2.7-3.3-2.7-1.5 0-3 .5-4 1.3zm8.2 7.2h-2.9c-1.9 0-2.7.6-2.7 1.7 0 1 .9 1.7 2.3 1.7 1.6 0 2.9-.8 3.3-2.1z" fill="#14110a"/>
+        </svg>
+        <span class="wm"><span>glitch</span>deutsch</span>
+      </div>
       <div class="spacer"></div>
       <div class="chip streak" id="streak" title="Daily streak"></div>
       <button class="icon-btn" data-action="theme" aria-label="Toggle theme" id="theme-btn"></button>
       <button class="icon-btn" data-action="settings" aria-label="Settings" id="settings-btn"></button>
     </header>
 
-    <section class="chapter-card" id="chapter-card"></section>
+    <section class="course" id="chapter-card"></section>
     <nav class="modes" id="modes" aria-label="Practice modes"></nav>
     <section class="panel" id="panel">
       <div id="nojs" style="text-align:center;padding:40px 12px">
@@ -718,46 +771,58 @@
         return { total: list.length, learned, hard, fresh: list.length - learned - hard };
       },
 
+      levelPct(level) {
+        let total = 0, learned = 0;
+        for (let ch = 1; ch <= 24; ch++) { const c = this.counts(level, ch); total += c.total; learned += c.learned; }
+        return total ? Math.round(learned / total * 100) : 0;
+      },
+
       renderChapterCard() {
-        const c = this.counts();
         const done = !!Store.d.completedChapters[this.chKey()];
-        const pct = x => c.total ? (x / c.total * 100) : 0;
+        const tab = (lv, name) => `<button class="lv-tab ${this.level === lv ? 'on' : ''}" data-action="set-level" data-level="${lv}"><b>${lv}</b><small>${name} · ${this.levelPct(lv)}%</small></button>`;
+        const cards = Array.from({ length: 24 }, (_, i) => i + 1).map(ch => {
+          const c = this.counts(this.level, ch), pct = c.total ? c.learned / c.total * 100 : 0;
+          const isDone = Store.d.completedChapters[`${this.level}_${ch}`];
+          return `<button class="cc ${ch === this.chapter ? 'on' : ''}" data-action="pick-ch" data-level="${this.level}" data-ch="${ch}">
+              <span class="n">Chapter ${ch}${isDone ? icon('check') : `<span>${Math.round(pct)}%</span>`}</span>
+              <span class="t">${esc(this.title(this.level, ch))}</span>
+              <span class="bar"><i style="width:${pct}%"></i></span>
+            </button>`;
+        }).join('');
+
+        const lists = this.partLists(), cur = this.part;
+        let steps = '';
+        lists.forEach((l, i) => {
+          const c = this.countList(l), p = c.total ? Math.round(c.learned / c.total * 100) : 0, full = c.total && c.learned === c.total;
+          if (i) steps += `<span class="ln ${full ? 'full' : ''}"></span>`;
+          steps += `<button class="step ${cur === i + 1 ? 'on' : ''} ${full ? 'full' : ''}" style="--p:${p}" data-action="set-part" data-p="${i + 1}" aria-label="Part ${i + 1}, ${l.length} words, ${p}% mastered">
+              <span class="ring"><span>${full && cur !== i + 1 ? icon('check') : i + 1}</span></span><small>Part ${i + 1}</small></button>`;
+        });
+        const all = this.countList(this.words()), allP = all.total ? Math.round(all.learned / all.total * 100) : 0;
+        steps += `<span class="gap"></span><button class="step ${cur === 0 ? 'on' : ''}" style="--p:${allP}" data-action="set-part" data-p="0" aria-label="Whole chapter">
+            <span class="ring"><span>${icon('list')}</span></span><small>All</small></button>`;
+
+        const pc = this.countList(this.pool());
         $('#chapter-card').innerHTML = `
-          <div class="ch-top">
-            <div class="lvl">
-              <span class="lvl-label">Level</span>
-              <div class="seg">
-                <button class="${this.level === 'A1' ? 'on' : ''}" data-action="set-level" data-level="A1">A1</button>
-                <button class="${this.level === 'A2' ? 'on' : ''}" data-action="set-level" data-level="A2">A2</button>
+          <div class="lv-tabs">
+            ${tab('A1', 'Beginner')}${tab('A2', 'Elementary')}
+            <button class="lv-all" data-action="chapters">${icon('grid')} All chapters</button>
+          </div>
+          <div class="strip-wrap"><div class="strip" id="ch-strip">${cards}</div><span class="strip-hint"></span></div>
+          <div class="cur">
+            <div class="cur-head"><b>${cur ? `Part ${cur} of ${lists.length}` : 'Whole chapter'}</b><span>${cur ? 'words ' + this.chapterRange() : all.total + ' words'}</span></div>
+            <div class="steps">${steps}</div>
+            <div class="cur-info">
+              <div class="cur-stats">
+                <span><i class="dot" style="background:var(--ok)"></i><b>${pc.learned}</b> mastered</span>
+                <span><i class="dot" style="background:var(--bad)"></i><b>${pc.hard}</b> to practise</span>
+                <span><i class="dot" style="background:var(--surface-3)"></i><b>${pc.fresh}</b> new</span>
               </div>
+              <button class="done-btn ${done ? 'on' : ''}" data-action="toggle-done">${done ? icon('check') + ' Chapter done' : 'Mark chapter done'}</button>
             </div>
-          </div>
-          <div class="ch-row">
-            <button class="ch-pick" data-action="chapters" aria-label="Choose chapter">
-              <span class="ch-kicker">Chapter ${this.chapter} of 24</span>
-              <span class="ch-title">${esc(this.title())}</span>
-            </button>
-            <div class="ch-arrows">
-              <button class="icon-btn" data-action="ch-step" data-dir="-1" aria-label="Previous chapter" ${this.chapter === 1 ? 'disabled style="opacity:.35"' : ''}>${icon('left')}</button>
-              <button class="icon-btn" data-action="ch-step" data-dir="1" aria-label="Next chapter" ${this.chapter === 24 ? 'disabled style="opacity:.35"' : ''}>${icon('right')}</button>
-            </div>
-          </div>
-          <button class="ch-switch" data-action="chapters">
-            <span class="sw-ic">${icon('list')}</span>
-            <span class="sw-t"><b>Change chapter</b><span>Pick any of the 24 ${this.level} chapters</span></span>
-            <span class="sw-go">Open ${icon('right')}</span>
-          </button>
-          ${this.partsHtml()}
-          <div class="progress" role="progressbar" aria-valuenow="${Math.round(pct(c.learned))}" aria-valuemin="0" aria-valuemax="100">
-            <i class="p-ok" style="width:${pct(c.learned)}%"></i><i class="p-bad" style="width:${pct(c.hard)}%"></i>
-          </div>
-          <div class="legend">
-            <span><i class="dot" style="background:var(--ok)"></i><b>${c.learned}</b> mastered</span>
-            <span><i class="dot" style="background:var(--bad)"></i><b>${c.hard}</b> to practise</span>
-            <span><i class="dot" style="background:var(--surface-3)"></i><b>${c.fresh}</b> new</span>
-            <span class="spacer"></span>
-            <button class="done-btn ${done ? 'on' : ''}" data-action="toggle-done">${done ? icon('check') + ' Chapter done' : 'Mark as done'}</button>
           </div>`;
+        const strip = $('#ch-strip'), act = strip.querySelector('.cc.on');
+        if (act) strip.scrollLeft = act.offsetLeft - (strip.clientWidth - act.offsetWidth) / 2;
       },
 
       partsHtml() {
@@ -806,10 +871,10 @@
 
       refreshStats() { this.renderStreak(); this.renderChapterCard(); this.renderModes(); },
 
-      setChapter(level, ch) {
+      setChapter(level, ch, stay) {
         this.level = level; this.chapter = ch; this.s = {};
         this.persist(); this.render();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (!stay) window.scrollTo({ top: 0, behavior: 'smooth' });
       },
 
       setMode(m) { this.mode = m; this.s = {}; this.persist(); this.renderModes(); this.renderPanel(); },
@@ -831,7 +896,7 @@
           case 'chapters': return this.openChapters(this.level);
           case 'sheet-level': return this.openChapters(ds.level);
           case 'set-level': if (ds.level === this.level) return; this.toast(ds.level + ' selected'); return this.setChapter(ds.level, (Store.d.levelChapter || {})[ds.level] || 1);
-          case 'pick-ch': this.closeSheet(); return this.setChapter(ds.level, +ds.ch);
+          case 'pick-ch': { const fromSheet = !!$('#overlay').firstChild; this.closeSheet(); if (!fromSheet && +ds.ch === this.chapter && ds.level === this.level) return; return this.setChapter(ds.level, +ds.ch, !fromSheet); }
           case 'ch-step': return this.setChapter(this.level, Math.min(24, Math.max(1, this.chapter + +ds.dir)));
           case 'close-sheet': if (el.classList.contains('scrim') && e.target !== el) return; return this.closeSheet();
           case 'set-part': return this.setPart(+ds.p);
