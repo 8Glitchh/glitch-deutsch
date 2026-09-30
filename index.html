@@ -149,14 +149,16 @@
       border: 1px solid var(--line); border-radius: var(--r-xl); margin-bottom: 14px;
       box-shadow: var(--shadow); overflow: hidden; padding-top: 6px;
     }
-    .lv-tabs { display: flex; align-items: flex-end; gap: 22px; padding: 0 18px; border-bottom: 1px solid var(--line); }
+    .lv-tabs { display: flex; align-items: flex-end; gap: 20px; padding: 0 18px; border-bottom: 1px solid var(--line); }
     .lv-tab { position: relative; padding: 10px 0 11px; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; color: var(--text-3); text-align: left; }
     .lv-tab b { font-size: 1.15rem; font-weight: 850; letter-spacing: -0.01em; line-height: 1.1; }
-    .lv-tab small { font-size: .72rem; font-weight: 700; }
+    .lv-tab small { font-size: .72rem; font-weight: 700; white-space: nowrap; }
+    .lv-tab b em { font-style: normal; font-size: .7rem; font-weight: 750; margin-left: 6px; padding: 1px 6px; border-radius: 99px; background: var(--surface-2); color: var(--text-3); vertical-align: 2px; }
+    .lv-tab.on b em { background: var(--ok-soft); color: var(--ok); }
     .lv-tab.on { color: var(--text); }
     .lv-tab.on small { color: var(--text-2); }
     .lv-tab.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; border-radius: 3px 3px 0 0; background: var(--accent); }
-    .lv-all { margin-left: auto; align-self: center; display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 99px; background: var(--surface-2); color: var(--text); font-size: .8rem; font-weight: 750; }
+    .lv-all { white-space: nowrap; flex: none; margin-left: auto; align-self: center; display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 99px; background: var(--surface-2); color: var(--text); font-size: .8rem; font-weight: 750; }
     .lv-all:hover { background: var(--surface-3); }
     .strip-wrap { position: relative; }
     .strip { display: flex; gap: 10px; overflow-x: auto; padding: 14px 18px 16px; scroll-snap-type: x mandatory; scroll-padding: 0 18px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
@@ -779,7 +781,7 @@
 
       renderChapterCard() {
         const done = !!Store.d.completedChapters[this.chKey()];
-        const tab = (lv, name) => `<button class="lv-tab ${this.level === lv ? 'on' : ''}" data-action="set-level" data-level="${lv}"><b>${lv}</b><small>${name} · ${this.levelPct(lv)}%</small></button>`;
+        const tab = (lv, name) => `<button class="lv-tab ${this.level === lv ? 'on' : ''}" data-action="set-level" data-level="${lv}"><b>${lv}<em>${this.levelPct(lv)}%</em></b><small>${name}</small></button>`;
         const cards = Array.from({ length: 24 }, (_, i) => i + 1).map(ch => {
           const c = this.counts(this.level, ch), pct = c.total ? c.learned / c.total * 100 : 0;
           const isDone = Store.d.completedChapters[`${this.level}_${ch}`];
@@ -806,7 +808,7 @@
         $('#chapter-card').innerHTML = `
           <div class="lv-tabs">
             ${tab('A1', 'Beginner')}${tab('A2', 'Elementary')}
-            <button class="lv-all" data-action="chapters">${icon('grid')} All chapters</button>
+            <button class="lv-all" data-action="chapters">${icon('grid')} Chapters</button>
           </div>
           <div class="strip-wrap"><div class="strip" id="ch-strip">${cards}</div><span class="strip-hint"></span></div>
           <div class="cur">
