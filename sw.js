@@ -1,6 +1,6 @@
 // Offline support: everything the app needs is cached on first visit.
 // Bump VERSION whenever index.html changes so phones pick up the update.
-const VERSION = 'gd-v1';
+const VERSION = 'gd-v2';
 const FILES = [
   './',
   './index.html',
@@ -12,7 +12,7 @@ const FILES = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {
