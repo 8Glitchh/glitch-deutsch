@@ -555,7 +555,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 17;
+    const APP_VERSION = 18;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -922,7 +922,7 @@
             <div class="cur-info">
               <div class="cur-stats">
                 <span><i class="dot" style="background:var(--ok)"></i><b>${pc.learned}</b> mastered</span>
-                <span><i class="dot" style="background:var(--bad)"></i><b>${pc.hard}</b> to practise</span>
+                <span><i class="dot" style="background:var(--bad)"></i><b>${pc.hard}</b> still learning</span>
                 <span><i class="dot" style="background:var(--surface-3)"></i><b>${pc.fresh}</b> new</span>
               </div>
               <button class="done-btn ${done ? 'on' : ''}" data-action="toggle-done">${done ? icon('check') + ' Chapter done' : 'Mark chapter done'}</button>
@@ -1162,7 +1162,7 @@
             <div class="set-row"><div class="lbl"><b>App version ${APP_VERSION}</b><span id="update-status">Updates install automatically when you're online</span></div>
               <button class="btn btn-sm" data-action="check-update">Check for updates</button></div>
             <div class="set-row"><div class="lbl"><b>Works offline</b><span id="offline-status">Checking…</span></div><span id="offline-dot" class="dot" style="width:12px;height:12px;margin:0;background:var(--surface-3)"></span></div>
-            <div class="set-row"><div class="lbl"><b>Your progress</b><span>${allLearned} words mastered · ${allHard} to practise · ${Store.liveStreak()}-day streak</span></div></div>
+            <div class="set-row"><div class="lbl"><b>Your progress</b><span>${allLearned} words mastered · ${allHard} still learning · ${Store.liveStreak()}-day streak</span></div></div>
             <div class="set-row"><div class="lbl"><b>Back up progress</b><span>Save a file, or restore from one on another device</span></div>
               <div class="btn-row"><button class="btn btn-sm" data-action="export">Export</button><button class="btn btn-sm" data-action="import">Import</button></div></div>
             <div class="set-row"><div class="lbl"><b>Reset everything</b><span>Clears mastered words, practice list and streak</span></div>
@@ -1286,7 +1286,7 @@
             <div class="seg" role="tablist">
               <button class="${s.filter === 'all' ? 'on' : ''}" data-action="c-filter" data-f="all">All ${c.total}</button>
               <button class="${s.filter === 'new' ? 'on' : ''}" data-action="c-filter" data-f="new">New ${c.fresh}</button>
-              <button class="${s.filter === 'hard' ? 'on' : ''}" data-action="c-filter" data-f="hard">Practise ${c.hard}</button>
+              <button class="${s.filter === 'hard' ? 'on' : ''}" data-action="c-filter" data-f="hard">Learning ${c.hard}</button>
             </div>
             <div class="btn-row">
               <button class="btn btn-sm ${s.shuffled ? 'btn-primary' : ''}" data-action="c-shuffle" title="Mix the cards into a random order">${icon('shuffle')} ${s.shuffled ? 'Shuffled' : 'Shuffle'}</button>
@@ -1296,7 +1296,7 @@
 
         if (!s.deck.length) {
           const msg = s.filter === 'hard'
-            ? `<div class="summary"><div class="big">🎉</div><h2>Nothing to practise</h2><p>No words in ${this.poolName()} are marked “to practise”.</p><button class="btn btn-primary" data-action="c-filter" data-f="all">Study all words</button></div>`
+            ? `<div class="summary"><div class="big">🎉</div><h2>Nothing left to learn</h2><p>No words in ${this.poolName()} are marked “still learning”.</p><button class="btn btn-primary" data-action="c-filter" data-f="all">Study all words</button></div>`
             : s.filter === 'new'
             ? `<div class="summary"><div class="big">✨</div><h2>No new words left</h2><p>You’ve seen every word in ${this.poolName()}.</p><button class="btn btn-primary" data-action="c-filter" data-f="all">Review all words</button></div>`
             : this.emptyState('No vocabulary in this chapter.');
@@ -1312,10 +1312,10 @@
               <p>${perfect ? 'You knew every card.' : 'Go again with just the cards you missed.'}</p>
               <div class="stat-row">
                 <div class="stat"><b style="color:var(--ok)">${s.got}</b><span>Got it</span></div>
-                <div class="stat"><b style="color:var(--bad)">${s.again}</b><span>Practise</span></div>
+                <div class="stat"><b style="color:var(--bad)">${s.again}</b><span>Still learning</span></div>
               </div>
               <div class="btn-row">
-                ${s.again ? `<button class="btn btn-primary" data-action="c-again">${icon('restart')} Practise ${s.again} missed</button>` : ''}
+                ${s.again ? `<button class="btn btn-primary" data-action="c-again">${icon('restart')} Go over ${s.again} again</button>` : ''}
                 <button class="btn" data-action="c-restart">Start over</button>
                 ${this.part && this.part < this.partLists().length ? `<button class="btn ${s.again ? '' : 'btn-primary'}" data-action="set-part" data-p="${this.part + 1}">Next: Part ${this.part + 1} ${icon('right')}</button>` : ''}
               </div>
@@ -1338,9 +1338,9 @@
           <div class="deck-bar"><i style="width:${s.i / s.deck.length * 100}%"></i></div>
           <div class="card-stage">
             <div class="fcard ${s.flipped ? 'flipped' : ''} ${gClass(w)}" id="fcard" data-action="c-flip">
-              <span class="swipe-tag l">PRACTISE</span><span class="swipe-tag r">GOT IT</span>
+              <span class="swipe-tag l">STILL LEARNING</span><span class="swipe-tag r">GOT IT</span>
               <div class="fface ${dir === 'de-en' && w.article ? 'g' : ''}">
-                <div class="fface-top"><span>${fl}</span>${dir === 'de-en' ? this.speakBtn(w.de) : `<span>${status === 'hard' ? '⚠ practise' : status === 'learned' ? '✓ mastered' : ''}</span>`}</div>
+                <div class="fface-top"><span>${fl}</span>${dir === 'de-en' ? this.speakBtn(w.de) : `<span>${status === 'hard' ? '⚠ still learning' : status === 'learned' ? '✓ mastered' : ''}</span>`}</div>
                 ${front}
                 <div class="fhint">Tap to reveal</div>
               </div>
@@ -1352,7 +1352,7 @@
             </div>
           </div>
           <div class="rate">
-            <button class="btn btn-lg btn-bad" data-action="c-rate" data-r="hard">${icon('x')} Practise</button>
+            <button class="btn btn-lg btn-bad" data-action="c-rate" data-r="hard">${icon('x')} Still learning</button>
             <button class="btn btn-lg btn-ok" data-action="c-rate" data-r="learned">${icon('check')} Got it</button>
           </div>
           <div class="deck-nav">
@@ -1363,7 +1363,7 @@
             </span>
             <button class="btn btn-sm btn-ghost" data-action="c-step" data-d="1">Skip ${icon('right')}</button>
           </div>
-          <div class="kbd-hint"><kbd>Space</kbd> flip · <kbd>←</kbd> practise · <kbd>→</kbd> got it · <kbd>S</kbd> speak · or swipe the card</div>`;
+          <div class="kbd-hint"><kbd>Space</kbd> flip · <kbd>←</kbd> still learning · <kbd>→</kbd> got it · <kbd>S</kbd> speak · or swipe the card</div>`;
 
         this.attachSwipe($('#fcard'));
         if (Store.d.settings.autoSpeak && (dir === 'de-en' ? !s.flipped : s.flipped)) Speech.say(w.de);
@@ -1469,7 +1469,7 @@
             <div class="summary">
               <div class="big">${pctv === 100 ? '🏆' : pctv >= 70 ? '🎯' : '📚'}</div>
               <h2>${s.score} / ${s.qs.length} correct</h2>
-              <p>${better && prev != null ? 'New personal best for this chapter!' : pctv === 100 ? 'Flawless.' : 'Missed words were added to “Practise”.'}</p>
+              <p>${better && prev != null ? 'New personal best for this chapter!' : pctv === 100 ? 'Flawless.' : 'Missed words were added to “Still learning”.'}</p>
               ${s.missed.length ? `<div class="wlist" style="text-align:left;margin:0 auto 22px;max-width:460px">${s.missed.map(w => `
                 <div class="wrow ${gClass(w)}"><span class="bar"></span><div><div class="de">${this.deHtml(w)}</div><div class="en">${esc(w.en)}</div></div><span></span></div>`).join('')}</div>` : ''}
               <div class="btn-row">
@@ -1530,7 +1530,7 @@
             <div class="summary">
               <div class="big">${s.score === s.qs.length ? '🏆' : '✍️'}</div>
               <h2>${s.score} / ${s.qs.length} spelled right</h2>
-              <p>Correct answers count as mastered; mistakes go to “Practise”.</p>
+              <p>Correct answers count as mastered; mistakes go to “Still learning”.</p>
               <div class="btn-row">
                 ${s.missed.length ? `<button class="btn btn-primary" data-action="t-retry">${icon('restart')} Retry ${s.missed.length} missed</button>` : ''}
                 <button class="btn" data-action="t-new">New round</button>
@@ -1851,7 +1851,7 @@
             <label class="search">${icon('search')}<input id="w-q" type="search" placeholder="Search German or English…" value="${esc(s.q)}" autocomplete="off"></label>
           </div>
           <div class="filters">
-            ${[['all', 'All'], ['new', 'New'], ['hard', 'Practise'], ['learned', 'Mastered']].map(([k, l]) => `<button class="fchip ${s.f === k ? 'on' : ''}" data-action="w-f" data-f="${k}">${l}</button>`).join('')}
+            ${[['all', 'All'], ['new', 'New'], ['hard', 'Still learning'], ['learned', 'Mastered']].map(([k, l]) => `<button class="fchip ${s.f === k ? 'on' : ''}" data-action="w-f" data-f="${k}">${l}</button>`).join('')}
             <button class="fchip scope ${s.all ? 'on' : ''}" data-action="w-all">${icon('globe')} All chapters</button>
           </div>
           <div class="wlist" id="w-list"></div>`;
@@ -1867,7 +1867,7 @@
         const q = this.fold(s.q || '');
         if (q) rows = rows.filter(({ w }) => this.fold(w.de).includes(q) || w.en.toLowerCase().includes(s.q.toLowerCase().trim()));
         if (s.f !== 'all') rows = rows.filter(({ w }) => Store.status(w.de) === s.f);
-        const LABEL = { new: 'New', hard: 'Practise', learned: 'Mastered' };
+        const LABEL = { new: 'New', hard: 'Learning', learned: 'Mastered' };
         const shown = rows.slice(0, 300);
         $('#w-list').innerHTML = shown.length ? shown.map(({ w, lv, ch }) => {
           const st = Store.status(w.de), extra = this.wordExtra(w);
