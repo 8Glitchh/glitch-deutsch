@@ -149,7 +149,7 @@
       border: 1px solid var(--line); border-radius: var(--r-xl); margin-bottom: 14px;
       box-shadow: var(--shadow); overflow: hidden; padding-top: 6px;
     }
-    .lv-tabs { display: flex; align-items: flex-end; gap: 20px; padding: 0 18px; border-bottom: 1px solid var(--line); }
+    .lv-tabs { display: flex; align-items: flex-end; gap: 18px; padding: 0 18px; border-bottom: 1px solid var(--line); }
     .lv-tab { position: relative; padding: 10px 0 11px; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; color: var(--text-3); text-align: left; }
     .lv-tab b { font-size: 1.15rem; font-weight: 850; letter-spacing: -0.01em; line-height: 1.1; }
     .lv-tab small { font-size: .72rem; font-weight: 700; white-space: nowrap; }
@@ -160,6 +160,12 @@
     .lv-tab.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; border-radius: 3px 3px 0 0; background: var(--accent); }
     .lv-all { white-space: nowrap; flex: none; margin-left: auto; align-self: center; display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 99px; background: var(--surface-2); color: var(--text); font-size: .8rem; font-weight: 750; }
     .lv-all:hover { background: var(--surface-3); }
+    @media (max-width: 430px) {
+      .lv-tabs { gap: 14px; padding: 0 14px; }
+      .lv-all { width: 36px; padding: 0; justify-content: center; }
+      .lv-all-t { display: none; }
+      .lv-tab b em { margin-left: 4px; padding: 1px 5px; }
+    }
     .strip-wrap { position: relative; }
     .strip { display: flex; gap: 10px; overflow-x: auto; padding: 14px 18px 16px; scroll-snap-type: x mandatory; scroll-padding: 0 18px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
     .strip::-webkit-scrollbar { display: none; }
@@ -479,6 +485,22 @@
     .toggle.on { background: var(--ok); }
     .toggle.on::after { transform: translateX(20px); }
 
+    .icon-btn { position: relative; }
+    .icon-btn .nd { position: absolute; top: 5px; right: 5px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--surface); }
+    .inst-intro { color: var(--text-2); font-size: .9rem; margin: -4px 0 14px; }
+    .inst-tabs { display: flex; margin-bottom: 14px; }
+    .inst-tabs .seg { flex: 1; display: flex; }
+    .inst-tabs .seg button { flex: 1; padding: 9px 10px; font-size: .88rem; }
+    .inst-sub { font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); margin: 16px 0 8px; }
+    .inst-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .inst-list li { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; padding: 12px; border-radius: var(--r-md); background: var(--surface); font-size: .92rem; line-height: 1.45; }
+    .inst-list .num { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-weight: 850; font-size: .85rem; }
+    .inst-list b { font-weight: 800; }
+    .glyph { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; background: var(--surface-3); color: var(--text); vertical-align: -7px; margin: 0 2px; }
+    .glyph svg { width: 16px; height: 16px; }
+    .inst-note { margin-top: 12px; font-size: .82rem; color: var(--text-2); padding: 10px 12px; border-radius: var(--r-md); background: var(--accent-soft); }
+    .inst-done { text-align: center; padding: 20px 10px 6px; }
+    .inst-done .big { font-size: 2.6rem; }
     .update-bar {
       position: fixed; left: 12px; right: 12px; top: calc(env(safe-area-inset-top) + 10px); z-index: 70;
       max-width: 520px; margin: 0 auto; display: flex; align-items: center; gap: 12px;
@@ -513,7 +535,7 @@
       </div>
       <div class="spacer"></div>
       <div class="chip streak" id="streak" title="Daily streak"></div>
-      <button class="icon-btn" data-action="theme" aria-label="Toggle theme" id="theme-btn"></button>
+      <button class="icon-btn" data-action="install" aria-label="Add to Home Screen" id="install-btn" title="Add to Home Screen"></button>
       <button class="icon-btn" data-action="settings" aria-label="Settings" id="settings-btn"></button>
     </header>
 
@@ -531,10 +553,16 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 10;
+    const APP_VERSION = 11;
 
     /* ================= Icons ================= */
     const ICONS = {
+      phoneDl: '<rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M12 7v6M9.5 10.5 12 13l2.5-2.5M11 18.5h2"/>',
+      share: '<path d="M12 3v12M8 7l4-4 4 4"/><path d="M7 10H6a1.5 1.5 0 0 0-1.5 1.5v8A1.5 1.5 0 0 0 6 21h12a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 18 10h-1"/>',
+      plusSq: '<rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 8v8M8 12h8"/>',
+      menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+      dots: '<circle cx="12" cy="5" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="12" cy="19" r="1.2"/>',
+      more: '<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>',
       cards: '<rect x="3" y="6" width="14" height="14" rx="2.5"/><path d="M7 3h11a3 3 0 0 1 3 3v11"/>',
       quiz: '<circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 5-5.5"/>',
       type: '<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6.5 10h.01M10 10h.01M13.5 10h.01M17.5 10h.01M7.5 14h9"/>',
@@ -582,8 +610,24 @@
         "Medien & Gefühle", "Zusammenarbeit & Team", "Digitale Medien & Apps",
         "Lebensziele & Vorhaben", "Unternehmertum & Imkern", "Klima & Umweltschutz",
         "Zukunft & Engagement", "Biografien & Bildung", "Geschäfte & Dienstleistungen"
+      ],
+      B1: [
+        "Erinnerungen & Begegnungen", "Freundschaft & Beziehungen", "Stärken & Fähigkeiten",
+        "Gewohnheiten & Vorsätze", "Gemeinschaft & Zusammenleben", "Mut & neue Wege",
+        "Reisen & Unterkünfte", "Gesellschaft & Engagement", "Sprachen & Studium",
+        "Arbeit & Karriere", "Materialien & Konsum", "Kochen & Zutaten",
+        "Tiere & Vorurteile", "Bewerbung & Vorstellungsgespräch", "Gefühle & Liebe",
+        "Geld & Bank", "Kunst & Kultur", "Gesundheit & Medizin",
+        "Ämter & Ausbildung", "Medien & Wahrheit", "Schule & Bildung",
+        "Politik & Staat", "Geschichte & Ausflüge", "Zeit & Stress"
       ]
     };
+
+    const LEVELS = [
+      { id: 'A1', name: 'Beginner' },
+      { id: 'A2', name: 'Elementary' },
+      { id: 'B1', name: 'Intermediate' },
+    ];
 
     const MODES = [
       { id: 'cards',     label: 'Flashcards', icon: 'cards' },
@@ -703,7 +747,7 @@
 
     /* ================= App ================= */
     const app = {
-      data: { A1: {}, A2: {} },
+      data: { A1: {}, A2: {}, B1: {} },
       level: 'A1', chapter: 1, mode: 'cards',
       s: {},          // per-mode session state
       timers: [],
@@ -712,6 +756,7 @@
         this.data.A1 = buildData(rawA1Text);
         const nojs = document.getElementById('nojs'); if (nojs) nojs.remove();
         this.data.A2 = buildData(rawA2Text);
+        this.data.B1 = buildData(rawB1Text);
         const d = Store.load();
         this.level = d.lastLevel in this.data ? d.lastLevel : 'A1';
         this.chapter = Math.min(24, Math.max(1, +d.lastChapter || 1));
@@ -719,6 +764,7 @@
         this.applyTheme();
         Speech.init();
         $('#settings-btn').innerHTML = icon('gear');
+        this.renderInstallBtn();
         document.addEventListener('click', e => this.onClick(e));
         document.addEventListener('keydown', e => this.onKey(e));
         this.render();
@@ -752,7 +798,7 @@
         const t = Store.d.settings.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
         document.documentElement.dataset.theme = t;
         $('meta[name="theme-color"]').content = t === 'light' ? '#f4f5f8' : '#0c0f16';
-        $('#theme-btn').innerHTML = icon(t === 'light' ? 'moon' : 'sun');
+
       },
 
       // Chapters are studied in parts: 3 parts under 50 words, 4 parts from 50 up.
@@ -818,8 +864,8 @@
         const pc = this.countList(this.pool());
         $('#chapter-card').innerHTML = `
           <div class="lv-tabs">
-            ${tab('A1', 'Beginner')}${tab('A2', 'Elementary')}
-            <button class="lv-all" data-action="chapters">${icon('grid')} Chapters</button>
+            ${LEVELS.map(l => tab(l.id, l.name)).join('')}
+            <button class="lv-all" data-action="chapters" aria-label="All chapters">${icon('grid')}<span class="lv-all-t">Chapters</span></button>
           </div>
           <div class="strip-wrap"><div class="strip" id="ch-strip">${cards}</div><span class="strip-hint"></span></div>
           <div class="cur">
@@ -921,7 +967,9 @@
           }
           case 'theme': {
             Store.d.settings.theme = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
-            Store.save(); return this.applyTheme();
+            Store.save(); this.applyTheme();
+            if ($('#overlay').firstChild) this.openSettings();
+            return;
           }
           case 'settings': return this.openSettings();
           case 'set-toggle': {
@@ -929,6 +977,14 @@
             el.classList.toggle('on', Store.d.settings[ds.key]); return;
           }
           case 'check-update': return this.checkUpdate(el);
+          case 'install': return this.openInstall();
+          case 'install-os': return this.openInstall(ds.os);
+          case 'install-now': {
+            if (!this.installPrompt) return;
+            this.installPrompt.prompt();
+            this.installPrompt.userChoice.finally(() => { this.installPrompt = null; this.closeSheet(); });
+            return;
+          }
           case 'do-update': return location.reload();
           case 'export': return this.exportProgress();
           case 'import': return $('#import-file').click();
@@ -974,13 +1030,70 @@
           <div class="sheet-head">
             <h3>Chapters</h3>
             <div class="seg">
-              <button class="${level === 'A1' ? 'on' : ''}" data-action="sheet-level" data-level="A1">A1</button>
-              <button class="${level === 'A2' ? 'on' : ''}" data-action="sheet-level" data-level="A2">A2</button>
+              ${LEVELS.map(l => `<button class="${level === l.id ? 'on' : ''}" data-action="sheet-level" data-level="${l.id}">${l.id}</button>`).join('')}
             </div>
           </div>
           <div class="sheet-body"><div class="ch-list">${items}</div></div>`);
         const cur = $('.ch-item.cur');
         if (cur) cur.scrollIntoView({ block: 'center' });
+      },
+
+      isStandalone() {
+        return window.navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
+      },
+      renderInstallBtn() {
+        const b = $('#install-btn');
+        if (!b) return;
+        if (this.isStandalone()) return b.remove();
+        b.innerHTML = icon('phoneDl') + (Store.d.seenInstall ? '' : '<span class="nd"></span>');
+      },
+      openInstall(os) {
+        if (!Store.d.seenInstall) { Store.d.seenInstall = true; Store.save(); this.renderInstallBtn(); }
+        const ua = navigator.userAgent;
+        const isIOS = /iphone|ipad|ipod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+        os = os || (isIOS ? 'ios' : 'android');
+        const g = n => `<span class="glyph">${icon(n)}</span>`;
+        const li = (n, html) => `<li><span class="num">${n}</span><span>${html}</span></li>`;
+        const finish = n => li(n, `Open <b>glitch deutsch</b> from its new icon. In ${g('gear')} Settings, <b>Works offline</b> should show a green dot.`);
+
+        const body = this.isStandalone()
+          ? `<div class="inst-done"><div class="big">✅</div><h3>Already installed</h3><p class="muted">You're using the Home Screen app. It works offline.</p></div>`
+          : os === 'ios' ? `
+            <ol class="inst-list">
+              ${li(1, `Open this page in <b>Safari</b>. (Chrome on iPhone can do it too, via its ${g('share')} button.)`)}
+              ${li(2, `Tap the <b>Share</b> button ${g('share')} in the bar at the bottom. On newer iPhones, tap ${g('more')} first to find it.`)}
+              ${li(3, `Scroll down and tap <b>Add to Home Screen</b> ${g('plusSq')}.`)}
+              ${li(4, `If you see <b>Open as Web App</b>, leave it switched on. Tap <b>Add</b> at the top right.`)}
+              ${finish(5)}
+            </ol>
+            <div class="inst-note">Always open it from the icon, not a Safari tab — your progress is saved separately in each.</div>`
+          : `
+            ${this.installPrompt ? `<button class="btn btn-primary btn-lg" style="width:100%;margin-bottom:6px" data-action="install-now">${icon('phoneDl')} Install now</button>
+              <p class="muted small" style="text-align:center;margin-bottom:4px">One tap — or follow the steps below.</p>` : ''}
+            <div class="inst-sub">Samsung Internet</div>
+            <ol class="inst-list">
+              ${li(1, `Open this page in <b>Samsung Internet</b>.`)}
+              ${li(2, `Tap the <b>menu</b> ${g('menu')} at the bottom right.`)}
+              ${li(3, `Tap <b>Add page to</b> → <b>Home screen</b>, then <b>Add</b>. (If an install icon ${g('phoneDl')} shows in the address bar, you can tap that instead.)`)}
+            </ol>
+            <div class="inst-sub">Chrome</div>
+            <ol class="inst-list">
+              ${li(1, `Tap the <b>menu</b> ${g('dots')} at the top right.`)}
+              ${li(2, `Tap <b>Add to Home screen</b> or <b>Install app</b>, then <b>Install</b>.`)}
+            </ol>
+            <ol class="inst-list" style="margin-top:8px">${finish('✓')}</ol>
+            <div class="inst-note">Always open it from the icon — your progress is saved separately in the app and in the browser.</div>`;
+
+        this.openSheet(`
+          <div class="sheet-head"><h3>Add to Home Screen</h3><button class="icon-btn" data-action="close-sheet" aria-label="Close">${icon('x')}</button></div>
+          <div class="sheet-body">
+            <p class="inst-intro">Install glitch deutsch like a real app: its own icon, full screen, and it works without internet.</p>
+            ${this.isStandalone() ? '' : `<div class="inst-tabs"><div class="seg">
+              <button class="${os === 'ios' ? 'on' : ''}" data-action="install-os" data-os="ios">iPhone / iPad</button>
+              <button class="${os === 'android' ? 'on' : ''}" data-action="install-os" data-os="android">Samsung / Android</button>
+            </div></div>`}
+            ${body}
+          </div>`);
       },
 
       openSettings() {
@@ -990,6 +1103,10 @@
         this.openSheet(`
           <div class="sheet-head"><h3>Settings</h3><button class="icon-btn" data-action="close-sheet" aria-label="Close">${icon('x')}</button></div>
           <div class="sheet-body">
+            ${this.isStandalone() ? '' : `<div class="set-row"><div class="lbl"><b>Add to Home Screen</b><span>Use it like an app, even offline</span></div>
+              <button class="btn btn-sm btn-primary" data-action="install">Show me how</button></div>`}
+            <div class="set-row"><div class="lbl"><b>Appearance</b><span>${document.documentElement.dataset.theme === 'light' ? 'Light' : 'Dark'} mode</span></div>
+              <button class="btn btn-sm" data-action="theme">${icon(document.documentElement.dataset.theme === 'light' ? 'moon' : 'sun')} Switch to ${document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'}</button></div>
             <div class="set-row"><div class="lbl"><b>Speak German automatically</b><span>Read each German word aloud on flashcards${Speech.ok ? '' : ' (not supported on this device)'}</span></div>
               <button class="toggle ${st.autoSpeak ? 'on' : ''}" data-action="set-toggle" data-key="autoSpeak" aria-label="Auto speak"></button></div>
             <div class="set-row"><div class="lbl"><b>App version ${APP_VERSION}</b><span id="update-status">Updates install automatically when you're online</span></div>
@@ -1121,8 +1238,8 @@
               <button class="${s.filter === 'hard' ? 'on' : ''}" data-action="c-filter" data-f="hard">Practise ${c.hard}</button>
             </div>
             <div class="btn-row">
-              <button class="btn btn-sm ${s.shuffled ? 'btn-primary' : ''}" data-action="c-shuffle" title="Shuffle">${icon('shuffle')}</button>
-              <button class="btn btn-sm" data-action="c-dir" title="Switch direction">${icon('swap')} ${dir === 'de-en' ? 'DE → EN' : 'EN → DE'}</button>
+              <button class="btn btn-sm ${s.shuffled ? 'btn-primary' : ''}" data-action="c-shuffle" title="Mix the cards into a random order">${icon('shuffle')} ${s.shuffled ? 'Shuffled' : 'Shuffle'}</button>
+              <button class="btn btn-sm" data-action="c-dir" title="Show German first or English first">${icon('swap')} ${dir === 'de-en' ? 'DE → EN' : 'EN → DE'}</button>
             </div>
           </div>`;
 
@@ -1248,8 +1365,8 @@
         if (a === 'c-rate') return this.rateCard(el.dataset.r);
         if (a === 'c-step') { s.i = Math.max(0, s.i + +el.dataset.d); s.flipped = false; return this.renderCards($('#panel')); }
         if (a === 'c-filter') { s.filter = el.dataset.f; this.buildDeck(); return this.renderCards($('#panel')); }
-        if (a === 'c-shuffle') { s.shuffled = !s.shuffled; this.buildDeck(); return this.renderCards($('#panel')); }
-        if (a === 'c-dir') { Store.d.settings.dir = Store.d.settings.dir === 'de-en' ? 'en-de' : 'de-en'; Store.save(); s.flipped = false; return this.renderCards($('#panel')); }
+        if (a === 'c-shuffle') { s.shuffled = !s.shuffled; this.buildDeck(); this.toast(s.shuffled ? 'Cards shuffled into random order' : 'Cards back in normal order'); return this.renderCards($('#panel')); }
+        if (a === 'c-dir') { Store.d.settings.dir = Store.d.settings.dir === 'de-en' ? 'en-de' : 'de-en'; Store.save(); s.flipped = false; this.toast(Store.d.settings.dir === 'de-en' ? 'German first, then English' : 'English first, then German'); return this.renderCards($('#panel')); }
         if (a === 'c-restart') { this.buildDeck(); return this.renderCards($('#panel')); }
         if (a === 'c-again') { const list = s.shuffled ? shuffle(s.againList) : s.againList; Object.assign(s, { deck: list, i: 0, flipped: false, got: 0, again: 0, againList: [] }); return this.renderCards($('#panel')); }
       },
@@ -1674,7 +1791,7 @@
       renderWordRows() {
         const s = this.s;
         let rows = [];
-        if (s.all) { for (const lv of ['A1', 'A2']) for (let ch = 1; ch <= 24; ch++) for (const w of this.words(lv, ch)) rows.push({ w, lv, ch }); }
+        if (s.all) { for (const { id: lv } of LEVELS) for (let ch = 1; ch <= 24; ch++) for (const w of this.words(lv, ch)) rows.push({ w, lv, ch }); }
         else rows = this.pool().map(w => ({ w }));
         const q = this.fold(s.q || '');
         if (q) rows = rows.filter(({ w }) => this.fold(w.de).includes(q) || w.en.toLowerCase().includes(s.q.toLowerCase().trim()));
@@ -3932,7 +4049,908 @@ die Dekoration — decoration  (pl. die Dekorationen)
 das Geschäft — shop / business  (pl. die Geschäfte)
 `;
 
+    const rawB1Text = `
+===== B1 – Chapter 1 =====
+erkennen — to recognise  (erkennt, hat erkannt)
+lächeln — to smile  (lächelt, hat gelächelt)
+winken — to wave  (winkt, hat gewinkt)
+bekannt — known / familiar
+unbekannt — unknown
+grüßen — to greet  (grüßt, hat gegrüßt)
+als ob — as if
+wie wenn — as if / as when
+begrüßen — to welcome / to greet  (begrüßt, hat begrüßt)
+vorstellen — to introduce (someone)  (stellt vor, hat vorgestellt)
+die Vergangenheit — the past
+die Gegenwart — the present
+die Schulzeit — school days
+die Zukunft — the future
+das Erlebnis — experience / event  (pl. die Erlebnisse)
+die Erinnerung — memory  (pl. die Erinnerungen)
+das Gefühl — feeling  (pl. die Gefühle)
+der Geruch — smell  (pl. die Gerüche)
+wecken — to wake (someone) up; to evoke  (weckt, hat geweckt)
+die Realität — reality  (pl. die Realitäten)
+verbinden — to connect / to link  (verbindet, hat verbunden)
+bestätigen — to confirm  (bestätigt, hat bestätigt)
+sich hinsetzen — to sit down  (setzt sich hin, hat sich hingesetzt)
+wach — awake
+auffressen — to eat up / to devour  (frisst auf, hat aufgefressen)
+jedes Mal — every time
+die Fantasie — imagination  (pl. die Fantasien)
+das Zeichen — sign / signal  (pl. die Zeichen)
+schütteln — to shake  (schüttelt, hat geschüttelt)
+täglich — daily
+der Korridor — corridor  (pl. die Korridore)
+die Biologie — biology
+der Ärger — anger; trouble
+voll — full
+die Glocke — bell  (pl. die Glocken)
+der Stempel — stamp (rubber)  (pl. die Stempel)
+der Direktor — director / headmaster  (pl. die Direktoren)
+
+===== B1 – Chapter 2 =====
+ernst nehmen — to take seriously
+der Kulturkreis — cultural sphere  (pl. die Kulturkreise)
+der Kreis — circle  (pl. die Kreise)
+der Pinguin — penguin  (pl. die Pinguine)
+der Zweifel — doubt  (pl. die Zweifel)
+das WC — toilet / WC  (pl. die WCs)
+der Rand — edge / margin  (pl. die Ränder)
+bewundern — to admire  (bewundert, hat bewundert)
+das Geheimnis — secret  (pl. die Geheimnisse)
+der Freundeskreis — circle of friends  (pl. die Freundeskreise)
+die Verbundenheit — connection / bond  (pl. die Verbundenheiten)
+der Typ — type; guy (colloquial)  (pl. die Typen)
+die Entscheidung — decision  (pl. die Entscheidungen)
+die Bekannte — acquaintance (female)  (pl. die Bekannten)
+die Clique — clique / group of friends  (pl. die Cliquen)
+die Freundschaft — friendship  (pl. die Freundschaften)
+die Beziehung — relationship  (pl. die Beziehungen)
+das Vertrauen — trust
+die Liebe — love
+halt — just / simply (filler particle)
+darum — that's why / therefore
+daher — hence / therefore
+deswegen — because of that / that's why
+mitten — in the middle (of)
+sich ergänzen — to complement each other  (ergänzt sich, hat sich ergänzt)
+intensiv — intensive / intense
+die Wahrheit — truth  (pl. die Wahrheiten)
+umsonst — free (of charge); in vain
+virtuell — virtual
+dauernd — constantly
+eng — narrow / tight; close
+spüren — to feel / to sense  (spürt, hat gespürt)
+
+===== B1 – Chapter 3 =====
+umgehen — to deal with / to handle  (geht um, ist umgegangen)
+der Tourismus — tourism
+der Notfall — emergency  (pl. die Notfälle)
+teamfähig — able to work in a team
+zuverlässig — reliable
+fleißig — hard-working / diligent
+gut organisiert — well organised
+kommunikativ — communicative
+pünktlich — punctual / on time
+hilfsbereit — helpful
+offen — open(-minded)
+gründlich — thorough
+aufmerksam — attentive
+geduldig — patient
+kreativ — creative
+die Neuorientierung — reorientation / new direction  (pl. die Neuorientierungen)
+die Stärke — strength  (pl. die Stärken)
+das Selbstvertrauen — self-confidence
+stoßen — to bump into / to push  (stößt, ist gestoßen)
+eher — rather
+schrecklich — terrible / horrible
+das Video — video  (pl. die Videos)
+die Decke — ceiling; blanket  (pl. die Decken)
+nass — wet
+die Fähigkeit — ability / skill  (pl. die Fähigkeiten)
+seitdem — since then
+der Zuhörer — listener  (pl. die Zuhörer)
+rechnen — to calculate; to reckon  (rechnet, hat gerechnet)
+vertrauen — to trust  (vertraut, hat vertraut)
+die Neuigkeit — news (piece of)  (pl. die Neuigkeiten)
+parallel — in parallel
+technisch — technical
+der Zusammenhang — context / connection  (pl. die Zusammenhänge)
+
+===== B1 – Chapter 4 =====
+öfter — more often
+einen Vorsatz haben — to have a resolution / intention
+eine Gewohnheit haben — to have a habit
+sich an etwas gewöhnen — to get used to something  (gewöhnt sich, hat sich gewöhnt)
+etwas wiederholen — to repeat something  (wiederholt, hat wiederholt)
+das Verhalten ändern — to change behaviour
+sich anstrengen — to make an effort  (strengt sich an, hat sich angestrengt)
+Ausdauer haben — to have stamina / perseverance
+genügen — to be enough / to suffice  (genügt, hat genügt)
+tatsächlich — actually / indeed
+die Änderung — change  (pl. die Änderungen)
+die Software — software  (pl. die Softwares)
+die Energie — energy  (pl. die Energien)
+die Forschung — research  (pl. die Forschungen)
+der Durchschnitt — average  (pl. die Durchschnitte)
+nötig — necessary
+automatisch — automatic(ally)
+blind — blind
+die Zange — pliers / tongs  (pl. die Zangen)
+die Pfanne — pan (frying pan)  (pl. die Pfannen)
+das Vitamin — vitamin  (pl. die Vitamine)
+die Aussage — statement  (pl. die Aussagen)
+testen — to test  (testet, hat getestet)
+die Studie — study (research)  (pl. die Studien)
+der Teilnehmer — participant  (pl. die Teilnehmer)
+das E-Bike — e-bike  (pl. die E-Bikes)
+das Fahrradschloss — bike lock  (pl. die Fahrradschlösser)
+abschließen — to lock; to complete  (schließt ab, hat abgeschlossen)
+der Rekord — record  (pl. die Rekorde)
+der Bürger — citizen  (pl. die Bürger)
+die Gemeinde — municipality / community  (pl. die Gemeinden)
+folgend — following
+
+===== B1 – Chapter 5 =====
+die Einrichtung — facility / institution; furnishings  (pl. die Einrichtungen)
+die Gemeinschaft — community  (pl. die Gemeinschaften)
+die Versammlung — meeting / assembly  (pl. die Versammlungen)
+die Fortbildung — further training  (pl. die Fortbildungen)
+alternativ — alternative
+biologisch — organic; biological
+besetzt — occupied / taken; busy (phone)
+der Fahrplan — timetable  (pl. die Fahrpläne)
+die Ankunft — arrival  (pl. die Ankünfte)
+die Unterkunft — accommodation  (pl. die Unterkünfte)
+die Vorstellung — performance (show); idea  (pl. die Vorstellungen)
+der Besuch — visit; visitors  (pl. die Besuche)
+der Dorfladen — village shop  (pl. die Dorfläden)
+die Gemeinschaftsküche — shared kitchen  (pl. die Gemeinschaftsküchen)
+die Landwirtschaft — agriculture
+der Schlafsaal — dormitory  (pl. die Schlafsäle)
+der Versammlungsraum — meeting room  (pl. die Versammlungsräume)
+der Waldkindergarten — forest kindergarten  (pl. die Waldkindergärten)
+die Waschküche — laundry room  (pl. die Waschküchen)
+aufwachsen — to grow up  (wächst auf, ist aufgewachsen)
+der Babysitter — babysitter  (pl. die Babysitter)
+die Diskussion — discussion  (pl. die Diskussionen)
+finanziell — financial
+das Missverständnis — misunderstanding  (pl. die Missverständnisse)
+die Rücksicht — consideration (for others)
+der Löwe — lion  (pl. die Löwen)
+das Schwein — pig  (pl. die Schweine)
+der Hase — hare / rabbit  (pl. die Hasen)
+der Affe — monkey  (pl. die Affen)
+der Goldfisch — goldfish  (pl. die Goldfische)
+die Ente — duck  (pl. die Enten)
+die Fliege — fly  (pl. die Fliegen)
+die Giraffe — giraffe  (pl. die Giraffen)
+die Mücke — mosquito  (pl. die Mücken)
+das Krokodil — crocodile  (pl. die Krokodile)
+die Schildkröte — turtle / tortoise  (pl. die Schildkröten)
+der Rest — rest / remainder  (pl. die Reste)
+sich ausruhen — to rest  (ruht sich aus, hat sich ausgeruht)
+schreien — to scream / to shout  (schreit, hat geschrien)
+
+===== B1 – Chapter 6 =====
+live — live
+zuschauen — to watch  (schaut zu, hat zugeschaut)
+aufgeregt — excited / nervous
+der Mut — courage
+freiberuflich arbeiten — to work freelance
+als Freelancer arbeiten — to work as a freelancer
+etwas Neues wagen — to dare something new
+einen Traum verwirklichen — to make a dream come true
+fest angestellt sein — to be permanently employed
+ein Risiko eingehen — to take a risk
+Erfahrungen sammeln — to gain experience
+eine Idee umsetzen — to implement an idea
+ein Projekt planen — to plan a project
+einen Auftrag bekommen — to get a commission / contract
+die Wissenschaft — science  (pl. die Wissenschaften)
+voneinander — from each other
+obwohl — although
+begegnen — to meet / to encounter  (begegnet, ist begegnet)
+die Hauptstadt — capital city  (pl. die Hauptstädte)
+aufgeben — to give up  (gibt auf, hat aufgegeben)
+abhängig — dependent
+unabhängig — independent
+zuständig sein — to be responsible (for)
+die Sicherheit — security / safety  (pl. die Sicherheiten)
+unerträglich — unbearable
+die Vorschrift — regulation / rule  (pl. die Vorschriften)
+das Gefängnis — prison  (pl. die Gefängnisse)
+bewerten — to rate / to evaluate  (bewertet, hat bewertet)
+
+===== B1 – Chapter 7 =====
+beunruhigt sein — to be worried
+der Kontinent — continent  (pl. die Kontinente)
+die Erholung — recovery / rest / relaxation
+verreisen — to go away (travel)  (verreist, ist verreist)
+locker sehen — to take it easy / be relaxed about it
+die Reaktion — reaction  (pl. die Reaktionen)
+die Sehenswürdigkeit — sight / tourist attraction  (pl. die Sehenswürdigkeiten)
+der Reiseführer — travel guide (book or person)  (pl. die Reiseführer)
+die Übernachtung — overnight stay  (pl. die Übernachtungen)
+die Unterkunft — accommodation  (pl. die Unterkünfte)
+das Souvenir — souvenir  (pl. die Souvenirs)
+der Tourist — tourist  (pl. die Touristen)
+das Abenteuer — adventure  (pl. die Abenteuer)
+die Reisebegleitung — travel companion  (pl. die Reisebegleitungen)
+und zwar — namely / specifically
+später — later
+erwachsen — grown-up / adult
+der Fakt — fact  (pl. die Fakten)
+der Bericht — report  (pl. die Berichte)
+einfallen — to occur to / to come to mind  (fällt ein, ist eingefallen)
+sich wohlfühlen — to feel comfortable / at ease  (fühlt sich wohl, hat sich wohlgefühlt)
+südlich — southern / south of
+entfernt — away / distant
+wahnsinnig — incredibly; insane
+zentral — central
+enttäuschend — disappointing
+klicken — to click  (klickt, hat geklickt)
+die Lage — location; situation  (pl. die Lagen)
+der Verlag — publisher  (pl. die Verlage)
+das Leder — leather  (pl. die Leder)
+gebraucht — used / second-hand
+
+===== B1 – Chapter 8 =====
+handeln — to act; to trade  (handelt, hat gehandelt)
+die Ansicht — view / opinion  (pl. die Ansichten)
+klug — clever / wise
+gescheit — clever / smart
+töten — to kill  (tötet, hat getötet)
+das Jahrzehnt — decade  (pl. die Jahrzehnte)
+das System — system  (pl. die Systeme)
+die Vorbereitung — preparation  (pl. die Vorbereitungen)
+der Bürger — citizen  (pl. die Bürger)
+die Gesellschaft — society; company  (pl. die Gesellschaften)
+sozial — social
+auffordern — to call on / to urge  (fordert auf, hat aufgefordert)
+die Rede — speech  (pl. die Reden)
+das Gesetz — law  (pl. die Gesetze)
+die Politik — politics / policy
+der Staat — state  (pl. die Staaten)
+der Aktivist — activist  (pl. die Aktivisten)
+die Pflicht — duty / obligation  (pl. die Pflichten)
+ökologisch — ecological
+die Gebrauchsanweisung — instructions for use  (pl. die Gebrauchsanweisungen)
+völlig — completely
+unterbrechen — to interrupt  (unterbricht, hat unterbrochen)
+das Abitur — A-levels / high school diploma  (pl. die Abiture)
+der Bürgermeister — mayor  (pl. die Bürgermeister)
+
+===== B1 – Chapter 9 =====
+die Form — form / shape  (pl. die Formen)
+der Fortschritt — progress  (pl. die Fortschritte)
+ausreichen — to be sufficient  (reicht aus, hat ausgereicht)
+der Aufenthalt — stay  (pl. die Aufenthalte)
+möglichst — as ... as possible
+anmelden — to register / to sign up  (meldet an, hat angemeldet)
+der Dialekt — dialect  (pl. die Dialekte)
+die Schwierigkeit — difficulty  (pl. die Schwierigkeiten)
+doppelt — double / twice
+der Stil — style  (pl. die Stile)
+mündlich — oral / spoken
+schriftlich — written
+stolz — proud
+das Verständnis — understanding
+lügen — to lie (tell lies)  (lügt, hat gelogen)
+die Herausforderung — challenge  (pl. die Herausforderungen)
+der Abschluss — degree / qualification; conclusion  (pl. die Abschlüsse)
+der Bericht — report  (pl. die Berichte)
+das Fach — subject (school)  (pl. die Fächer)
+die Prüfung — exam  (pl. die Prüfungen)
+das Semester — semester  (pl. die Semester)
+das Seminar — seminar  (pl. die Seminare)
+die Studiengebühr — tuition fee  (pl. die Studiengebühren)
+die Vorlesung — lecture  (pl. die Vorlesungen)
+das Zertifikat — certificate  (pl. die Zertifikate)
+der Teil — part  (pl. die Teile)
+interkulturell — intercultural
+gewohnt — used to / accustomed
+ungewohnt — unfamiliar / unusual
+abgeben — to hand in  (gibt ab, hat abgegeben)
+sich wenden an — to turn to / to contact  (wendet sich an, hat sich gewandt)
+voraussichtlich — expected / probably
+die Bestätigung — confirmation  (pl. die Bestätigungen)
+berichten — to report  (berichtet, hat berichtet)
+
+===== B1 – Chapter 10 =====
+die Tätigkeit — activity / occupation  (pl. die Tätigkeiten)
+sinnvoll — meaningful / sensible
+steil — steep
+die Arbeitsstelle — job / workplace  (pl. die Arbeitsstellen)
+die Kündigung — resignation / dismissal; cancellation  (pl. die Kündigungen)
+die Mitbestimmung — co-determination / say in decisions
+das Einkommen — income  (pl. die Einkommen)
+die Karriere — career  (pl. die Karrieren)
+die Berufserfahrung — work experience  (pl. die Berufserfahrungen)
+die Verantwortung — responsibility  (pl. die Verantwortungen)
+die Weiterbildung — further education / training  (pl. die Weiterbildungen)
+die Herausforderung — challenge  (pl. die Herausforderungen)
+die Kritik — criticism  (pl. die Kritiken)
+das Feedback — feedback  (pl. die Feedbacks)
+deprimiert — depressed
+kritisieren — to criticise  (kritisiert, hat kritisiert)
+die Aushilfe — temporary help / temp  (pl. die Aushilfen)
+jobben — to do casual jobs  (jobbt, hat gejobbt)
+neulich — recently / the other day
+jedenfalls — in any case / anyway
+allmählich — gradually
+der Sprachkurs — language course  (pl. die Sprachkurse)
+die Überschrift — heading / headline  (pl. die Überschriften)
+der Faktor — factor  (pl. die Faktoren)
+das Detail — detail  (pl. die Details)
+die Rückmeldung — feedback / response  (pl. die Rückmeldungen)
+die Sitzung — meeting / session  (pl. die Sitzungen)
+die Statistik — statistics  (pl. die Statistiken)
+der Inhalt — content(s)  (pl. die Inhalte)
+männlich — male
+weiblich — female
+allerdings — however
+
+===== B1 – Chapter 11 =====
+abonnieren — to subscribe  (abonniert, hat abonniert)
+speichern — to save / to store  (speichert, hat gespeichert)
+herstellen — to produce / to manufacture  (stellt her, hat hergestellt)
+der Rabatt — discount  (pl. die Rabatte)
+zuletzt — last / finally
+sich verstecken — to hide  (versteckt sich, hat sich versteckt)
+der Sack — sack  (pl. die Säcke)
+flach — flat
+dünn — thin
+dick — thick; fat
+leicht — light (weight)
+schwer — heavy
+glatt — smooth
+rau — rough
+stabil — sturdy / stable
+empfindlich — sensitive / delicate
+zerbrechlich — fragile
+rund — round
+eckig — angular / square
+spitz — pointed / sharp
+trocken — dry
+feucht — damp / moist
+nass — wet
+weich — soft
+hart — hard
+die Einleitung — introduction  (pl. die Einleitungen)
+verschmutzen — to pollute  (verschmutzt, hat verschmutzt)
+verbrauchen — to consume / to use up  (verbraucht, hat verbraucht)
+extrem — extreme(ly)
+die Droge — drug  (pl. die Drogen)
+sich eignen — to be suitable  (eignet sich, hat sich geeignet)
+entstehen — to arise / to come into being  (entsteht, ist entstanden)
+der Kaffeebecher — coffee cup (to-go)  (pl. die Kaffeebecher)
+der Vergleich — comparison  (pl. die Vergleiche)
+giftig — poisonous / toxic
+die Geldbörse — wallet / purse  (pl. die Geldbörsen)
+der Verbraucher — consumer  (pl. die Verbraucher)
+recyceln — to recycle  (recycelt, hat recycelt)
+der Strom — electricity; stream  (pl. die Ströme)
+
+===== B1 – Chapter 12 =====
+künstlich — artificial
+streng — strict; strong (smell)
+enttäuscht — disappointed
+das Gericht — dish (food); court (law)  (pl. die Gerichte)
+die Zutat — ingredient  (pl. die Zutaten)
+die Bohne — bean  (pl. die Bohnen)
+das Mehl — flour  (pl. die Mehle)
+der Joghurt — yoghurt  (pl. die Joghurts)
+das Hühnchen — chicken  (pl. die Hühnchen)
+die Zwiebel — onion  (pl. die Zwiebeln)
+aufwärmen — to warm up / to reheat  (wärmt auf, hat aufgewärmt)
+braten — to fry / to roast  (brät, hat gebraten)
+hacken — to chop  (hackt, hat gehackt)
+reiben — to grate; to rub  (reibt, hat gerieben)
+roh zubereiten — to prepare raw
+schälen — to peel  (schält, hat geschält)
+stecken — to put / to stick (into)  (steckt, hat gesteckt)
+der Trend — trend  (pl. die Trends)
+das Aussehen — appearance / looks
+die Seite — page; side  (pl. die Seiten)
+die Botschaft — message; embassy  (pl. die Botschaften)
+hungrig sein — to be hungry
+der Senf — mustard  (pl. die Senfe)
+übersetzen — to translate  (übersetzt, hat übersetzt)
+gewöhnlich — usual / ordinary
+normalerweise — normally / usually
+
+===== B1 – Chapter 13 =====
+das Vorurteil — prejudice  (pl. die Vorurteile)
+der Dreck — dirt
+angeblich — supposedly / allegedly
+der Feind — enemy  (pl. die Feinde)
+füttern — to feed  (füttert, hat gefüttert)
+jahrelang — for years
+sich nähern — to approach  (nähert sich, hat sich genähert)
+übertragen — to transmit (disease); to broadcast  (überträgt, hat übertragen)
+der Meister — master; champion  (pl. die Meister)
+weder ... noch — neither ... nor
+die Geschwindigkeit — speed  (pl. die Geschwindigkeiten)
+das Nest — nest  (pl. die Nester)
+selbstverständlich — of course / self-evident
+der Zweck — purpose  (pl. die Zwecke)
+der Versuch — attempt; experiment  (pl. die Versuche)
+das Muster — pattern; sample  (pl. die Muster)
+das Wunder — miracle / wonder  (pl. die Wunder)
+lebenslang — lifelong
+das Verhältnis — relationship; ratio  (pl. die Verhältnisse)
+der Nachwuchs — offspring; young talent
+sowohl ... als auch — both ... and
+die Entfernung — distance  (pl. die Entfernungen)
+merken — to notice; to remember  (merkt, hat gemerkt)
+unterscheiden — to distinguish  (unterscheidet, hat unterschieden)
+nützlich — useful
+dumm — stupid
+faul — lazy
+frech — cheeky / rude
+wild — wild
+die Taube — pigeon / dove  (pl. die Tauben)
+die Ratte — rat  (pl. die Ratten)
+die Spinne — spider  (pl. die Spinnen)
+die Eule — owl  (pl. die Eulen)
+der Tiger — tiger  (pl. die Tiger)
+der Delfin — dolphin  (pl. die Delfine)
+der Tintenfisch — octopus / squid  (pl. die Tintenfische)
+die Ziege — goat  (pl. die Ziegen)
+der Hirsch — deer / stag  (pl. die Hirsche)
+der Fuchs — fox  (pl. die Füchse)
+
+===== B1 – Chapter 14 =====
+das Geschlecht — gender / sex  (pl. die Geschlechter)
+divers — diverse; non-binary (gender option)
+akzeptieren — to accept  (akzeptiert, hat akzeptiert)
+sich bewerben — to apply (for a job)  (bewirbt sich, hat sich beworben)
+unheimlich — scary / eerie; incredibly
+das Anschreiben — cover letter  (pl. die Anschreiben)
+das Bewerbungsschreiben — letter of application  (pl. die Bewerbungsschreiben)
+die Probezeit — probation period  (pl. die Probezeiten)
+die Stellenanzeige — job advertisement  (pl. die Stellenanzeigen)
+das Vorstellungsgespräch — job interview  (pl. die Vorstellungsgespräche)
+die Recherche — research  (pl. die Recherchen)
+die Unterlage — document  (pl. die Unterlagen)
+der tabellarische Lebenslauf — CV in table form  (pl. die tabellarischen Lebensläufe)
+die Zusage — acceptance / commitment  (pl. die Zusagen)
+die Absage — rejection / cancellation  (pl. die Absagen)
+das Verfahren — procedure / process  (pl. die Verfahren)
+allgemein — general
+abhängen — to depend (on)  (hängt ab, hat abgehangen)
+die Funktion — function  (pl. die Funktionen)
+geeignet — suitable
+hinweisen — to point out / to indicate  (weist hin, hat hingewiesen)
+die Nachfrage — inquiry; demand  (pl. die Nachfragen)
+abfragen — to query / to test (knowledge)  (fragt ab, hat abgefragt)
+die Qualifikation — qualification  (pl. die Qualifikationen)
+derselbe — the same (one)
+kämpfen — to fight / to struggle  (kämpft, hat gekämpft)
+der Dialog — dialogue  (pl. die Dialoge)
+erwarten — to expect  (erwartet, hat erwartet)
+die Struktur — structure  (pl. die Strukturen)
+die Methode — method  (pl. die Methoden)
+prüfen — to check / to examine  (prüft, hat geprüft)
+anwenden — to apply / to use  (wendet an, hat angewandt)
+die Atmosphäre — atmosphere  (pl. die Atmosphären)
+der Eindruck — impression  (pl. die Eindrücke)
+das Drehbuch — screenplay / script  (pl. die Drehbücher)
+drehen — to film / to shoot; to turn  (dreht, hat gedreht)
+wirken — to seem / to appear; to have an effect  (wirkt, hat gewirkt)
+entwickeln — to develop  (entwickelt, hat entwickelt)
+sich einbringen — to contribute / to get involved  (bringt sich ein, hat sich eingebracht)
+sich beschäftigen — to occupy oneself / to deal with  (beschäftigt sich, hat sich beschäftigt)
+
+===== B1 – Chapter 15 =====
+merkwürdig — strange / peculiar
+der Titel — title  (pl. die Titel)
+körperlich — physical
+humorvoll — humorous
+sich duschen — to take a shower  (duscht sich, hat sich geduscht)
+die Darstellung — portrayal / depiction  (pl. die Darstellungen)
+der Darsteller — actor / performer  (pl. die Darsteller)
+der Gedanke — thought  (pl. die Gedanken)
+die Begründung — reason / justification  (pl. die Begründungen)
+die Entwicklung — development  (pl. die Entwicklungen)
+die Intelligenz — intelligence
+die Krise — crisis  (pl. die Krisen)
+weinen — to cry  (weint, hat geweint)
+der Krieg — war  (pl. die Kriege)
+jedoch — however
+das Herzklopfen — heart pounding / palpitations
+klopfen — to knock; to beat (heart)  (klopft, hat geklopft)
+der Zorn — rage / wrath
+weise — wise
+sich bemühen — to make an effort / to try hard  (bemüht sich, hat sich bemüht)
+beeindrucken — to impress  (beeindruckt, hat beeindruckt)
+daten — to date (someone)  (datet, hat gedatet)
+flirten — to flirt  (flirtet, hat geflirtet)
+sich in jemanden verlieben — to fall in love with someone
+Sehnsucht haben — to long for / to yearn
+sich umarmen — to hug (each other)  (umarmt sich, hat sich umarmt)
+sich küssen — to kiss (each other)  (küsst sich, hat sich geküsst)
+sich lieb haben — to love each other (fondly)
+jemanden glücklich machen — to make someone happy
+lieben — to love  (liebt, hat geliebt)
+der Lebenspartner — life partner  (pl. die Lebenspartner)
+die Liebesbeziehung — romantic relationship  (pl. die Liebesbeziehungen)
+die Liebesgeschichte — love story  (pl. die Liebesgeschichten)
+
+===== B1 – Chapter 16 =====
+die Vorwahl — area / dialling code  (pl. die Vorwahlen)
+sperren — to block / to lock  (sperrt, hat gesperrt)
+die Beratung — advice / consultation  (pl. die Beratungen)
+abheben — to withdraw (money); to pick up (phone)  (hebt ab, hat abgehoben)
+der Wert — value  (pl. die Werte)
+das Bargeld — cash
+der Geldschein — banknote  (pl. die Geldscheine)
+die Banknote — banknote  (pl. die Banknoten)
+der Geldautomat — ATM / cash machine  (pl. die Geldautomaten)
+der Schalter — counter; switch  (pl. die Schalter)
+das Konto — (bank) account  (pl. die Konten)
+die Banküberweisung — bank transfer  (pl. die Banküberweisungen)
+die Zinsen — interest (on money)  (pl. die Zinsen)
+der Kredit — loan / credit  (pl. die Kredite)
+die Schulden — debts  (pl. die Schulden)
+je ... umso — the more ... the more
+das Gebiet — area / region / field  (pl. die Gebiete)
+grundsätzlich — basically / in principle
+entweder ... oder — either ... or
+nachfragen — to ask / to inquire  (fragt nach, hat nachgefragt)
+der Hinweis — hint / note / tip  (pl. die Hinweise)
+je ... desto — the more ... the more
+sich melden — to get in touch; to report  (meldet sich, hat sich gemeldet)
+angestellt sein — to be employed
+der Schaden — damage  (pl. die Schäden)
+verursachen — to cause  (verursacht, hat verursacht)
+sogenannt — so-called
+finanzieren — to finance  (finanziert, hat finanziert)
+der Vermieter — landlord  (pl. die Vermieter)
+die Absicht — intention  (pl. die Absichten)
+beschädigen — to damage  (beschädigt, hat beschädigt)
+jeweils — each / respectively
+wertvoll — valuable
+abstellen — to park / to put down; to turn off  (stellt ab, hat abgestellt)
+der Lärm — noise
+die Cafeteria — cafeteria  (pl. die Cafeterias)
+dankbar — grateful
+soviel — as far as / as much as
+sich erkundigen — to inquire  (erkundigt sich, hat sich erkundigt)
+
+===== B1 – Chapter 17 =====
+das Werk — work (of art); plant / factory  (pl. die Werke)
+erstellen — to create / to draw up  (erstellt, hat erstellt)
+politisch — political
+die Katastrophe — catastrophe / disaster  (pl. die Katastrophen)
+farbig — colourful / coloured
+meinetwegen — for all I care / fine by me
+fantasievoll — imaginative
+gelungen — successful / well done
+ausgezeichnet — excellent
+der Bereich — area / field  (pl. die Bereiche)
+demokratisch — democratic
+die Galerie — gallery  (pl. die Galerien)
+die Öffentlichkeit — the public
+indem — by (doing)
+die Verwaltung — administration  (pl. die Verwaltungen)
+die Fläche — surface / area  (pl. die Flächen)
+legal — legal
+vegetarisch — vegetarian
+das Benzin — petrol / gasoline  (pl. die Benzine)
+der Anwalt — lawyer  (pl. die Anwälte)
+die Flöte — flute  (pl. die Flöten)
+der Misserfolg — failure  (pl. die Misserfolge)
+das Misstrauen — mistrust / distrust
+missverstehen — to misunderstand  (missversteht, hat missverstanden)
+die Frucht — fruit  (pl. die Früchte)
+das Gebäck — pastries / baked goods  (pl. die Gebäcke)
+das Süßgebäck — sweet pastries  (pl. die Süßgebäcke)
+überprüfen — to check / to verify  (überprüft, hat überprüft)
+die Aufnahme — recording; admission  (pl. die Aufnahmen)
+das Publikum — audience
+der Maler — painter  (pl. die Maler)
+die Fotografie — photography; photograph  (pl. die Fotografien)
+die Zeichnung — drawing  (pl. die Zeichnungen)
+die Grafik — graphic / chart  (pl. die Grafiken)
+
+===== B1 – Chapter 18 =====
+medizinisch — medical
+die Station — ward (hospital); station  (pl. die Stationen)
+der Notarzt — emergency doctor  (pl. die Notärzte)
+die Notaufnahme — emergency room  (pl. die Notaufnahmen)
+der Krankenwagen — ambulance  (pl. die Krankenwagen)
+die Angehörigen — relatives / next of kin  (pl. die Angehörigen)
+die Therapie — therapy  (pl. die Therapien)
+die Behandlung — treatment  (pl. die Behandlungen)
+die Verletzung — injury  (pl. die Verletzungen)
+das Schmerzmittel — painkiller  (pl. die Schmerzmittel)
+die Sprechstunde — office / consultation hours  (pl. die Sprechstunden)
+der OP-Saal — operating theatre  (pl. die OP-Säle)
+der Operationssaal — operating theatre  (pl. die Operationssäle)
+behandeln — to treat  (behandelt, hat behandelt)
+der Respekt — respect
+leiden — to suffer  (leidet, hat gelitten)
+zukünftig — future
+theoretisch — theoretically
+zusammenfassen — to summarise  (fasst zusammen, hat zusammengefasst)
+zusammenfassend — in summary
+verschreiben — to prescribe  (verschreibt, hat verschrieben)
+die Wunde — wound  (pl. die Wunden)
+versorgen — to take care of / to dress (a wound); to supply  (versorgt, hat versorgt)
+der Verband — bandage; association  (pl. die Verbände)
+begleiten — to accompany  (begleitet, hat begleitet)
+erkältet sein — to have a cold
+das Rezept — prescription; recipe  (pl. die Rezepte)
+die Tropfen — drops  (pl. die Tropfen)
+die Arztpraxis — doctor's practice  (pl. die Arztpraxen)
+die Grippe — flu  (pl. die Grippen)
+impfen — to vaccinate  (impft, hat geimpft)
+rennen — to run  (rennt, ist gerannt)
+
+===== B1 – Chapter 19 =====
+der Metzger — butcher  (pl. die Metzger)
+die Metzgerei — butcher's shop  (pl. die Metzgereien)
+die Lehre — apprenticeship  (pl. die Lehren)
+renovieren — to renovate  (renoviert, hat renoviert)
+die Behörde — authority / government office  (pl. die Behörden)
+der Antrag — application (official)  (pl. die Anträge)
+genehmigen — to approve / to authorise  (genehmigt, hat genehmigt)
+die Frist — deadline  (pl. die Fristen)
+versäumen — to miss  (versäumt, hat versäumt)
+verlängern — to extend / to renew  (verlängert, hat verlängert)
+der Bescheid — notification / official decision  (pl. die Bescheide)
+erhalten — to receive  (erhält, hat erhalten)
+fliehen — to flee  (flieht, ist geflohen)
+das Asyl — asylum  (pl. die Asyle)
+die Arbeitserlaubnis — work permit  (pl. die Arbeitserlaubnisse)
+offiziell — official
+notwendig — necessary
+das Dokument — document  (pl. die Dokumente)
+die Papiere — papers / documents  (pl. die Papiere)
+beweisen — to prove  (beweist, hat bewiesen)
+zusätzlich — additional(ly)
+das Stipendium — scholarship  (pl. die Stipendien)
+ausländisch — foreign
+sich entschließen — to decide / to make up one's mind  (entschließt sich, hat sich entschlossen)
+die Berufsschule — vocational school  (pl. die Berufsschulen)
+unterrichten — to teach  (unterrichtet, hat unterrichtet)
+die Kopie — copy  (pl. die Kopien)
+ausstellen — to issue (a document); to exhibit  (stellt aus, hat ausgestellt)
+die Theorie — theory  (pl. die Theorien)
+je nach — depending on
+wöchentlich — weekly
+jährlich — yearly / annually
+monatlich — monthly
+gratis — free (of charge)
+durchschnittlich — average / on average
+vergleichen — to compare  (vergleicht, hat verglichen)
+der Gegensatz — contrast / opposite  (pl. die Gegensätze)
+staatlich — state / public (government)
+
+===== B1 – Chapter 20 =====
+die Temperatur — temperature  (pl. die Temperaturen)
+sich verschlechtern — to get worse / to deteriorate  (verschlechtert sich, hat sich verschlechtert)
+der Ausdruck — expression; printout  (pl. die Ausdrücke)
+analysieren — to analyse  (analysiert, hat analysiert)
+annehmen — to assume; to accept  (nimmt an, hat angenommen)
+vermuten — to suspect / to presume  (vermutet, hat vermutet)
+behaupten — to claim / to assert  (behauptet, hat behauptet)
+diskutieren — to discuss  (diskutiert, hat diskutiert)
+korrigieren — to correct  (korrigiert, hat korrigiert)
+warnen — to warn  (warnt, hat gewarnt)
+wiederholen — to repeat  (wiederholt, hat wiederholt)
+zweifeln — to doubt  (zweifelt, hat gezweifelt)
+der Wissenschaftler — scientist  (pl. die Wissenschaftler)
+beeinflussen — to influence  (beeinflusst, hat beeinflusst)
+die Überzeugung — conviction / belief  (pl. die Überzeugungen)
+die Meldung — report / news item  (pl. die Meldungen)
+verwechseln — to confuse / to mix up  (verwechselt, hat verwechselt)
+der Kampf — fight / struggle  (pl. die Kämpfe)
+fördern — to promote / to support  (fördert, hat gefördert)
+die Wirklichkeit — reality  (pl. die Wirklichkeiten)
+die Presse — the press
+die Lüge — lie  (pl. die Lügen)
+aufwachen — to wake up  (wacht auf, ist aufgewacht)
+der Terminkalender — appointment calendar / diary  (pl. die Terminkalender)
+sich schminken — to put on make-up  (schminkt sich, hat sich geschminkt)
+sich rasieren — to shave  (rasiert sich, hat sich rasiert)
+verschwinden — to disappear  (verschwindet, ist verschwunden)
+ebenfalls — likewise / also
+löschen — to delete; to extinguish  (löscht, hat gelöscht)
+das Gebäude — building  (pl. die Gebäude)
+erscheinen — to appear; to be published  (erscheint, ist erschienen)
+die Tatsache — fact  (pl. die Tatsachen)
+
+===== B1 – Chapter 21 =====
+der Stundenplan — timetable (school)  (pl. die Stundenpläne)
+eindeutig — clear / unambiguous
+die Geographie — geography
+die Geschichte — history  (pl. die Geschichten)
+die Sozialkunde — social studies
+Latein — Latin
+die Physik — physics
+die Chemie — chemistry
+die Philosophie — philosophy  (pl. die Philosophien)
+die Handarbeit — handicrafts / needlework  (pl. die Handarbeiten)
+das Werken — crafts / woodwork (school subject)
+fordern — to demand  (fordert, hat gefordert)
+mittlerweile — meanwhile / by now
+die Erziehung — upbringing / education  (pl. die Erziehungen)
+dekorieren — to decorate  (dekoriert, hat dekoriert)
+der Aufsatz — essay  (pl. die Aufsätze)
+das Diktat — dictation  (pl. die Diktate)
+die Ausstattung — equipment / furnishings  (pl. die Ausstattungen)
+die Klassenfahrt — school trip  (pl. die Klassenfahrten)
+der Jugendliche — young person / teenager  (pl. die Jugendlichen)
+gering — low / slight
+vermutlich — presumably / probably
+der Verlierer — loser  (pl. die Verlierer)
+einerseits ... andererseits — on the one hand ... on the other hand
+die Konkurrenz — competition  (pl. die Konkurrenzen)
+die Zerstörung — destruction  (pl. die Zerstörungen)
+traditionell — traditional
+die Kontrolle — control / check  (pl. die Kontrollen)
+konservativ — conservative
+die Krippe — crèche / nursery (for babies)  (pl. die Krippen)
+die Kita — daycare / nursery (abbr.)  (pl. die Kitas)
+die Kindertagesstätte — daycare centre  (pl. die Kindertagesstätten)
+die Hauptschule — secondary school (basic track)  (pl. die Hauptschulen)
+die Mittelschule — middle school  (pl. die Mittelschulen)
+die Realschule — secondary school (intermediate track)  (pl. die Realschulen)
+die Gesamtschule — comprehensive school  (pl. die Gesamtschulen)
+das Gymnasium — grammar school / academic high school  (pl. die Gymnasien)
+die Fachhochschule — university of applied sciences  (pl. die Fachhochschulen)
+
+===== B1 – Chapter 22 =====
+der Aktivist — activist  (pl. die Aktivisten)
+passiv — passive
+die Aufforderung — request / demand  (pl. die Aufforderungen)
+der Bundeskanzler — Federal Chancellor  (pl. die Bundeskanzler)
+das Bundesland — federal state  (pl. die Bundesländer)
+der Bundestag — German Federal Parliament  (pl. die Bundestage)
+das Parlament — parliament  (pl. die Parlamente)
+der Abgeordnete — member of parliament  (pl. die Abgeordneten)
+der Minister — minister  (pl. die Minister)
+die Wahl — election; choice  (pl. die Wahlen)
+die Regierung — government  (pl. die Regierungen)
+die Partei — political party  (pl. die Parteien)
+der Bundespräsident — Federal President  (pl. die Bundespräsidenten)
+das Gericht — court (law)  (pl. die Gerichte)
+der Richter — judge  (pl. die Richter)
+das Blatt — sheet (of paper); leaf  (pl. die Blätter)
+chronologisch — chronological
+der Beamte — civil servant / official  (pl. die Beamten)
+der Tod — death  (pl. die Tode)
+der Soldat — soldier  (pl. die Soldaten)
+der Wahlkampf — election campaign  (pl. die Wahlkämpfe)
+vertreten — to represent; to stand in for  (vertritt, hat vertreten)
+global — global
+der Kompromiss — compromise  (pl. die Kompromisse)
+der Sitz — seat  (pl. die Sitze)
+erschießen — to shoot dead  (erschießt, hat erschossen)
+bekannt geben — to announce  (gibt bekannt, hat bekannt gegeben)
+sich einsetzen für — to stand up for / to campaign for
+breit — wide / broad
+die Wirkung — effect  (pl. die Wirkungen)
+auswählen — to select / to choose  (wählt aus, hat ausgewählt)
+arm — poor
+sich etwas leisten — to afford something
+die Hoffnung — hope  (pl. die Hoffnungen)
+der Einfluss — influence  (pl. die Einflüsse)
+
+===== B1 – Chapter 23 =====
+die Art — kind / type; way / manner  (pl. die Arten)
+der Turm — tower  (pl. die Türme)
+die BRD — Federal Republic of Germany (West Germany)
+die DDR — German Democratic Republic (East Germany)
+der Ausblick — view / outlook  (pl. die Ausblicke)
+West- — West(ern) ...
+die Anlage — facility / complex; attachment  (pl. die Anlagen)
+gesamt- — entire / total ...
+dienen — to serve  (dient, hat gedient)
+das Denkmal — monument / memorial  (pl. die Denkmäler)
+die Bevölkerung — population  (pl. die Bevölkerungen)
+der Protest — protest  (pl. die Proteste)
+die Verfassung — constitution  (pl. die Verfassungen)
+die Revolution — revolution  (pl. die Revolutionen)
+der Naturschutz — nature conservation
+inner- — inner / internal ...
+die Breite — width  (pl. die Breiten)
+die Länge — length  (pl. die Längen)
+quer — across / crosswise
+betreten — to enter / to step on  (betritt, hat betreten)
+ehemalig — former
+blühen — to bloom / to blossom  (blüht, hat geblüht)
+zerstören — to destroy  (zerstört, hat zerstört)
+teilweise — partly / partially
+national — national
+das Monument — monument  (pl. die Monumente)
+der Streifen — strip / stripe  (pl. die Streifen)
+die Industrie — industry  (pl. die Industrien)
+Ur- — original / primeval ...
+sich erholen — to recover / to relax  (erholt sich, hat sich erholt)
+schützen — to protect  (schützt, hat geschützt)
+die Bedingung — condition  (pl. die Bedingungen)
+die Konsequenz — consequence  (pl. die Konsequenzen)
+der Zufall — coincidence / chance  (pl. die Zufälle)
+das Jahrhundert — century  (pl. die Jahrhunderte)
+Bescheid geben — to let (someone) know
+rechtzeitig — in time / on time
+der Einbrecher — burglar  (pl. die Einbrecher)
+verhaften — to arrest  (verhaftet, hat verhaftet)
+streiken — to go on strike  (streikt, hat gestreikt)
+tanken — to fill up (with fuel)  (tankt, hat getankt)
+der Strafzettel — (parking / speeding) ticket  (pl. die Strafzettel)
+losfahren — to set off / to drive off  (fährt los, ist losgefahren)
+der Wetterbericht — weather report  (pl. die Wetterberichte)
+der Sturm — storm  (pl. die Stürme)
+Abgemacht! — Deal! / Agreed!
+Passt! — Fine! / Works for me!
+die Verbindung — connection  (pl. die Verbindungen)
+einpacken — to pack  (packt ein, hat eingepackt)
+die Verpflegung — food / catering (provisions)
+der Campingplatz — campsite  (pl. die Campingplätze)
+die Pension — guesthouse / B&B; pension  (pl. die Pensionen)
+besorgen — to get / to buy  (besorgt, hat besorgt)
+die Küste — coast  (pl. die Küsten)
+tief — deep
+dicht — dense / thick; close
+abwechslungsreich — varied
+die Gegend — area / region  (pl. die Gegenden)
+traumhaft — dreamlike / wonderful
+das Paradies — paradise  (pl. die Paradiese)
+zahlreich — numerous
+campen — to camp  (campt, hat gecampt)
+die Fähre — ferry  (pl. die Fähren)
+
+===== B1 – Chapter 24 =====
+vergehen — to pass (time)  (vergeht, ist vergangen)
+sensibel — sensitive
+egoistisch — selfish
+einzeln — individual(ly) / single
+stehen bleiben — to stop / to stand still  (bleibt stehen, ist stehen geblieben)
+sich ereignen — to happen / to occur  (ereignet sich, hat sich ereignet)
+realistisch — realistic
+jemals — ever
+die Unterschrift — signature  (pl. die Unterschriften)
+voraussagen — to predict  (sagt voraus, hat vorausgesagt)
+die Erfindung — invention  (pl. die Erfindungen)
+befriedigend — satisfactory
+schätzen — to estimate; to appreciate  (schätzt, hat geschätzt)
+sich vornehmen — to resolve / to plan to  (nimmt sich vor, hat sich vorgenommen)
+erschöpft sein — to be exhausted
+vergnügt — cheerful / merry
+eilig haben — to be in a hurry
+sich hetzen — to rush  (hetzt sich, hat sich gehetzt)
+sich verspäten — to be late  (verspätet sich, hat sich verspätet)
+sich erholen — to relax / to recover  (erholt sich, hat sich erholt)
+sich amüsieren — to have fun / to enjoy oneself  (amüsiert sich, hat sich amüsiert)
+sich ablenken — to distract oneself  (lenkt sich ab, hat sich abgelenkt)
+der Druck — pressure  (pl. die Drücke)
+sich langweilen — to be bored  (langweilt sich, hat sich gelangweilt)
+gelassen sein — to be calm / composed
+der Werktag — working day / weekday  (pl. die Werktage)
+das Sprichwort — proverb / saying  (pl. die Sprichwörter)
+die Gerechtigkeit — justice
+der Schriftsteller — writer / author  (pl. die Schriftsteller)
+die Sekunde — second  (pl. die Sekunden)
+die Viertelstunde — quarter of an hour  (pl. die Viertelstunden)
+die Verschwendung — waste  (pl. die Verschwendungen)
+stehlen — to steal  (stiehlt, hat gestohlen)
+der Gutschein — voucher / coupon  (pl. die Gutscheine)
+die Aprikose — apricot  (pl. die Aprikosen)
+Quatsch machen — to fool around
+anzünden — to light / to set fire to  (zündet an, hat angezündet)
+das Bonbon — sweet / candy  (pl. die Bonbons)
+`;
+
     document.addEventListener('DOMContentLoaded', () => app.init());
+
+    window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); app.installPrompt = e; });
+    window.addEventListener('appinstalled', () => { app.installPrompt = null; app.renderInstallBtn(); });
 
     // Offline support + updates (only works when served over https, e.g. GitHub Pages)
     if ('serviceWorker' in navigator && location.protocol === 'https:') {
