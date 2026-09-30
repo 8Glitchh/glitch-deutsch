@@ -553,7 +553,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 11;
+    const APP_VERSION = 12;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -1056,9 +1056,7 @@
         const li = (n, html) => `<li><span class="num">${n}</span><span>${html}</span></li>`;
         const finish = n => li(n, `Open <b>glitch deutsch</b> from its new icon. In ${g('gear')} Settings, <b>Works offline</b> should show a green dot.`);
 
-        const body = this.isStandalone()
-          ? `<div class="inst-done"><div class="big">✅</div><h3>Already installed</h3><p class="muted">You're using the Home Screen app. It works offline.</p></div>`
-          : os === 'ios' ? `
+        const body = os === 'ios' ? `
             <ol class="inst-list">
               ${li(1, `Open this page in <b>Safari</b>. (Chrome on iPhone can do it too, via its ${g('share')} button.)`)}
               ${li(2, `Tap the <b>Share</b> button ${g('share')} in the bar at the bottom. On newer iPhones, tap ${g('more')} first to find it.`)}
@@ -1088,7 +1086,8 @@
           <div class="sheet-head"><h3>Add to Home Screen</h3><button class="icon-btn" data-action="close-sheet" aria-label="Close">${icon('x')}</button></div>
           <div class="sheet-body">
             <p class="inst-intro">Install glitch deutsch like a real app: its own icon, full screen, and it works without internet.</p>
-            ${this.isStandalone() ? '' : `<div class="inst-tabs"><div class="seg">
+            ${this.isStandalone() ? `<div class="inst-note" style="margin:0 0 14px">✅ You're already using the Home Screen app on this phone. These steps are here if you want to help someone else install it.</div>` : ''}
+            ${`<div class="inst-tabs"><div class="seg">
               <button class="${os === 'ios' ? 'on' : ''}" data-action="install-os" data-os="ios">iPhone / iPad</button>
               <button class="${os === 'android' ? 'on' : ''}" data-action="install-os" data-os="android">Samsung / Android</button>
             </div></div>`}
@@ -1103,8 +1102,8 @@
         this.openSheet(`
           <div class="sheet-head"><h3>Settings</h3><button class="icon-btn" data-action="close-sheet" aria-label="Close">${icon('x')}</button></div>
           <div class="sheet-body">
-            ${this.isStandalone() ? '' : `<div class="set-row"><div class="lbl"><b>Add to Home Screen</b><span>Use it like an app, even offline</span></div>
-              <button class="btn btn-sm btn-primary" data-action="install">Show me how</button></div>`}
+            <div class="set-row"><div class="lbl"><b>Add to Home Screen</b><span>${this.isStandalone() ? 'Installed ✓ — open the guide to help someone else' : 'Use it like an app, even offline'}</span></div>
+              <button class="btn btn-sm ${this.isStandalone() ? '' : 'btn-primary'}" data-action="install">${this.isStandalone() ? 'Open guide' : 'Show me how'}</button></div>
             <div class="set-row"><div class="lbl"><b>Appearance</b><span>${document.documentElement.dataset.theme === 'light' ? 'Light' : 'Dark'} mode</span></div>
               <button class="btn btn-sm" data-action="theme">${icon(document.documentElement.dataset.theme === 'light' ? 'moon' : 'sun')} Switch to ${document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'}</button></div>
             <div class="set-row"><div class="lbl"><b>Speak German automatically</b><span>Read each German word aloud on flashcards${Speech.ok ? '' : ' (not supported on this device)'}</span></div>
