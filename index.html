@@ -1,0 +1,3710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Glitch Deutsch">
+  <meta name="theme-color" content="#0c0f16">
+  <title>Glitch Deutsch</title>
+  <style>
+    :root {
+      --bg: #0c0f16;
+      --bg-2: #121722;
+      --surface: #171d2a;
+      --surface-2: #1f2737;
+      --surface-3: #2a3346;
+      --line: rgba(255,255,255,0.08);
+      --line-strong: rgba(255,255,255,0.16);
+      --text: #eef1f7;
+      --text-2: #a4adbf;
+      --text-3: #6d778b;
+
+      --accent: #ffc83d;
+      --accent-ink: #1a1405;
+      --accent-soft: rgba(255,200,61,0.14);
+
+      --ok: #34d399;
+      --ok-soft: rgba(52,211,153,0.14);
+      --bad: #f87171;
+      --bad-soft: rgba(248,113,113,0.14);
+
+      --der: #60a5fa;  --der-soft: rgba(96,165,250,0.14);
+      --die: #f472b6;  --die-soft: rgba(244,114,182,0.14);
+      --das: #4ade80;  --das-soft: rgba(74,222,128,0.14);
+
+      --r-sm: 10px;
+      --r-md: 14px;
+      --r-lg: 20px;
+      --r-xl: 28px;
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+      --ease: cubic-bezier(.2,.8,.2,1);
+      color-scheme: dark;
+    }
+    :root[data-theme="light"] {
+      --bg: #f4f5f8;
+      --bg-2: #eceef3;
+      --surface: #ffffff;
+      --surface-2: #f1f3f7;
+      --surface-3: #e3e7ee;
+      --line: rgba(15,23,42,0.08);
+      --line-strong: rgba(15,23,42,0.16);
+      --text: #111827;
+      --text-2: #4b5567;
+      --text-3: #8a93a5;
+      --accent: #e0a100;
+      --accent-ink: #1a1405;
+      --accent-soft: rgba(224,161,0,0.14);
+      --ok: #059669;  --ok-soft: rgba(5,150,105,0.12);
+      --bad: #dc2626; --bad-soft: rgba(220,38,38,0.1);
+      --der: #2563eb; --der-soft: rgba(37,99,235,0.1);
+      --die: #db2777; --die-soft: rgba(219,39,119,0.1);
+      --das: #16a34a; --das-soft: rgba(22,163,74,0.1);
+      --shadow: 0 10px 30px rgba(15,23,42,0.08);
+      color-scheme: light;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      min-height: 100dvh;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input { font: inherit; color: inherit; }
+    button { cursor: pointer; border: 0; background: none; touch-action: manipulation; }
+    svg.i { width: 1.15em; height: 1.15em; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 40px);
+    }
+
+    /* ---------- Header ---------- */
+    .top { display: flex; align-items: center; gap: 10px; padding: 6px 0 18px; }
+    .logo { font-size: 1.35rem; font-weight: 850; letter-spacing: -0.02em; position: relative; line-height: 1; }
+    .logo span { color: var(--accent); }
+    .logo::after {
+      content: attr(data-text); position: absolute; left: 0; top: 0; color: transparent;
+      text-shadow: -1.5px 0 rgba(255,0,90,.55), 1.5px 0 rgba(0,220,255,.55);
+      clip-path: inset(0 0 55% 0); animation: glitch 5s infinite steps(1); pointer-events: none;
+    }
+    @keyframes glitch {
+      0%, 92%, 100% { transform: none; opacity: 0; }
+      93% { transform: translate(2px, -1px); opacity: 1; clip-path: inset(10% 0 55% 0); }
+      95% { transform: translate(-2px, 1px); opacity: 1; clip-path: inset(55% 0 10% 0); }
+      97% { transform: translate(1px, 0); opacity: 1; clip-path: inset(30% 0 40% 0); }
+    }
+    .top .spacer { flex: 1; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px;
+      border-radius: 999px; background: var(--surface); border: 1px solid var(--line);
+      font-weight: 700; font-size: .85rem; color: var(--text-2);
+    }
+    .chip.streak.on { color: var(--accent); }
+    .icon-btn {
+      width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center;
+      background: var(--surface); border: 1px solid var(--line); color: var(--text-2);
+      transition: background .15s, color .15s, transform .1s;
+    }
+    .icon-btn:hover { color: var(--text); background: var(--surface-2); }
+    .icon-btn:active { transform: scale(.94); }
+
+    /* ---------- Chapter card ---------- */
+    .chapter-card {
+      background: linear-gradient(160deg, var(--surface) 0%, var(--bg-2) 100%);
+      border: 1px solid var(--line); border-radius: var(--r-xl); padding: 18px; margin-bottom: 14px;
+      box-shadow: var(--shadow);
+    }
+    .ch-row { display: flex; align-items: center; gap: 10px; }
+    .ch-pick { flex: 1; min-width: 0; text-align: left; display: flex; flex-direction: column; gap: 2px; padding: 4px 6px; margin: -4px -6px; border-radius: 12px; }
+    .ch-pick:hover { background: var(--surface-2); }
+    .ch-kicker { font-size: .75rem; font-weight: 750; color: var(--accent); letter-spacing: .08em; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+    .ch-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 6px; }
+    .ch-title svg { color: var(--text-3); flex: none; }
+    .ch-arrows { display: flex; gap: 6px; }
+    .progress { height: 8px; background: var(--surface-3); border-radius: 99px; overflow: hidden; display: flex; margin: 16px 0 10px; }
+    .progress i { display: block; height: 100%; transition: width .4s var(--ease); }
+    .progress .p-ok { background: var(--ok); }
+    .progress .p-bad { background: var(--bad); }
+    .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .82rem; color: var(--text-2); align-items: center; }
+    .legend b { color: var(--text); font-variant-numeric: tabular-nums; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; vertical-align: 1px; }
+    .legend .spacer { flex: 1; }
+    .done-btn {
+      display: inline-flex; align-items: center; gap: 6px; font-size: .8rem; font-weight: 700;
+      padding: 6px 12px; border-radius: 99px; border: 1px solid var(--line-strong); color: var(--text-2);
+    }
+    .done-btn.on { background: var(--ok-soft); color: var(--ok); border-color: transparent; }
+
+    /* ---------- Mode tabs ---------- */
+    .modes {
+      display: flex; gap: 8px; overflow-x: auto; padding: 2px 16px 14px; margin: 0 -16px;
+      scrollbar-width: none; scroll-snap-type: x proximity;
+    }
+    .modes::-webkit-scrollbar { display: none; }
+    .mode {
+      flex: none; display: inline-flex; align-items: center; gap: 7px; height: 40px; padding: 0 14px;
+      border-radius: 999px; background: var(--surface); border: 1px solid var(--line);
+      color: var(--text-2); font-weight: 700; font-size: .88rem; scroll-snap-align: start;
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    .mode:hover { color: var(--text); }
+    .mode.active { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+    .mode .badge { background: var(--bad); color: #fff; font-size: .7rem; min-width: 18px; height: 18px; border-radius: 9px; display: inline-grid; place-items: center; padding: 0 5px; }
+    .mode.active .badge { background: var(--accent-ink); color: var(--accent); }
+
+    /* ---------- Panel ---------- */
+    .panel {
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-xl);
+      padding: 20px; min-height: 420px; box-shadow: var(--shadow);
+      animation: rise .25s var(--ease);
+    }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .muted { color: var(--text-2); }
+    .small { font-size: .82rem; }
+    .kbd-hint { font-size: .75rem; color: var(--text-3); text-align: center; margin-top: 14px; }
+    .kbd-hint kbd { font-family: inherit; font-size: .7rem; padding: 1px 6px; border-radius: 5px; border: 1px solid var(--line-strong); color: var(--text-2); }
+    @media (hover: none) { .kbd-hint { display: none; } }
+
+    .seg { display: inline-flex; background: var(--surface-2); border-radius: 12px; padding: 3px; gap: 2px; }
+    .seg button { padding: 6px 12px; border-radius: 9px; font-size: .8rem; font-weight: 700; color: var(--text-2); }
+    .seg button.on { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,.2); }
+    :root[data-theme="light"] .seg button.on { box-shadow: 0 1px 3px rgba(15,23,42,.12); }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      height: 44px; padding: 0 18px; border-radius: var(--r-md); font-weight: 750; font-size: .95rem;
+      background: var(--surface-2); border: 1px solid var(--line); color: var(--text);
+      transition: transform .1s, background .15s, filter .15s; user-select: none;
+    }
+    .btn:hover { background: var(--surface-3); }
+    .btn:active { transform: scale(.97); }
+    .btn-primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+    .btn-primary:hover { background: var(--accent); filter: brightness(1.07); }
+    .btn-ok { background: var(--ok-soft); color: var(--ok); border-color: transparent; }
+    .btn-ok:hover { background: var(--ok); color: #04150e; }
+    .btn-bad { background: var(--bad-soft); color: var(--bad); border-color: transparent; }
+    .btn-bad:hover { background: var(--bad); color: #1a0505; }
+    .btn-ghost { background: transparent; }
+    .btn-sm { height: 34px; padding: 0 12px; font-size: .82rem; border-radius: 10px; }
+    .btn-lg { height: 56px; font-size: 1.02rem; border-radius: var(--r-lg); }
+    .btn-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+    .gender-der { --g: var(--der); --g-soft: var(--der-soft); }
+    .gender-die { --g: var(--die); --g-soft: var(--die-soft); }
+    .gender-das { --g: var(--das); --g-soft: var(--das-soft); }
+    .art { color: var(--g, var(--text-2)); font-weight: 800; }
+
+    /* ---------- Flashcards ---------- */
+    .deck-bar { height: 4px; background: var(--surface-3); border-radius: 4px; overflow: hidden; margin-bottom: 18px; }
+    .deck-bar i { display: block; height: 100%; background: var(--accent); transition: width .3s var(--ease); }
+    .card-stage { perspective: 1400px; margin-bottom: 16px; touch-action: pan-y; }
+    .fcard {
+      position: relative; min-height: 300px; -webkit-transform-style: preserve-3d; transform-style: preserve-3d;
+      transition: transform .55s var(--ease); cursor: pointer; user-select: none;
+    }
+    .fcard.flipped { transform: rotateY(180deg); }
+    .fcard.dragging { transition: none; }
+    .fface {
+      position: absolute; top: 0; right: 0; bottom: 0; left: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+      border-radius: var(--r-xl); padding: 20px; display: flex; flex-direction: column;
+      background: var(--surface-2); border: 1px solid var(--line-strong);
+    }
+    .fface.back { transform: rotateY(180deg); }
+    .fface.g { background: linear-gradient(160deg, var(--g-soft), var(--surface-2) 70%); border-color: var(--g); border-color: color-mix(in srgb, var(--g) 45%, transparent); }
+    .fface-top { display: flex; justify-content: space-between; align-items: center; font-size: .75rem; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
+    .fface-mid { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px; padding: 10px 0; }
+    .fword { font-size: clamp(1.6rem, 6vw, 2.4rem); font-weight: 850; letter-spacing: -0.02em; line-height: 1.15; overflow-wrap: anywhere; }
+    .fsub { color: var(--text-2); font-size: .95rem; }
+    .fsub b { color: var(--text); font-weight: 700; }
+    .fhint { text-align: center; font-size: .78rem; color: var(--text-3); }
+    .gtag { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 99px; background: var(--g-soft); color: var(--g); font-size: .72rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+    .speak { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: var(--text-2); background: var(--surface-3); }
+    .speak:hover { color: var(--text); }
+    .swipe-tag { position: absolute; top: 18px; padding: 6px 12px; border-radius: 10px; font-weight: 850; font-size: .85rem; letter-spacing: .06em; opacity: 0; pointer-events: none; z-index: 2; }
+    .swipe-tag.l { left: 18px; background: var(--bad); color: #fff; transform: rotate(-8deg); }
+    .swipe-tag.r { right: 18px; background: var(--ok); color: #04150e; transform: rotate(8deg); }
+    .rate { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .deck-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+    .summary { text-align: center; padding: 30px 10px; }
+    .summary .big { font-size: 3.2rem; line-height: 1; margin-bottom: 10px; }
+    .summary h2 { font-size: 1.5rem; letter-spacing: -0.01em; margin-bottom: 6px; }
+    .summary p { color: var(--text-2); margin-bottom: 22px; }
+    .stat-row { display: flex; justify-content: center; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+    .stat { background: var(--surface-2); border-radius: var(--r-md); padding: 12px 18px; min-width: 96px; }
+    .stat b { display: block; font-size: 1.6rem; font-variant-numeric: tabular-nums; line-height: 1.1; }
+    .stat span { font-size: .75rem; color: var(--text-2); text-transform: uppercase; letter-spacing: .06em; font-weight: 700; }
+
+    /* ---------- Quiz / options ---------- */
+    .q-meta { display: flex; justify-content: space-between; align-items: center; font-size: .82rem; color: var(--text-2); font-weight: 700; margin-bottom: 10px; }
+    .q-prompt { text-align: center; padding: 26px 8px 24px; }
+    .q-label { font-size: .75rem; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); margin-bottom: 8px; }
+    .q-word { font-size: clamp(1.4rem, 5.5vw, 2rem); font-weight: 850; letter-spacing: -0.02em; line-height: 1.2; overflow-wrap: anywhere; display: inline-flex; align-items: center; gap: 10px; }
+    .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 520px) { .opts { grid-template-columns: 1fr; } }
+    .opt {
+      text-align: left; padding: 14px 16px; min-height: 56px; border-radius: var(--r-md);
+      background: var(--surface-2); border: 1.5px solid transparent; font-weight: 650; display: flex; gap: 12px; align-items: center;
+      transition: background .15s, border-color .15s, transform .1s;
+    }
+    .opt:hover:not(:disabled) { background: var(--surface-3); }
+    .opt:active:not(:disabled) { transform: scale(.98); }
+    .opt .n { width: 24px; height: 24px; border-radius: 7px; background: var(--surface-3); color: var(--text-3); font-size: .75rem; font-weight: 800; display: grid; place-items: center; flex: none; }
+    .opt.correct { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+    .opt.correct .n { background: var(--ok); color: #04150e; }
+    .opt.wrong { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); animation: shake .35s; }
+    .opt.wrong .n { background: var(--bad); color: #fff; }
+    .opt:disabled { cursor: default; }
+    @keyframes shake { 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
+
+    .feedback { margin-top: 14px; padding: 12px 14px; border-radius: var(--r-md); display: flex; align-items: center; justify-content: space-between; gap: 10px; font-weight: 700; animation: rise .2s var(--ease); }
+    .feedback.ok { background: var(--ok-soft); color: var(--ok); }
+    .feedback.bad { background: var(--bad-soft); color: var(--bad); }
+    .feedback.meh { background: var(--accent-soft); color: var(--accent); }
+    .feedback .fb-text { display: flex; flex-direction: column; gap: 2px; }
+    .feedback .fb-text small { color: var(--text-2); font-weight: 600; }
+
+    /* ---------- Type mode ---------- */
+    .type-box { display: flex; gap: 8px; }
+    .type-input {
+      flex: 1; min-width: 0; height: 56px; padding: 0 16px; border-radius: var(--r-md);
+      background: var(--surface-2); border: 1.5px solid var(--line-strong); font-size: 1.1rem; font-weight: 650; outline: none;
+    }
+    .type-input:focus { border-color: var(--accent); }
+    .type-input.ok { border-color: var(--ok); color: var(--ok); }
+    .type-input.bad { border-color: var(--bad); color: var(--bad); }
+    .umlauts { display: flex; gap: 6px; margin-top: 10px; justify-content: center; }
+    .umlauts button { width: 44px; height: 40px; border-radius: 10px; background: var(--surface-2); font-weight: 750; font-size: 1.05rem; }
+    .umlauts button:hover { background: var(--surface-3); }
+
+    /* ---------- Articles ---------- */
+    .art-word { font-size: clamp(1.8rem, 7vw, 2.6rem); font-weight: 850; letter-spacing: -0.02em; margin: 6px 0 4px; overflow-wrap: anywhere; }
+    .art-slot { display: inline-block; min-width: 2.6em; border-bottom: 3px dashed var(--line-strong); color: var(--text-3); margin-right: .25em; }
+    .art-btns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .art-btn {
+      height: 72px; border-radius: var(--r-lg); font-size: 1.35rem; font-weight: 850;
+      background: var(--g-soft); color: var(--g); border: 1.5px solid transparent; transition: transform .1s, border-color .15s, background .15s;
+    }
+    .art-btn:hover:not(:disabled) { border-color: var(--g); }
+    .art-btn:active:not(:disabled) { transform: scale(.96); }
+    .art-btn.correct { background: var(--g); color: var(--bg); }
+    .art-btn.wrong { border-color: var(--bad); animation: shake .35s; opacity: .7; }
+    .art-btn:disabled { cursor: default; }
+    .art-btn small { display: block; font-size: .65rem; font-weight: 700; opacity: .7; letter-spacing: .06em; text-transform: uppercase; }
+
+    /* ---------- Match ---------- */
+    .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .match-col { display: flex; flex-direction: column; gap: 10px; }
+    .tile {
+      min-height: 64px; padding: 10px 12px; border-radius: var(--r-md); background: var(--surface-2);
+      border: 1.5px solid transparent; font-weight: 700; font-size: .92rem; line-height: 1.25; text-align: center;
+      display: flex; align-items: center; justify-content: center; overflow-wrap: anywhere;
+      transition: background .15s, border-color .15s, opacity .3s, transform .15s;
+    }
+    .tile:hover { background: var(--surface-3); }
+    .tile.sel { border-color: var(--accent); background: var(--accent-soft); }
+    .tile.miss { border-color: var(--bad); background: var(--bad-soft); animation: shake .35s; }
+    .tile.hit { border-color: var(--ok); background: var(--ok-soft); color: var(--ok); opacity: .35; pointer-events: none; transform: scale(.97); }
+
+    /* ---------- Sprint ---------- */
+    .timer-bar { height: 8px; border-radius: 8px; background: var(--surface-3); overflow: hidden; margin-bottom: 10px; }
+    .timer-bar i { display: block; height: 100%; background: var(--accent); transition: width 1s linear; }
+    .timer-bar.low i { background: var(--bad); }
+    .combo { color: var(--accent); font-weight: 850; }
+    .hero { text-align: center; padding: 30px 10px; }
+    .hero .hero-icon { width: 72px; height: 72px; margin: 0 auto 16px; border-radius: 22px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+    .hero .hero-icon svg { width: 34px; height: 34px; }
+    .hero h2 { font-size: 1.6rem; letter-spacing: -0.02em; margin-bottom: 6px; }
+    .hero p { color: var(--text-2); max-width: 380px; margin: 0 auto 22px; }
+
+    /* ---------- Sentences ---------- */
+    .build { min-height: 70px; border-radius: var(--r-lg); border: 2px dashed var(--line-strong); padding: 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; margin-bottom: 16px; transition: border-color .15s; }
+    .build.filled { border-style: solid; }
+    .build.ok { border-color: var(--ok); }
+    .build.bad { border-color: var(--bad); }
+    .pool { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; min-height: 48px; margin-bottom: 18px; }
+    .wchip { padding: 10px 14px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line-strong); font-weight: 700; transition: transform .1s, background .15s; }
+    .wchip:hover { background: var(--surface-3); }
+    .wchip:active { transform: scale(.95); }
+    .wchip.placed { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+
+    /* ---------- Word list ---------- */
+    .search { position: relative; flex: 1; min-width: 200px; }
+    .search svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-3); }
+    .search input { width: 100%; height: 42px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface-2); padding: 0 12px 0 38px; font-size: 16px; outline: none; }
+    .search input:focus { border-color: var(--accent); }
+    .filters { display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0 14px; align-items: center; }
+    .fchip { height: 32px; padding: 0 12px; border-radius: 99px; font-size: .8rem; font-weight: 700; background: var(--surface-2); color: var(--text-2); }
+    .fchip.on { background: var(--text); color: var(--bg); }
+    .fchip.scope { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; }
+    .wlist { display: flex; flex-direction: column; }
+    .wrow { display: grid; grid-template-columns: 4px 1fr auto; gap: 12px; align-items: center; padding: 11px 4px; border-bottom: 1px solid var(--line); }
+    .wrow:last-child { border-bottom: 0; }
+    .wrow .bar { align-self: stretch; border-radius: 4px; background: var(--g, var(--surface-3)); }
+    .wrow .de { font-weight: 750; overflow-wrap: anywhere; }
+    .wrow .en { color: var(--text-2); font-size: .9rem; overflow-wrap: anywhere; }
+    .wrow .extra { color: var(--text-3); font-size: .78rem; margin-top: 1px; }
+    .wrow .acts { display: flex; gap: 6px; align-items: center; }
+    .pill { height: 28px; padding: 0 10px; border-radius: 99px; font-size: .72rem; font-weight: 800; letter-spacing: .02em; white-space: nowrap; background: var(--surface-2); color: var(--text-3); }
+    .pill.learned { background: var(--ok-soft); color: var(--ok); }
+    .pill.hard { background: var(--bad-soft); color: var(--bad); }
+    .empty { text-align: center; color: var(--text-2); padding: 50px 10px; }
+
+    /* ---------- Sheets ---------- */
+    .scrim { position: fixed; top: 0; right: 0; bottom: 0; left: 0; background: rgba(0,0,0,.55); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 50; display: flex; align-items: flex-end; justify-content: center; animation: fade .2s; }
+    @keyframes fade { from { opacity: 0; } }
+    .sheet {
+      background: var(--bg-2); width: 100%; max-width: 640px; max-height: 88vh; max-height: 88dvh; display: flex; flex-direction: column;
+      border-radius: var(--r-xl) var(--r-xl) 0 0; border: 1px solid var(--line); border-bottom: 0;
+      padding: 10px 16px calc(env(safe-area-inset-bottom) + 16px); animation: up .3s var(--ease);
+    }
+    @media (min-width: 700px) { .scrim { align-items: center; } .sheet { border-radius: var(--r-xl); border-bottom: 1px solid var(--line); } }
+    @keyframes up { from { transform: translateY(40px); opacity: 0; } }
+    .sheet-grab { width: 40px; height: 5px; background: var(--line-strong); border-radius: 5px; margin: 0 auto 12px; }
+    .sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+    .sheet-head h3 { font-size: 1.15rem; }
+    .sheet-body { overflow-y: auto; margin: 0 -16px; padding: 0 16px; }
+    .ch-list { display: grid; grid-template-columns: 1fr; gap: 6px; }
+    @media (min-width: 560px) { .ch-list { grid-template-columns: 1fr 1fr; } }
+    .ch-item { display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center; text-align: left; padding: 10px; border-radius: var(--r-md); background: var(--surface); border: 1.5px solid transparent; }
+    .ch-item:hover { background: var(--surface-2); }
+    .ch-item.cur { border-color: var(--accent); }
+    .ch-num { width: 34px; height: 34px; border-radius: 10px; background: var(--surface-2); display: grid; place-items: center; font-weight: 800; font-size: .85rem; color: var(--text-2); }
+    .ch-item.done .ch-num { background: var(--ok); color: #04150e; }
+    .ch-item .t { font-weight: 700; font-size: .9rem; line-height: 1.25; }
+    .ch-item .mini { height: 4px; background: var(--surface-3); border-radius: 4px; margin-top: 6px; overflow: hidden; }
+    .ch-item .mini i { display: block; height: 100%; background: var(--ok); }
+    .ch-item .pct { font-size: .75rem; color: var(--text-3); font-weight: 700; font-variant-numeric: tabular-nums; }
+    .set-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .set-row:last-child { border-bottom: 0; }
+    .set-row .lbl b { display: block; font-size: .95rem; }
+    .set-row .lbl span { font-size: .8rem; color: var(--text-2); }
+    .toggle { width: 50px; height: 30px; border-radius: 30px; background: var(--surface-3); position: relative; transition: background .2s; flex: none; }
+    .toggle::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: transform .2s var(--ease); box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+    .toggle.on { background: var(--ok); }
+    .toggle.on::after { transform: translateX(20px); }
+
+    .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 20px); transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: .88rem; z-index: 60; animation: up .25s var(--ease); box-shadow: var(--shadow); }
+
+    @media (max-width: 520px) {
+      .panel { padding: 16px; border-radius: var(--r-lg); }
+      .chapter-card { padding: 16px; border-radius: var(--r-lg); }
+      .fcard { min-height: 280px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="logo" data-text="Glitch Deutsch">Glitch <span>Deutsch</span></div>
+      <div class="spacer"></div>
+      <div class="chip streak" id="streak" title="Daily streak"></div>
+      <button class="icon-btn" data-action="theme" aria-label="Toggle theme" id="theme-btn"></button>
+      <button class="icon-btn" data-action="settings" aria-label="Settings" id="settings-btn"></button>
+    </header>
+
+    <section class="chapter-card" id="chapter-card"></section>
+    <nav class="modes" id="modes" aria-label="Practice modes"></nav>
+    <section class="panel" id="panel">
+      <div id="nojs" style="text-align:center;padding:40px 12px">
+        <div style="font-size:2.4rem;margin-bottom:10px">📱</div>
+        <h2 style="font-size:1.3rem;margin-bottom:8px">This preview can't run the app</h2>
+        <p style="color:var(--text-2);max-width:420px;margin:0 auto">You’re seeing a file preview (like the iPhone Files or OneDrive preview), which doesn’t run the app’s code — so the words don’t load. Open this page in <b>Safari</b> or <b>Chrome</b> from a web link instead.</p>
+      </div>
+    </section>
+  </div>
+  <div id="overlay"></div>
+
+  <script>
+    /* ================= Icons ================= */
+    const ICONS = {
+      cards: '<rect x="3" y="6" width="14" height="14" rx="2.5"/><path d="M7 3h11a3 3 0 0 1 3 3v11"/>',
+      quiz: '<circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 5-5.5"/>',
+      type: '<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6.5 10h.01M10 10h.01M13.5 10h.01M17.5 10h.01M7.5 14h9"/>',
+      tag: '<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.3"/>',
+      grid: '<rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/>',
+      zap: '<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
+      puzzle: '<path d="M4 7h4a2 2 0 1 1 4 0h4v4a2 2 0 1 1 0 4v4h-4a2 2 0 1 0-4 0H4v-4a2 2 0 1 0 0-4z"/>',
+      list: '<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',
+      speaker: '<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>',
+      left: '<path d="m15 18-6-6 6-6"/>',
+      right: '<path d="m9 18 6-6-6-6"/>',
+      down: '<path d="m6 9 6 6 6-6"/>',
+      flame: '<path d="M12 22c4 0 7-2.7 7-7 0-4-3-6.5-4-10-2 1.5-3 3.5-3 5.5C10.5 9 10 7.5 10 6c-3 2-5 5.5-5 9 0 4.3 3 7 7 7z"/>',
+      sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+      moon: '<path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/>',
+      gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+      check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+      x: '<path d="M6 6l12 12M18 6 6 18"/>',
+      shuffle: '<path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>',
+      swap: '<path d="M7 4 3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/>',
+      restart: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',
+      search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+      globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+      trophy: '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a4 4 0 0 1-4 4M7 5H4v2a4 4 0 0 0 4 4"/>',
+    };
+    const icon = (n, cls = 'i') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]}</svg>`;
+
+    const CHAPTER_TITLES = {
+      A1: [
+        "Begrüßung & Herkunft", "Berufe & Persönliches", "Familie & Sprachen",
+        "Möbel & Wohnen", "Gegenstände & Farben", "Büro & Arbeitsplatz",
+        "Hobbys & Freizeit", "Tageszeiten & Wochentage", "Essen & Trinken",
+        "Reisen & Verkehrsmittel", "Freizeit & Vergangenheit", "Jahreszeiten & Monate",
+        "Stadt & Sehenswürdigkeiten", "Orientierung & Richtungen", "Wohnungssuche & Räume",
+        "Haus & Reparaturen", "Berufswünsche & Lebenspläne", "Körper & Gesundheit",
+        "Haushalt & Zusammenleben", "Aussehen & Charakter", "Regeln, Grillen & Natur",
+        "Kleidung & Mode", "Wetter & Natur", "Feste & Ereignisse"
+      ],
+      A2: [
+        "Kindheit & Erinnerungen", "Arbeitsalltag & Pannen", "Natur & Umgebung",
+        "Büro & Meetings", "Events, Kultur & Theater", "Sport & Fitness",
+        "Genuss & Gastronomie", "Betrieb & Abteilungen", "Ordnung & Schreibwaren",
+        "Verkehr & Mobilität", "Outdoor & Wandern", "Dokumente & Ämter",
+        "Tischkultur & Geschirr", "Nachbarschaft & Umzug", "Berufsetikette & Arbeitsleben",
+        "Medien & Gefühle", "Zusammenarbeit & Team", "Digitale Medien & Apps",
+        "Lebensziele & Vorhaben", "Unternehmertum & Imkern", "Klima & Umweltschutz",
+        "Zukunft & Engagement", "Biografien & Bildung", "Geschäfte & Dienstleistungen"
+      ]
+    };
+
+    const MODES = [
+      { id: 'cards',     label: 'Flashcards', icon: 'cards' },
+      { id: 'quiz',      label: 'Quiz',       icon: 'quiz' },
+      { id: 'type',      label: 'Write',      icon: 'type' },
+      { id: 'articles',  label: 'der/die/das', icon: 'tag' },
+      { id: 'match',     label: 'Match',      icon: 'grid' },
+      { id: 'sprint',    label: 'Sprint',     icon: 'zap' },
+      { id: 'sentences', label: 'Sentences',  icon: 'puzzle' },
+      { id: 'words',     label: 'Word list',  icon: 'list' },
+    ];
+
+    /* ================= Helpers ================= */
+    const $ = (s, r = document) => r.querySelector(s);
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+    const pick = (arr, n) => shuffle(arr).slice(0, n);
+    const dayKey = (d = new Date()) => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    const gClass = w => w.article ? `gender-${w.article}` : '';
+
+    /* ================= Storage (compatible with v3 progress) ================= */
+    const Store = {
+      KEY: 'glitch_deutsch_data_v3',
+      d: null,
+      load() {
+        let d = {};
+        try { d = JSON.parse(localStorage.getItem(this.KEY)) || {}; } catch (e) { d = {}; }
+        this.d = Object.assign({
+          completedChapters: {}, learnedWords: {}, difficultWords: {},
+          lastLevel: 'A1', lastChapter: 1,
+          lastMode: 'cards', streak: { day: null, count: 0 }, best: {},
+          settings: { theme: null, autoSpeak: false, dir: 'de-en' },
+        }, d);
+        this.d.settings = Object.assign({ theme: null, autoSpeak: false, dir: 'de-en' }, this.d.settings);
+        return this.d;
+      },
+      save() { try { localStorage.setItem(this.KEY, JSON.stringify(this.d)); } catch (e) {} },
+      status(key) { return this.d.learnedWords[key] ? 'learned' : this.d.difficultWords[key] ? 'hard' : 'new'; },
+      setStatus(key, s) {
+        delete this.d.learnedWords[key]; delete this.d.difficultWords[key];
+        if (s === 'learned') this.d.learnedWords[key] = true;
+        if (s === 'hard') this.d.difficultWords[key] = true;
+        this.touchStreak(); this.save();
+      },
+      touchStreak() {
+        const today = dayKey(), y = new Date(); y.setDate(y.getDate() - 1);
+        const s = this.d.streak;
+        if (s.day === today) return;
+        s.count = s.day === dayKey(y) ? s.count + 1 : 1;
+        s.day = today;
+      },
+      liveStreak() {
+        const s = this.d.streak, y = new Date(); y.setDate(y.getDate() - 1);
+        return (s.day === dayKey() || s.day === dayKey(y)) ? s.count : 0;
+      },
+    };
+
+    /* ================= Data parsing ================= */
+    function parseVocabLine(line) {
+      const cut = line.indexOf('—');
+      if (cut < 0) return null;
+      const de = line.slice(0, cut).trim();
+      let en = line.slice(cut + 1).trim();
+      let plural = '', forms = '';
+      // Grammar info is the trailing "  (...)" group (separated by two spaces)
+      const g = en.match(/\s{2,}\(([^()]*)\)\s*$/);
+      if (g) {
+        en = en.slice(0, g.index).trim();
+        const info = g[1].trim();
+        if (/^pl\.?\s/.test(info)) plural = info.replace(/^pl\.?\s*/, '');
+        else forms = info;
+      }
+      let note = '';
+      const n = en.match(/\s\((informal|formal|colloquial|abbr\.|masc\.|fem\.|neut\.|male|female)\)$/);
+      if (n) { note = n[1]; en = en.slice(0, n.index).trim(); }
+      const m = de.match(/^(der|die|das)\s+([A-ZÄÖÜ].*)$/);
+      const article = m ? m[1] : '';
+      const noun = m ? m[2] : '';
+      return { de, en, article, noun, plural, forms, note };
+    }
+
+    function buildData(raw) {
+      const chapters = {};
+      let ch = 0;
+      for (const rawLine of raw.split('\n')) {
+        const line = rawLine.trim();
+        if (!line) continue;
+        const head = line.match(/^=====.*Chapter\s+(\d+)/);
+        if (head) { ch = +head[1]; chapters[ch] = []; continue; }
+        if (ch && line.includes('—')) { const w = parseVocabLine(line); if (w) chapters[ch].push(w); }
+      }
+      return chapters;
+    }
+
+    /* ================= Speech ================= */
+    const Speech = {
+      voice: null,
+      ok: 'speechSynthesis' in window,
+      init() {
+        if (!this.ok) return;
+        const pickVoice = () => {
+          const vs = speechSynthesis.getVoices().filter(v => /^de(-|_|$)/i.test(v.lang));
+          this.voice = vs.find(v => /de-DE/i.test(v.lang) && v.localService) || vs.find(v => /de-DE/i.test(v.lang)) || vs[0] || null;
+        };
+        pickVoice();
+        speechSynthesis.onvoiceschanged = pickVoice;
+      },
+      say(text) {
+        if (!this.ok || !text) return;
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text.replace(/\s*\/\s*/g, ', '));
+        u.lang = 'de-DE'; u.rate = 0.92;
+        if (this.voice) u.voice = this.voice;
+        speechSynthesis.speak(u);
+      },
+    };
+
+    /* ================= App ================= */
+    const app = {
+      data: { A1: {}, A2: {} },
+      level: 'A1', chapter: 1, mode: 'cards',
+      s: {},          // per-mode session state
+      timers: [],
+
+      init() {
+        this.data.A1 = buildData(rawA1Text);
+        const nojs = document.getElementById('nojs'); if (nojs) nojs.remove();
+        this.data.A2 = buildData(rawA2Text);
+        const d = Store.load();
+        this.level = d.lastLevel in this.data ? d.lastLevel : 'A1';
+        this.chapter = Math.min(24, Math.max(1, +d.lastChapter || 1));
+        this.mode = MODES.some(m => m.id === d.lastMode) ? d.lastMode : 'cards';
+        this.applyTheme();
+        Speech.init();
+        $('#settings-btn').innerHTML = icon('gear');
+        document.addEventListener('click', e => this.onClick(e));
+        document.addEventListener('keydown', e => this.onKey(e));
+        this.render();
+      },
+
+      words(level = this.level, ch = this.chapter) { return this.data[level][ch] || []; },
+      title(level = this.level, ch = this.chapter) { return CHAPTER_TITLES[level][ch - 1] || `Chapter ${ch}`; },
+      chKey() { return `${this.level}_${this.chapter}`; },
+
+      persist() { Object.assign(Store.d, { lastLevel: this.level, lastChapter: this.chapter, lastMode: this.mode }); Store.save(); },
+
+      clearTimers() { this.timers.forEach(t => clearInterval(t)); this.timers = []; },
+
+      /* ---------- Shell ---------- */
+      render() {
+        this.renderStreak();
+        this.renderChapterCard();
+        this.renderModes();
+        this.renderPanel();
+      },
+
+      renderStreak() {
+        const n = Store.liveStreak();
+        const el = $('#streak');
+        el.className = `chip streak ${n ? 'on' : ''}`;
+        el.innerHTML = `${icon('flame')}<span>${n}</span>`;
+        el.title = n ? `${n}-day streak` : 'Study today to start a streak';
+      },
+
+      applyTheme() {
+        const t = Store.d.settings.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        document.documentElement.dataset.theme = t;
+        $('meta[name="theme-color"]').content = t === 'light' ? '#f4f5f8' : '#0c0f16';
+        $('#theme-btn').innerHTML = icon(t === 'light' ? 'moon' : 'sun');
+      },
+
+      counts(level = this.level, ch = this.chapter) {
+        const list = this.words(level, ch);
+        let learned = 0, hard = 0;
+        for (const w of list) { const s = Store.status(w.de); if (s === 'learned') learned++; else if (s === 'hard') hard++; }
+        return { total: list.length, learned, hard, fresh: list.length - learned - hard };
+      },
+
+      renderChapterCard() {
+        const c = this.counts();
+        const done = !!Store.d.completedChapters[this.chKey()];
+        const pct = x => c.total ? (x / c.total * 100) : 0;
+        $('#chapter-card').innerHTML = `
+          <div class="ch-row">
+            <button class="ch-pick" data-action="chapters" aria-label="Choose chapter">
+              <span class="ch-kicker">${this.level} · Chapter ${this.chapter} of 24</span>
+              <span class="ch-title">${esc(this.title())} ${icon('down')}</span>
+            </button>
+            <div class="ch-arrows">
+              <button class="icon-btn" data-action="ch-step" data-dir="-1" aria-label="Previous chapter" ${this.chapter === 1 ? 'disabled style="opacity:.35"' : ''}>${icon('left')}</button>
+              <button class="icon-btn" data-action="ch-step" data-dir="1" aria-label="Next chapter" ${this.chapter === 24 ? 'disabled style="opacity:.35"' : ''}>${icon('right')}</button>
+            </div>
+          </div>
+          <div class="progress" role="progressbar" aria-valuenow="${Math.round(pct(c.learned))}" aria-valuemin="0" aria-valuemax="100">
+            <i class="p-ok" style="width:${pct(c.learned)}%"></i><i class="p-bad" style="width:${pct(c.hard)}%"></i>
+          </div>
+          <div class="legend">
+            <span><i class="dot" style="background:var(--ok)"></i><b>${c.learned}</b> mastered</span>
+            <span><i class="dot" style="background:var(--bad)"></i><b>${c.hard}</b> to practise</span>
+            <span><i class="dot" style="background:var(--surface-3)"></i><b>${c.fresh}</b> new</span>
+            <span class="spacer"></span>
+            <button class="done-btn ${done ? 'on' : ''}" data-action="toggle-done">${done ? icon('check') + ' Chapter done' : 'Mark as done'}</button>
+          </div>`;
+      },
+
+      renderModes() {
+        const hard = this.counts().hard;
+        $('#modes').innerHTML = MODES.map(m => `
+          <button class="mode ${this.mode === m.id ? 'active' : ''}" data-action="mode" data-mode="${m.id}">
+            ${icon(m.icon)}${m.label}${m.id === 'cards' && hard ? `<span class="badge">${hard}</span>` : ''}
+          </button>`).join('');
+        const act = $('#modes .mode.active');
+        if (act) act.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      },
+
+      renderPanel() {
+        this.clearTimers();
+        const p = $('#panel');
+        p.style.animation = 'none'; p.offsetHeight; p.style.animation = '';
+        const fn = { cards: 'renderCards', quiz: 'renderQuiz', type: 'renderType', articles: 'renderArticles', match: 'renderMatch', sprint: 'renderSprint', sentences: 'renderSentences', words: 'renderWords' }[this.mode];
+        this[fn](p);
+      },
+
+      refreshStats() { this.renderStreak(); this.renderChapterCard(); this.renderModes(); },
+
+      setChapter(level, ch) {
+        this.level = level; this.chapter = ch; this.s = {};
+        this.persist(); this.render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      },
+
+      setMode(m) { this.mode = m; this.s = {}; this.persist(); this.renderModes(); this.renderPanel(); },
+
+      toast(msg) {
+        const t = document.createElement('div');
+        t.className = 'toast'; t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 1800);
+      },
+
+      /* ---------- Events ---------- */
+      onClick(e) {
+        const el = e.target.closest('[data-action]');
+        if (!el || el.disabled) return;
+        const a = el.dataset.action, ds = el.dataset;
+        switch (a) {
+          case 'mode': return this.setMode(ds.mode);
+          case 'chapters': return this.openChapters(this.level);
+          case 'sheet-level': return this.openChapters(ds.level);
+          case 'pick-ch': this.closeSheet(); return this.setChapter(ds.level, +ds.ch);
+          case 'ch-step': return this.setChapter(this.level, Math.min(24, Math.max(1, this.chapter + +ds.dir)));
+          case 'close-sheet': if (el.classList.contains('scrim') && e.target !== el) return; return this.closeSheet();
+          case 'toggle-done': {
+            const k = this.chKey();
+            Store.d.completedChapters[k] = !Store.d.completedChapters[k]; Store.save();
+            if (Store.d.completedChapters[k]) this.toast('Nice! Chapter marked as done');
+            return this.renderChapterCard();
+          }
+          case 'theme': {
+            Store.d.settings.theme = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+            Store.save(); return this.applyTheme();
+          }
+          case 'settings': return this.openSettings();
+          case 'set-toggle': {
+            Store.d.settings[ds.key] = !Store.d.settings[ds.key]; Store.save();
+            el.classList.toggle('on', Store.d.settings[ds.key]); return;
+          }
+          case 'export': return this.exportProgress();
+          case 'import': return $('#import-file').click();
+          case 'reset-all': {
+            if (!confirm('Reset ALL progress (mastered words, practice list, streak)? This cannot be undone.')) return;
+            Object.assign(Store.d, { completedChapters: {}, learnedWords: {}, difficultWords: {}, streak: { day: null, count: 0 }, best: {} });
+            Store.save(); this.closeSheet(); this.s = {}; this.render(); return this.toast('Progress reset');
+          }
+          case 'speak': e.stopPropagation(); return Speech.say(ds.text);
+        }
+        const h = this[`on_${this.mode}`];
+        if (h) h.call(this, a, el, e);
+      },
+
+      onKey(e) {
+        if ($('#overlay').firstChild) { if (e.key === 'Escape') this.closeSheet(); return; }
+        const typing = e.target.matches('input, textarea');
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+        const h = this[`key_${this.mode}`];
+        if (h) h.call(this, e, typing);
+      },
+
+      /* ---------- Sheets ---------- */
+      openSheet(html) {
+        $('#overlay').innerHTML = `<div class="scrim" data-action="close-sheet"><div class="sheet" role="dialog" aria-modal="true"><div class="sheet-grab"></div>${html}</div></div>`;
+        document.body.style.overflow = 'hidden';
+      },
+      closeSheet() { $('#overlay').innerHTML = ''; document.body.style.overflow = ''; },
+
+      openChapters(level) {
+        const items = Array.from({ length: 24 }, (_, i) => i + 1).map(ch => {
+          const c = this.counts(level, ch);
+          const pct = c.total ? Math.round(c.learned / c.total * 100) : 0;
+          const done = Store.d.completedChapters[`${level}_${ch}`];
+          const cur = level === this.level && ch === this.chapter;
+          return `<button class="ch-item ${done ? 'done' : ''} ${cur ? 'cur' : ''}" data-action="pick-ch" data-level="${level}" data-ch="${ch}">
+              <span class="ch-num">${done ? icon('check') : ch}</span>
+              <span><span class="t">${esc(this.title(level, ch))}</span><span class="mini" style="display:block"><i style="width:${pct}%"></i></span></span>
+              <span class="pct">${pct}%</span>
+            </button>`;
+        }).join('');
+        this.openSheet(`
+          <div class="sheet-head">
+            <h3>Chapters</h3>
+            <div class="seg">
+              <button class="${level === 'A1' ? 'on' : ''}" data-action="sheet-level" data-level="A1">A1</button>
+              <button class="${level === 'A2' ? 'on' : ''}" data-action="sheet-level" data-level="A2">A2</button>
+            </div>
+          </div>
+          <div class="sheet-body"><div class="ch-list">${items}</div></div>`);
+        const cur = $('.ch-item.cur');
+        if (cur) cur.scrollIntoView({ block: 'center' });
+      },
+
+      openSettings() {
+        const st = Store.d.settings;
+        const allLearned = Object.keys(Store.d.learnedWords).length;
+        const allHard = Object.keys(Store.d.difficultWords).length;
+        this.openSheet(`
+          <div class="sheet-head"><h3>Settings</h3><button class="icon-btn" data-action="close-sheet" aria-label="Close">${icon('x')}</button></div>
+          <div class="sheet-body">
+            <div class="set-row"><div class="lbl"><b>Speak German automatically</b><span>Read each German word aloud on flashcards${Speech.ok ? '' : ' (not supported on this device)'}</span></div>
+              <button class="toggle ${st.autoSpeak ? 'on' : ''}" data-action="set-toggle" data-key="autoSpeak" aria-label="Auto speak"></button></div>
+            <div class="set-row"><div class="lbl"><b>Your progress</b><span>${allLearned} words mastered · ${allHard} to practise · ${Store.liveStreak()}-day streak</span></div></div>
+            <div class="set-row"><div class="lbl"><b>Back up progress</b><span>Save a file, or restore from one on another device</span></div>
+              <div class="btn-row"><button class="btn btn-sm" data-action="export">Export</button><button class="btn btn-sm" data-action="import">Import</button></div></div>
+            <div class="set-row"><div class="lbl"><b>Reset everything</b><span>Clears mastered words, practice list and streak</span></div>
+              <button class="btn btn-sm btn-bad" data-action="reset-all">Reset</button></div>
+            <input type="file" id="import-file" accept="application/json,.json" hidden>
+          </div>`);
+        $('#import-file').addEventListener('change', e => this.importProgress(e.target.files[0]));
+      },
+
+      exportProgress() {
+        const blob = new Blob([JSON.stringify(Store.d, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `glitch-deutsch-progress-${dayKey()}.json`;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      },
+
+      importProgress(file) {
+        if (!file) return;
+        const r = new FileReader();
+        r.onload = () => {
+          try {
+            const d = JSON.parse(r.result);
+            if (!d || typeof d.learnedWords !== 'object') throw 0;
+            localStorage.setItem(Store.KEY, JSON.stringify(d));
+            Store.load(); this.closeSheet(); this.applyTheme(); this.s = {}; this.render();
+            this.toast('Progress imported');
+          } catch (e) { alert('That file is not a Glitch Deutsch backup.'); }
+        };
+        r.readAsText(file);
+      },
+
+      /* ---------- Shared bits ---------- */
+      wordExtra(w) {
+        const bits = [];
+        if (w.plural) bits.push(`Pl. <b>${esc(w.plural)}</b>`);
+        if (w.forms) bits.push(esc(w.forms));
+        if (w.note) bits.push(esc(w.note));
+        return bits.join(' · ');
+      },
+      deHtml(w) {
+        return w.article ? `<span class="art">${w.article}</span> ${esc(w.noun)}` : esc(w.de);
+      },
+      speakBtn(text) { return Speech.ok ? `<button class="speak" data-action="speak" data-text="${esc(text)}" aria-label="Listen">${icon('speaker')}</button>` : ''; },
+      emptyState(msg) { return `<div class="empty">${msg}</div>`; },
+      distractors(w, n, field, pool) {
+        pool = (pool || this.words()).filter(x => x[field] !== w[field]);
+        const same = pool.filter(x => !!x.article === !!w.article);
+        const out = pick(same.length >= n ? same : pool, n).map(x => x[field]);
+        return [...new Set(out)];
+      },
+      recordBest(key, val, higherIsBetter = true) {
+        const k = `${this.chKey()}_${key}`, prev = Store.d.best[k];
+        const better = prev == null || (higherIsBetter ? val > prev : val < prev);
+        if (better) { Store.d.best[k] = val; Store.save(); }
+        return { prev, better };
+      },
+      getBest(key) { return Store.d.best[`${this.chKey()}_${key}`]; },
+
+      /* ================= 1. Flashcards ================= */
+      buildDeck() {
+        const s = this.s;
+        let list = this.words();
+        if (s.filter === 'hard') list = list.filter(w => Store.status(w.de) === 'hard');
+        if (s.filter === 'new') list = list.filter(w => Store.status(w.de) === 'new');
+        if (s.shuffled) list = shuffle(list);
+        Object.assign(s, { deck: list, i: 0, flipped: false, got: 0, again: 0, againList: [] });
+      },
+
+      renderCards(p) {
+        const s = this.s;
+        if (!s.deck) { s.filter = s.filter || (this.counts().hard ? 'all' : 'all'); s.shuffled = !!s.shuffled; this.buildDeck(); }
+        const dir = Store.d.settings.dir;
+        const c = this.counts();
+        const head = `
+          <div class="panel-head">
+            <div class="seg" role="tablist">
+              <button class="${s.filter === 'all' ? 'on' : ''}" data-action="c-filter" data-f="all">All ${c.total}</button>
+              <button class="${s.filter === 'new' ? 'on' : ''}" data-action="c-filter" data-f="new">New ${c.fresh}</button>
+              <button class="${s.filter === 'hard' ? 'on' : ''}" data-action="c-filter" data-f="hard">Practise ${c.hard}</button>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-sm ${s.shuffled ? 'btn-primary' : ''}" data-action="c-shuffle" title="Shuffle">${icon('shuffle')}</button>
+              <button class="btn btn-sm" data-action="c-dir" title="Switch direction">${icon('swap')} ${dir === 'de-en' ? 'DE → EN' : 'EN → DE'}</button>
+            </div>
+          </div>`;
+
+        if (!s.deck.length) {
+          const msg = s.filter === 'hard'
+            ? `<div class="summary"><div class="big">🎉</div><h2>Nothing to practise</h2><p>No words in this chapter are marked “to practise”.</p><button class="btn btn-primary" data-action="c-filter" data-f="all">Study all words</button></div>`
+            : s.filter === 'new'
+            ? `<div class="summary"><div class="big">✨</div><h2>No new words left</h2><p>You’ve seen every word in this chapter.</p><button class="btn btn-primary" data-action="c-filter" data-f="all">Review all words</button></div>`
+            : this.emptyState('No vocabulary in this chapter.');
+          return p.innerHTML = head + msg;
+        }
+
+        if (s.i >= s.deck.length) {
+          const perfect = s.again === 0;
+          return p.innerHTML = head + `
+            <div class="summary">
+              <div class="big">${perfect ? '🏆' : '💪'}</div>
+              <h2>${perfect ? 'Perfect round!' : 'Round complete'}</h2>
+              <p>${perfect ? 'You knew every card.' : 'Go again with just the cards you missed.'}</p>
+              <div class="stat-row">
+                <div class="stat"><b style="color:var(--ok)">${s.got}</b><span>Got it</span></div>
+                <div class="stat"><b style="color:var(--bad)">${s.again}</b><span>Practise</span></div>
+              </div>
+              <div class="btn-row">
+                ${s.again ? `<button class="btn btn-primary" data-action="c-again">${icon('restart')} Practise ${s.again} missed</button>` : ''}
+                <button class="btn" data-action="c-restart">Start over</button>
+              </div>
+            </div>`;
+        }
+
+        const w = s.deck[s.i];
+        const deFace = `
+          <div class="fface-mid">
+            ${w.article ? `<span class="gtag">${{ der: 'masculine', die: 'feminine', das: 'neuter' }[w.article]}</span>` : ''}
+            <div class="fword">${this.deHtml(w)}</div>
+            ${this.wordExtra(w) ? `<div class="fsub">${this.wordExtra(w)}</div>` : ''}
+          </div>`;
+        const enFace = `<div class="fface-mid"><div class="fword">${esc(w.en)}</div></div>`;
+        const [front, back] = dir === 'de-en' ? [deFace, enFace] : [enFace, deFace];
+        const [fl, bl] = dir === 'de-en' ? ['German', 'English'] : ['English', 'German'];
+        const status = Store.status(w.de);
+
+        p.innerHTML = head + `
+          <div class="deck-bar"><i style="width:${s.i / s.deck.length * 100}%"></i></div>
+          <div class="card-stage">
+            <div class="fcard ${s.flipped ? 'flipped' : ''} ${gClass(w)}" id="fcard" data-action="c-flip">
+              <span class="swipe-tag l">PRACTISE</span><span class="swipe-tag r">GOT IT</span>
+              <div class="fface ${dir === 'de-en' && w.article ? 'g' : ''}">
+                <div class="fface-top"><span>${fl}</span>${dir === 'de-en' ? this.speakBtn(w.de) : `<span>${status === 'hard' ? '⚠ practise' : status === 'learned' ? '✓ mastered' : ''}</span>`}</div>
+                ${front}
+                <div class="fhint">Tap to reveal</div>
+              </div>
+              <div class="fface back ${dir === 'en-de' && w.article ? 'g' : ''}">
+                <div class="fface-top"><span>${bl}</span>${dir === 'en-de' ? this.speakBtn(w.de) : ''}</div>
+                ${back}
+                <div class="fhint">Did you know it?</div>
+              </div>
+            </div>
+          </div>
+          <div class="rate">
+            <button class="btn btn-lg btn-bad" data-action="c-rate" data-r="hard">${icon('x')} Practise</button>
+            <button class="btn btn-lg btn-ok" data-action="c-rate" data-r="learned">${icon('check')} Got it</button>
+          </div>
+          <div class="deck-nav">
+            <button class="btn btn-sm btn-ghost" data-action="c-step" data-d="-1" ${s.i === 0 ? 'disabled style="opacity:.4"' : ''}>${icon('left')} Back</button>
+            <span class="muted small" style="font-variant-numeric:tabular-nums">${s.i + 1} / ${s.deck.length}</span>
+            <button class="btn btn-sm btn-ghost" data-action="c-step" data-d="1">Skip ${icon('right')}</button>
+          </div>
+          <div class="kbd-hint"><kbd>Space</kbd> flip · <kbd>←</kbd> practise · <kbd>→</kbd> got it · <kbd>S</kbd> speak · or swipe the card</div>`;
+
+        this.attachSwipe($('#fcard'));
+        if (Store.d.settings.autoSpeak && (dir === 'de-en' ? !s.flipped : s.flipped)) Speech.say(w.de);
+      },
+
+      flipCard() {
+        const s = this.s, el = $('#fcard');
+        if (!el) return;
+        s.flipped = !s.flipped;
+        el.classList.toggle('flipped', s.flipped);
+        if (s.flipped && Store.d.settings.autoSpeak && Store.d.settings.dir === 'en-de') Speech.say(s.deck[s.i].de);
+      },
+
+      rateCard(r) {
+        const s = this.s, w = s.deck[s.i];
+        if (!w) return;
+        Store.setStatus(w.de, r);
+        if (r === 'learned') s.got++; else { s.again++; s.againList.push(w); }
+        s.i++; s.flipped = false;
+        this.refreshStats(); this.renderCards($('#panel'));
+      },
+
+      attachSwipe(el) {
+        let x0 = null, y0 = null, dx = 0, moved = false;
+        const tagL = el.querySelector('.swipe-tag.l'), tagR = el.querySelector('.swipe-tag.r');
+        el.addEventListener('pointerdown', e => { if (e.target.closest('.speak')) return; x0 = e.clientX; y0 = e.clientY; dx = 0; moved = false; });
+        el.addEventListener('pointermove', e => {
+          if (x0 == null) return;
+          dx = e.clientX - x0;
+          if (!moved && Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(e.clientY - y0)) { moved = true; el.classList.add('dragging'); try { el.setPointerCapture(e.pointerId); } catch (_) {} }
+          if (moved) {
+            const flip = this.s.flipped ? ' rotateY(180deg)' : '';
+            el.style.transform = `translateX(${dx}px) rotate(${dx / 25}deg)${flip}`;
+            tagL.style.opacity = Math.max(0, -dx / 100); tagR.style.opacity = Math.max(0, dx / 100);
+          }
+        });
+        const end = () => {
+          if (x0 == null) return;
+          x0 = null;
+          if (!moved) return;
+          el.classList.remove('dragging');
+          el.dataset.swiped = '1'; setTimeout(() => delete el.dataset.swiped, 50);
+          if (Math.abs(dx) > 90) return this.rateCard(dx > 0 ? 'learned' : 'hard');
+          el.style.transform = ''; tagL.style.opacity = tagR.style.opacity = 0;
+        };
+        el.addEventListener('pointerup', end);
+        el.addEventListener('pointercancel', end);
+      },
+
+      on_cards(a, el) {
+        const s = this.s;
+        if (a === 'c-flip') { if (el.dataset.swiped) return; return this.flipCard(); }
+        if (a === 'c-rate') return this.rateCard(el.dataset.r);
+        if (a === 'c-step') { s.i = Math.max(0, s.i + +el.dataset.d); s.flipped = false; return this.renderCards($('#panel')); }
+        if (a === 'c-filter') { s.filter = el.dataset.f; this.buildDeck(); return this.renderCards($('#panel')); }
+        if (a === 'c-shuffle') { s.shuffled = !s.shuffled; this.buildDeck(); return this.renderCards($('#panel')); }
+        if (a === 'c-dir') { Store.d.settings.dir = Store.d.settings.dir === 'de-en' ? 'en-de' : 'de-en'; Store.save(); s.flipped = false; return this.renderCards($('#panel')); }
+        if (a === 'c-restart') { this.buildDeck(); return this.renderCards($('#panel')); }
+        if (a === 'c-again') { const list = s.shuffled ? shuffle(s.againList) : s.againList; Object.assign(s, { deck: list, i: 0, flipped: false, got: 0, again: 0, againList: [] }); return this.renderCards($('#panel')); }
+      },
+      key_cards(e, typing) {
+        if (typing || !this.s.deck || this.s.i >= this.s.deck.length) return;
+        if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); this.flipCard(); }
+        else if (e.key === 'ArrowLeft' || e.key === '1') this.rateCard('hard');
+        else if (e.key === 'ArrowRight' || e.key === '2') this.rateCard('learned');
+        else if (e.key.toLowerCase() === 's') Speech.say(this.s.deck[this.s.i].de);
+      },
+
+      /* ================= 2. Quiz (multiple choice) ================= */
+      renderQuiz(p) {
+        const s = this.s, list = this.words();
+        if (list.length < 4) return p.innerHTML = this.emptyState('This chapter needs at least 4 words for a quiz.');
+        if (!s.qs) {
+          const src = s.retry || pick(list, Math.min(10, list.length));
+          s.qs = src.map(w => {
+            const toEn = Math.random() < 0.5;
+            const field = toEn ? 'en' : 'de';
+            return { w, toEn, answer: w[field], opts: shuffle([w[field], ...this.distractors(w, 3, field)]) };
+          });
+          Object.assign(s, { i: 0, score: 0, missed: [], answered: false, retry: null });
+        }
+        if (s.i >= s.qs.length) {
+          const pctv = Math.round(s.score / s.qs.length * 100);
+          const { better, prev } = this.recordBest('quiz', pctv);
+          return p.innerHTML = `
+            <div class="summary">
+              <div class="big">${pctv === 100 ? '🏆' : pctv >= 70 ? '🎯' : '📚'}</div>
+              <h2>${s.score} / ${s.qs.length} correct</h2>
+              <p>${better && prev != null ? 'New personal best for this chapter!' : pctv === 100 ? 'Flawless.' : 'Missed words were added to “Practise”.'}</p>
+              ${s.missed.length ? `<div class="wlist" style="text-align:left;margin:0 auto 22px;max-width:460px">${s.missed.map(w => `
+                <div class="wrow ${gClass(w)}"><span class="bar"></span><div><div class="de">${this.deHtml(w)}</div><div class="en">${esc(w.en)}</div></div><span></span></div>`).join('')}</div>` : ''}
+              <div class="btn-row">
+                ${s.missed.length ? `<button class="btn btn-primary" data-action="q-retry">${icon('restart')} Retry ${s.missed.length} missed</button>` : ''}
+                <button class="btn" data-action="q-new">New quiz</button>
+              </div>
+            </div>`;
+        }
+        const q = s.qs[s.i];
+        p.innerHTML = `
+          <div class="q-meta"><span>Question ${s.i + 1} / ${s.qs.length}</span><span style="color:var(--ok)">${s.score} correct</span></div>
+          <div class="deck-bar"><i style="width:${s.i / s.qs.length * 100}%"></i></div>
+          <div class="q-prompt">
+            <div class="q-label">${q.toEn ? 'What does this mean?' : 'How do you say this in German?'}</div>
+            <div class="q-word ${gClass(q.w)}">${q.toEn ? this.deHtml(q.w) + this.speakBtn(q.w.de) : esc(q.w.en)}</div>
+          </div>
+          <div class="opts">${q.opts.map((o, i) => `<button class="opt" data-action="q-ans" data-i="${i}"><span class="n">${i + 1}</span><span>${esc(o)}</span></button>`).join('')}</div>
+          <div id="fb"></div>
+          <div class="kbd-hint"><kbd>1</kbd>–<kbd>4</kbd> answer · <kbd>Enter</kbd> next</div>`;
+      },
+      answerQuiz(i) {
+        const s = this.s, q = s.qs[s.i];
+        if (s.answered || !q) return;
+        s.answered = true;
+        const btns = [...document.querySelectorAll('.opt')];
+        btns.forEach(b => b.disabled = true);
+        const correct = q.opts[i] === q.answer;
+        btns.forEach((b, j) => { if (q.opts[j] === q.answer) b.classList.add('correct'); });
+        if (correct) s.score++;
+        else { btns[i].classList.add('wrong'); s.missed.push(q.w); Store.setStatus(q.w.de, 'hard'); this.refreshStats(); }
+        $('#fb').innerHTML = `<div class="feedback ${correct ? 'ok' : 'bad'}">
+          <span class="fb-text">${correct ? 'Correct!' : 'Not quite'}<small>${this.deHtml(q.w)} = ${esc(q.w.en)}</small></span>
+          <button class="btn btn-sm btn-primary" data-action="q-next">Next ${icon('right')}</button></div>`;
+        if (correct) setTimeout(() => { if (this.s === s && s.answered && s.qs[s.i] === q) this.nextQuiz(); }, 900);
+      },
+      nextQuiz() { const s = this.s; s.i++; s.answered = false; this.renderQuiz($('#panel')); },
+      on_quiz(a, el) {
+        if (a === 'q-ans') return this.answerQuiz(+el.dataset.i);
+        if (a === 'q-next') return this.nextQuiz();
+        if (a === 'q-retry') { const m = this.s.missed; this.s = { retry: shuffle(m) }; return this.renderQuiz($('#panel')); }
+        if (a === 'q-new') { this.s = {}; return this.renderQuiz($('#panel')); }
+      },
+      key_quiz(e, typing) {
+        if (typing || !this.s.qs) return;
+        if (/^[1-4]$/.test(e.key)) this.answerQuiz(+e.key - 1);
+        else if (e.key === 'Enter' && this.s.answered) this.nextQuiz();
+      },
+
+      /* ================= 3. Write (type the German) ================= */
+      norm(t) { return t.toLowerCase().replace(/[.,!?¿¡;:"“”„]/g, '').replace(/\s+/g, ' ').trim(); },
+      fold(t) { return this.norm(t).replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss'); },
+      renderType(p) {
+        const s = this.s, list = this.words();
+        if (!list.length) return p.innerHTML = this.emptyState('No vocabulary in this chapter.');
+        if (!s.qs) Object.assign(s, { qs: s.retry || pick(list, Math.min(10, list.length)), i: 0, score: 0, missed: [], done: false, retry: null });
+        if (s.i >= s.qs.length) {
+          return p.innerHTML = `
+            <div class="summary">
+              <div class="big">${s.score === s.qs.length ? '🏆' : '✍️'}</div>
+              <h2>${s.score} / ${s.qs.length} spelled right</h2>
+              <p>Correct answers count as mastered; mistakes go to “Practise”.</p>
+              <div class="btn-row">
+                ${s.missed.length ? `<button class="btn btn-primary" data-action="t-retry">${icon('restart')} Retry ${s.missed.length} missed</button>` : ''}
+                <button class="btn" data-action="t-new">New round</button>
+              </div>
+            </div>`;
+        }
+        const w = s.qs[s.i];
+        p.innerHTML = `
+          <div class="q-meta"><span>Word ${s.i + 1} / ${s.qs.length}</span><span style="color:var(--ok)">${s.score} correct</span></div>
+          <div class="deck-bar"><i style="width:${s.i / s.qs.length * 100}%"></i></div>
+          <div class="q-prompt">
+            <div class="q-label">Write in German${w.article ? ' — include the article' : ''}</div>
+            <div class="q-word">${esc(w.en)}</div>
+            ${w.note ? `<div class="muted small" style="margin-top:6px">(${esc(w.note)})</div>` : ''}
+          </div>
+          <form class="type-box" id="type-form" autocomplete="off">
+            <input class="type-input" id="type-in" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" placeholder="Type here…" aria-label="Your answer">
+            <button class="btn btn-primary btn-lg" type="submit" id="type-go">Check</button>
+          </form>
+          <div class="umlauts">${['ä', 'ö', 'ü', 'ß'].map(c => `<button type="button" data-action="t-char" data-c="${c}">${c}</button>`).join('')}</div>
+          <div id="fb"></div>
+          <div class="kbd-hint"><kbd>Enter</kbd> check / next · leave empty and press Enter to reveal</div>`;
+        const inp = $('#type-in');
+        $('#type-form').addEventListener('submit', e => { e.preventDefault(); s.done ? this.nextType() : this.checkType(); });
+        setTimeout(() => inp.focus({ preventScroll: true }), 30);
+      },
+      checkType() {
+        const s = this.s, w = s.qs[s.i], inp = $('#type-in');
+        const val = inp.value;
+        const alts = w.de.split(/\s*\/\s*/).concat(w.de);
+        let result = 'bad';
+        if (val.trim()) {
+          if (alts.some(a => this.norm(a) === this.norm(val))) result = 'ok';
+          else if (alts.some(a => this.fold(a) === this.fold(val))) result = 'ok-umlaut';
+          else if (w.article && this.norm(val) === this.norm(w.noun)) result = 'no-article';
+        }
+        s.done = true;
+        inp.readOnly = true;
+        const good = result === 'ok' || result === 'ok-umlaut';
+        inp.classList.add(good ? 'ok' : 'bad');
+        if (good) { s.score++; Store.setStatus(w.de, 'learned'); }
+        else if (result !== 'no-article') { s.missed.push(w); Store.setStatus(w.de, 'hard'); }
+        else s.missed.push(w);
+        this.refreshStats();
+        const msg = {
+          'ok': ['ok', 'Richtig!', ''],
+          'ok-umlaut': ['ok', 'Correct — mind the spelling', `Exact form: ${esc(w.de)}`],
+          'no-article': ['meh', `Almost — don't forget the article`, `<span class="${gClass(w)}">${this.deHtml(w)}</span>`],
+          'bad': ['bad', val.trim() ? 'Not quite' : 'Answer', `<span class="${gClass(w)}">${this.deHtml(w)}</span>${w.plural ? ` · Pl. ${esc(w.plural)}` : ''}`],
+        }[result];
+        $('#type-go').textContent = 'Next';
+        $('#fb').innerHTML = `<div class="feedback ${msg[0]}"><span class="fb-text">${msg[1]}${msg[2] ? `<small>${msg[2]}</small>` : ''}</span>${this.speakBtn(w.de)}</div>`;
+        if (Store.d.settings.autoSpeak) Speech.say(w.de);
+      },
+      nextType() { const s = this.s; s.i++; s.done = false; this.renderType($('#panel')); },
+      on_type(a, el) {
+        if (a === 't-char') {
+          const inp = $('#type-in'); if (!inp || inp.readOnly) return;
+          const st = inp.selectionStart ?? inp.value.length, en = inp.selectionEnd ?? st;
+          inp.value = inp.value.slice(0, st) + el.dataset.c + inp.value.slice(en);
+          inp.focus(); inp.setSelectionRange(st + 1, st + 1); return;
+        }
+        if (a === 't-retry') { const m = this.s.missed; this.s = { retry: shuffle(m) }; return this.renderType($('#panel')); }
+        if (a === 't-new') { this.s = {}; return this.renderType($('#panel')); }
+      },
+      key_type(e, typing) {
+        if (!typing && e.key === 'Enter' && this.s.done) this.nextType();
+      },
+
+      /* ================= 4. der / die / das ================= */
+      renderArticles(p) {
+        const s = this.s;
+        const nouns = this.words().filter(w => w.article);
+        if (nouns.length < 3) return p.innerHTML = this.emptyState('This chapter has too few nouns for the article trainer.');
+        if (!s.deck) Object.assign(s, { deck: shuffle(nouns), i: 0, score: 0, streak: 0, bestStreak: 0, answered: false });
+        if (s.i >= s.deck.length) {
+          const { better } = this.recordBest('articles', s.bestStreak);
+          return p.innerHTML = `
+            <div class="summary">
+              <div class="big">${s.score === s.deck.length ? '🏆' : '🏷️'}</div>
+              <h2>${s.score} / ${s.deck.length} articles right</h2>
+              <p>Longest streak: <b>${s.bestStreak}</b>${better ? ' — new best!' : ''}</p>
+              <button class="btn btn-primary" data-action="a-new">${icon('restart')} Play again</button>
+            </div>`;
+        }
+        const w = s.deck[s.i];
+        p.innerHTML = `
+          <div class="q-meta"><span>${s.i + 1} / ${s.deck.length}</span><span>${s.streak > 1 ? `<span class="combo">${icon('flame')} ${s.streak} in a row</span>` : `<span style="color:var(--ok)">${s.score} correct</span>`}</span></div>
+          <div class="deck-bar"><i style="width:${s.i / s.deck.length * 100}%"></i></div>
+          <div class="q-prompt">
+            <div class="q-label">Which article?</div>
+            <div class="art-word"><span class="art-slot" id="art-slot">&nbsp;</span>${esc(w.noun)}</div>
+            <div class="muted">${esc(w.en)}</div>
+          </div>
+          <div class="art-btns">
+            ${['der', 'die', 'das'].map((a, i) => `<button class="art-btn gender-${a}" data-action="a-ans" data-a="${a}">${a}<small>${['masc.', 'fem.', 'neut.'][i]}</small></button>`).join('')}
+          </div>
+          <div id="fb"></div>
+          <div class="kbd-hint"><kbd>1</kbd> der · <kbd>2</kbd> die · <kbd>3</kbd> das · <kbd>Enter</kbd> next</div>`;
+      },
+      answerArticle(a) {
+        const s = this.s, w = s.deck[s.i];
+        if (s.answered || !w) return;
+        s.answered = true;
+        const ok = a === w.article;
+        document.querySelectorAll('.art-btn').forEach(b => {
+          b.disabled = true;
+          if (b.dataset.a === w.article) b.classList.add('correct');
+          else if (b.dataset.a === a) b.classList.add('wrong');
+        });
+        const slot = $('#art-slot');
+        slot.textContent = w.article; slot.className = `art-slot art gender-${w.article}`; slot.style.borderBottomStyle = 'solid';
+        slot.style.borderColor = 'var(--g)';
+        if (ok) { s.score++; s.streak++; s.bestStreak = Math.max(s.bestStreak, s.streak); }
+        else { s.streak = 0; Store.setStatus(w.de, 'hard'); this.refreshStats(); }
+        if (ok) { Speech.ok && Store.d.settings.autoSpeak && Speech.say(w.de); setTimeout(() => { if (this.s === s && s.deck[s.i] === w) this.nextArticle(); }, 650); }
+        else $('#fb').innerHTML = `<div class="feedback bad"><span class="fb-text">It's <span class="art gender-${w.article}">${w.article}</span> ${esc(w.noun)}${w.plural ? `<small>Plural: ${esc(w.plural)}</small>` : ''}</span><button class="btn btn-sm btn-primary" data-action="a-next">Next ${icon('right')}</button></div>`;
+      },
+      nextArticle() { const s = this.s; s.i++; s.answered = false; this.renderArticles($('#panel')); },
+      on_articles(a, el) {
+        if (a === 'a-ans') return this.answerArticle(el.dataset.a);
+        if (a === 'a-next') return this.nextArticle();
+        if (a === 'a-new') { this.s = {}; return this.renderArticles($('#panel')); }
+      },
+      key_articles(e, typing) {
+        if (typing || !this.s.deck) return;
+        const m = { '1': 'der', '2': 'die', '3': 'das', 'q': 'der', 'w': 'die', 'e': 'das' }[e.key.toLowerCase()];
+        if (m) this.answerArticle(m);
+        else if (e.key === 'Enter' && this.s.answered) this.nextArticle();
+      },
+
+      /* ================= 5. Match ================= */
+      renderMatch(p) {
+        const s = this.s, list = this.words();
+        if (list.length < 3) return p.innerHTML = this.emptyState('This chapter needs at least 3 words for matching.');
+        if (!s.pairs) {
+          const pairs = pick(list, Math.min(6, list.length));
+          Object.assign(s, { pairs, left: shuffle(pairs.map((w, i) => ({ i, text: w.de }))), right: shuffle(pairs.map((w, i) => ({ i, text: w.en }))), sel: null, hits: new Set(), errors: 0, t0: null, time: 0 });
+        }
+        if (s.hits.size === s.pairs.length) {
+          const { better, prev } = this.recordBest('match', s.time, false);
+          return p.innerHTML = `
+            <div class="summary">
+              <div class="big">⚡</div>
+              <h2>All matched in ${s.time.toFixed(1)}s</h2>
+              <p>${s.errors} mistake${s.errors === 1 ? '' : 's'}${better && prev != null ? ' · new best time!' : prev != null ? ` · best ${prev.toFixed(1)}s` : ''}</p>
+              <button class="btn btn-primary" data-action="m-new">${icon('restart')} Next round</button>
+            </div>`;
+        }
+        const best = this.getBest('match');
+        const tile = (t, side) => `<button class="tile ${s.hits.has(t.i) ? 'hit' : ''} ${s.sel && s.sel.side === side && s.sel.i === t.i ? 'sel' : ''}" data-action="m-tile" data-side="${side}" data-i="${t.i}">${esc(t.text)}</button>`;
+        p.innerHTML = `
+          <div class="q-meta"><span>${s.hits.size} / ${s.pairs.length} pairs</span><span id="m-time" style="font-variant-numeric:tabular-nums">${best != null ? `Best ${best.toFixed(1)}s · ` : ''}${s.t0 ? ((Date.now() - s.t0) / 1000).toFixed(0) + 's' : 'Tap to start'}</span></div>
+          <div class="match-grid">
+            <div class="match-col">${s.left.map(t => tile(t, 'L')).join('')}</div>
+            <div class="match-col">${s.right.map(t => tile(t, 'R')).join('')}</div>
+          </div>
+          <div class="btn-row" style="margin-top:16px"><button class="btn btn-sm btn-ghost" data-action="m-new">${icon('shuffle')} New words</button></div>`;
+        if (s.t0) this.timers.push(setInterval(() => { const el = $('#m-time'); if (el) el.textContent = `${best != null ? `Best ${best.toFixed(1)}s · ` : ''}${((Date.now() - s.t0) / 1000).toFixed(0)}s`; }, 500));
+      },
+      on_match(a, el) {
+        const s = this.s;
+        if (a === 'm-new') { this.s = {}; return this.renderMatch($('#panel')); }
+        if (a !== 'm-tile' || s.lock) return;
+        const side = el.dataset.side, i = +el.dataset.i;
+        if (s.hits.has(i)) return;
+        if (!s.t0) { s.t0 = Date.now(); }
+        if (!s.sel || s.sel.side === side) { s.sel = { side, i }; if (side === 'L') Speech.ok && Store.d.settings.autoSpeak && Speech.say(s.pairs[i].de); return this.renderMatch($('#panel')); }
+        if (s.sel.i === i) {
+          s.hits.add(i); s.sel = null;
+          if (s.hits.size === s.pairs.length) s.time = (Date.now() - s.t0) / 1000;
+          return this.renderMatch($('#panel'));
+        }
+        s.errors++;
+        const other = document.querySelector(`.tile[data-side="${s.sel.side}"][data-i="${s.sel.i}"]`);
+        el.classList.add('miss'); other && other.classList.replace('sel', 'miss');
+        s.lock = true; s.sel = null;
+        setTimeout(() => { s.lock = false; if (this.s === s) this.renderMatch($('#panel')); }, 450);
+      },
+
+      /* ================= 6. Sprint ================= */
+      SPRINT_TIME: 60,
+      renderSprint(p) {
+        const s = this.s, list = this.words();
+        if (list.length < 4) return p.innerHTML = this.emptyState('This chapter needs at least 4 words for Sprint.');
+        if (!s.phase) s.phase = 'intro';
+        const best = this.getBest('sprint');
+        if (s.phase === 'intro') {
+          return p.innerHTML = `
+            <div class="hero">
+              <div class="hero-icon">${icon('zap')}</div>
+              <h2>60-second sprint</h2>
+              <p>Answer as many as you can. Right answers build a combo, wrong ones cost 3 seconds.</p>
+              ${best != null ? `<p class="small" style="margin-top:-10px">${icon('trophy')} Best in this chapter: <b style="color:var(--accent)">${best}</b></p>` : ''}
+              <button class="btn btn-primary btn-lg" data-action="s-start" style="padding:0 32px">Start ${icon('zap')}</button>
+            </div>`;
+        }
+        if (s.phase === 'over') {
+          const { better, prev } = this.recordBest('sprint', s.score);
+          return p.innerHTML = `
+            <div class="summary">
+              <div class="big">${better && prev != null ? '🏆' : '⏱️'}</div>
+              <h2>${s.score} correct</h2>
+              <p>${better && prev != null ? `New record! (was ${prev})` : prev != null ? `Best: ${Math.max(prev, s.score)}` : 'First run recorded.'} · top combo ${s.maxCombo}</p>
+              <button class="btn btn-primary" data-action="s-start">${icon('restart')} Go again</button>
+            </div>`;
+        }
+        const q = s.q;
+        p.innerHTML = `
+          <div class="timer-bar ${s.left <= 10 ? 'low' : ''}"><i id="s-bar" style="width:${s.left / this.SPRINT_TIME * 100}%"></i></div>
+          <div class="q-meta"><span id="s-left" style="font-variant-numeric:tabular-nums">${s.left}s</span><span>${s.combo > 1 ? `<span class="combo">×${s.combo} combo</span> · ` : ''}Score <b style="color:var(--text)">${s.score}</b></span></div>
+          <div class="q-prompt"><div class="q-label">${q.toEn ? 'English?' : 'German?'}</div><div class="q-word ${gClass(q.w)}">${q.toEn ? this.deHtml(q.w) : esc(q.w.en)}</div></div>
+          <div class="opts">${q.opts.map((o, i) => `<button class="opt" data-action="s-ans" data-i="${i}"><span class="n">${i + 1}</span><span>${esc(o)}</span></button>`).join('')}</div>
+          <div class="kbd-hint"><kbd>1</kbd>–<kbd>4</kbd> answer</div>`;
+        this.timers.push(setInterval(() => this.sprintTick(), 1000));
+      },
+      sprintQ() {
+        const list = this.words(), w = list[Math.floor(Math.random() * list.length)];
+        const toEn = Math.random() < 0.5, f = toEn ? 'en' : 'de';
+        return { w, toEn, answer: w[f], opts: shuffle([w[f], ...this.distractors(w, 3, f)]) };
+      },
+      sprintTick() {
+        const s = this.s;
+        if (s.phase !== 'run') return;
+        s.left--;
+        if (s.left <= 0) { s.phase = 'over'; this.touchAndRender(); return; }
+        const bar = $('#s-bar'), lab = $('#s-left');
+        if (bar) { bar.style.width = `${s.left / this.SPRINT_TIME * 100}%`; bar.parentElement.classList.toggle('low', s.left <= 10); }
+        if (lab) lab.textContent = `${s.left}s`;
+      },
+      touchAndRender() { Store.touchStreak(); Store.save(); this.renderStreak(); this.renderSprint($('#panel')); },
+      answerSprint(i) {
+        const s = this.s;
+        if (s.phase !== 'run' || s.lock) return;
+        const ok = s.q.opts[i] === s.q.answer;
+        const btn = document.querySelectorAll('.opt')[i];
+        if (ok) { s.score++; s.combo++; s.maxCombo = Math.max(s.maxCombo, s.combo); btn.classList.add('correct'); }
+        else {
+          s.combo = 0; s.left = Math.max(0, s.left - 3); btn.classList.add('wrong');
+          document.querySelectorAll('.opt').forEach((b, j) => { if (s.q.opts[j] === s.q.answer) b.classList.add('correct'); });
+        }
+        s.lock = true;
+        setTimeout(() => {
+          if (this.s !== s) return;
+          s.lock = false;
+          if (s.left <= 0) { s.phase = 'over'; return this.touchAndRender(); }
+          s.q = this.sprintQ(); this.clearTimers(); this.renderSprint($('#panel'));
+        }, ok ? 220 : 700);
+      },
+      on_sprint(a, el) {
+        if (a === 's-start') { this.s = { phase: 'run', left: this.SPRINT_TIME, score: 0, combo: 0, maxCombo: 0, q: this.sprintQ() }; return this.renderSprint($('#panel')); }
+        if (a === 's-ans') return this.answerSprint(+el.dataset.i);
+      },
+      key_sprint(e, typing) {
+        if (typing) return;
+        if (/^[1-4]$/.test(e.key)) this.answerSprint(+e.key - 1);
+        else if (e.key === 'Enter' && this.s.phase !== 'run') this.on_sprint('s-start');
+      },
+
+      /* ================= 7. Sentences ================= */
+      renderSentences(p) {
+        const s = this.s;
+        if (!s.qs) {
+          const phrases = this.words().filter(w => !w.article && w.de.split(/\s+/).length >= 3 && !w.de.includes('/') && !w.de.includes('...'));
+          Object.assign(s, { qs: shuffle(phrases).slice(0, 8), i: 0, score: 0, placed: [], checked: null });
+        }
+        if (!s.qs.length) return p.innerHTML = `<div class="hero"><div class="hero-icon">${icon('puzzle')}</div><h2>No sentences here</h2><p>This chapter only has single words. Try Flashcards or the Quiz — or pick a chapter with phrases like chapter 1.</p></div>`;
+        if (s.i >= s.qs.length) {
+          return p.innerHTML = `
+            <div class="summary"><div class="big">🧩</div><h2>${s.score} / ${s.qs.length} built correctly</h2><p>Word order is the hardest part of German — nice work.</p>
+            <button class="btn btn-primary" data-action="x-new">${icon('restart')} Play again</button></div>`;
+        }
+        const q = s.qs[s.i];
+        const words = q.de.replace(/[.?!]+$/, '').split(/\s+/);
+        if (!s.order || s.order.q !== q) s.order = { q, idx: shuffle(words.map((_, i) => i)) };
+        const placedSet = new Set(s.placed);
+        const cls = s.checked === true ? 'ok' : s.checked === false ? 'bad' : '';
+        p.innerHTML = `
+          <div class="q-meta"><span>Sentence ${s.i + 1} / ${s.qs.length}</span><span style="color:var(--ok)">${s.score} correct</span></div>
+          <div class="deck-bar"><i style="width:${s.i / s.qs.length * 100}%"></i></div>
+          <div class="q-prompt" style="padding-bottom:16px"><div class="q-label">Build this in German</div><div class="q-word">“${esc(q.en)}”</div></div>
+          <div class="build ${s.placed.length ? 'filled' : ''} ${cls}">
+            ${s.placed.length ? s.placed.map((wi, k) => `<button class="wchip placed" data-action="x-remove" data-k="${k}">${esc(words[wi])}</button>`).join('') : '<span class="muted small">Tap the words below in the right order</span>'}
+          </div>
+          <div class="pool">${s.order.idx.filter(i => !placedSet.has(i)).map(i => `<button class="wchip" data-action="x-place" data-i="${i}">${esc(words[i])}</button>`).join('')}</div>
+          <div class="btn-row">
+            ${s.checked === null ? `
+              <button class="btn" data-action="x-clear">Clear</button>
+              <button class="btn btn-primary" data-action="x-check" ${s.placed.length !== words.length ? 'disabled style="opacity:.5"' : ''}>Check</button>` :
+              `<button class="btn btn-primary" data-action="x-next">Next ${icon('right')}</button>`}
+          </div>
+          <div id="fb">${s.checked === false ? `<div class="feedback bad"><span class="fb-text">Correct order<small>${esc(q.de)}</small></span>${this.speakBtn(q.de)}</div>` : s.checked ? `<div class="feedback ok"><span class="fb-text">Richtig!<small>${esc(q.de)}</small></span>${this.speakBtn(q.de)}</div>` : ''}</div>`;
+        s.words = words;
+      },
+      on_sentences(a, el) {
+        const s = this.s, P = () => this.renderSentences($('#panel'));
+        if (a === 'x-new') { this.s = {}; return P(); }
+        if (s.checked !== null && a !== 'x-next') return;
+        if (a === 'x-place') { s.placed.push(+el.dataset.i); return P(); }
+        if (a === 'x-remove') { s.placed.splice(+el.dataset.k, 1); return P(); }
+        if (a === 'x-clear') { s.placed = []; return P(); }
+        if (a === 'x-check') {
+          const built = s.placed.map(i => s.words[i]).join(' ').toLowerCase();
+          s.checked = built === s.words.join(' ').toLowerCase();
+          if (s.checked) s.score++;
+          Store.touchStreak(); Store.save(); this.renderStreak();
+          return P();
+        }
+        if (a === 'x-next') { s.i++; s.placed = []; s.checked = null; s.order = null; return P(); }
+      },
+
+      /* ================= 8. Word list ================= */
+      renderWords(p) {
+        const s = this.s;
+        if (s.q == null) Object.assign(s, { q: '', f: 'all', all: false });
+        p.innerHTML = `
+          <div class="panel-head" style="margin-bottom:0">
+            <label class="search">${icon('search')}<input id="w-q" type="search" placeholder="Search German or English…" value="${esc(s.q)}" autocomplete="off"></label>
+          </div>
+          <div class="filters">
+            ${[['all', 'All'], ['new', 'New'], ['hard', 'Practise'], ['learned', 'Mastered']].map(([k, l]) => `<button class="fchip ${s.f === k ? 'on' : ''}" data-action="w-f" data-f="${k}">${l}</button>`).join('')}
+            <button class="fchip scope ${s.all ? 'on' : ''}" data-action="w-all">${icon('globe')} All chapters</button>
+          </div>
+          <div class="wlist" id="w-list"></div>`;
+        const inp = $('#w-q');
+        inp.addEventListener('input', () => { s.q = inp.value; this.renderWordRows(); });
+        this.renderWordRows();
+      },
+      renderWordRows() {
+        const s = this.s;
+        let rows = [];
+        if (s.all) { for (const lv of ['A1', 'A2']) for (let ch = 1; ch <= 24; ch++) for (const w of this.words(lv, ch)) rows.push({ w, lv, ch }); }
+        else rows = this.words().map(w => ({ w }));
+        const q = this.fold(s.q || '');
+        if (q) rows = rows.filter(({ w }) => this.fold(w.de).includes(q) || w.en.toLowerCase().includes(s.q.toLowerCase().trim()));
+        if (s.f !== 'all') rows = rows.filter(({ w }) => Store.status(w.de) === s.f);
+        const LABEL = { new: 'New', hard: 'Practise', learned: 'Mastered' };
+        const shown = rows.slice(0, 300);
+        $('#w-list').innerHTML = shown.length ? shown.map(({ w, lv, ch }) => {
+          const st = Store.status(w.de), extra = this.wordExtra(w);
+          return `<div class="wrow ${gClass(w)}">
+            <span class="bar"></span>
+            <div>
+              <div class="de">${this.deHtml(w)}</div>
+              <div class="en">${esc(w.en)}</div>
+              ${extra || lv ? `<div class="extra">${extra}${extra && lv ? ' · ' : ''}${lv ? `${lv} · Ch ${ch}` : ''}</div>` : ''}
+            </div>
+            <div class="acts">${this.speakBtn(w.de)}<button class="pill ${st}" data-action="w-cycle" data-key="${esc(w.de)}" title="Tap to change">${LABEL[st]}</button></div>
+          </div>`;
+        }).join('') + (rows.length > 300 ? `<div class="empty small">Showing 300 of ${rows.length} — refine your search.</div>` : '')
+          : this.emptyState(s.q ? 'No words match your search.' : 'Nothing here yet.');
+      },
+      on_words(a, el) {
+        const s = this.s;
+        if (a === 'w-f') { s.f = el.dataset.f; document.querySelectorAll('.fchip[data-f]').forEach(b => b.classList.toggle('on', b.dataset.f === s.f)); return this.renderWordRows(); }
+        if (a === 'w-all') { s.all = !s.all; el.classList.toggle('on', s.all); return this.renderWordRows(); }
+        if (a === 'w-cycle') {
+          const next = { new: 'hard', hard: 'learned', learned: 'new' }[Store.status(el.dataset.key)];
+          Store.setStatus(el.dataset.key, next);
+          this.refreshStats(); return this.renderWordRows();
+        }
+      },
+      key_words(e, typing) {
+        if (!typing && e.key === '/') { e.preventDefault(); $('#w-q')?.focus(); }
+      },
+    };
+
+    /* ==========================================
+       COMPLETE EMBEDDED RAW DATA FOR OFFLINE USE
+       ========================================== */
+
+    const rawA1Text = `
+===== A1 – Chapter 1 =====
+Wie heißt du? — What's your name? (informal)
+wie — how
+heißen — to be called / to be named  (heißt, hat geheißen)
+du — you (informal)
+ich — I
+Und wer bist du? — And who are you?
+wer — who
+sein — to be  (ist, ist gewesen)
+Ich bin — I am
+Hallo — hello
+Ah, du bist — Ah, you are...
+das Alphabet — alphabet  (pl. die Alphabete)
+Entschuldigung — excuse me / sorry; apology  (pl. die Entschuldigungen)
+Wie bitte? — Pardon? / Sorry, what?
+Danke — thanks / thank you
+Mein Name ist — My name is
+mein — my
+der Name — name  (pl. die Namen)
+der Vorname — first name  (pl. die Vornamen)
+der Familienname — surname / last name  (pl. die Familiennamen)
+Wie geht's dir? — How are you? (informal)
+gehen — to go / to walk  (geht, ist gegangen)
+dir — (to) you (informal, dative)
+Super! — Great!
+Sehr gut, danke — Very good, thanks
+Gut, danke — Fine, thanks
+Es geht — It's okay / so-so
+Nicht so gut — Not so good
+Und dir? — And you? (informal)
+woher — where from
+kommen — to come  (kommt, ist gekommen)
+aus — from / out of
+Eritrea — Eritrea
+Deutschland — Germany
+Wer ist das? — Who is that?
+das — this / that
+Das ist — This is / That is
+Sie lernt Deutsch — She is learning German
+sie — she
+er — he
+die Schweiz — Switzerland
+Er kommt aus der Schweiz — He comes from Switzerland
+tschüs — bye (informal)
+Auf Wiedersehen — goodbye (formal)
+die Musik — music
+das Land — country  (pl. die Länder)
+die Türkei — Turkey
+Spanien — Spain
+Frankreich — France
+Österreich — Austria
+die USA — the USA  (pl. die USA)
+die Information — information  (pl. die Informationen)
+Guten Tag — Good day / Hello
+Guten Morgen — Good morning
+Guten Abend — Good evening
+Gute Nacht — Good night
+Wer sind Sie? — Who are you? (formal)
+Sie — you (formal)
+der Herr — Mr. / gentleman  (pl. die Herren)
+die Frau — Mrs. / Ms. / woman  (pl. die Frauen)
+das Gespräch — conversation  (pl. die Gespräche)
+===== A1 – Chapter 2 =====
+das Jahr — year  (pl. die Jahre)
+alt — old
+verheiratet — married
+haben — to have  (hat, hat gehabt)
+das Kind — child  (pl. die Kinder)
+keine Kinder — no children
+kein — no / not a (negative article)
+wohnen — to live (reside)  (wohnt, hat gewohnt)
+in — in
+das Interview — interview  (pl. die Interviews)
+der Partner — partner  (pl. die Partner)
+Wie alt seid ihr? — How old are you (all)?
+ihr — you (plural, informal)
+Lebt ihr zusammen? — Do you live together?
+zusammenleben — to live together  (lebt zusammen, hat zusammengelebt)
+ja — yes
+wir — we
+aber — but
+wo — where
+der Satz — sentence  (pl. die Sätze)
+richtig — correct / right
+der Punkt — point / full stop  (pl. die Punkte)
+die Zahl — number  (pl. die Zahlen)
+das Rätsel — puzzle / riddle  (pl. die Rätsel)
+falsch — wrong / false
+Was ist ...? — What is ...?
+minus — minus
+plus — plus
+geschieden sein — to be divorced
+der Single — single (unmarried person)  (pl. die Singles)
+allein — alone
+Was macht ihr beruflich? — What do you (all) do for a living?
+machen — to do / to make  (macht, hat gemacht)
+beruflich — professionally / for work
+der Paketzusteller — parcel delivery driver  (pl. die Paketzusteller)
+arbeiten — to work  (arbeitet, hat gearbeitet)
+als — as (a job/role)
+bei — at / with (a company)
+die Firma — company / firm  (pl. die Firmen)
+der Job — job  (pl. die Jobs)
+vielen Dank — thank you very much
+der Beruf — profession / occupation  (pl. die Berufe)
+der Ingenieur — engineer  (pl. die Ingenieure)
+der Kfz-Mechatroniker — car mechanic  (pl. die Kfz-Mechatroniker)
+der Student — (university) student  (pl. die Studenten)
+der Journalist — journalist  (pl. die Journalisten)
+der Friseur — hairdresser / barber  (pl. die Friseure)
+der Architekt — architect  (pl. die Architekten)
+der Arzt — doctor  (pl. die Ärzte)
+der Lehrer — teacher  (pl. die Lehrer)
+der Verkäufer — salesperson / shop assistant  (pl. die Verkäufer)
+der Kellner — waiter  (pl. die Kellner)
+sammeln — to collect / to gather  (sammelt, hat gesammelt)
+von Beruf — by profession
+die Stelle — position / job; place  (pl. die Stellen)
+studieren — to study (at university)  (studiert, hat studiert)
+der Schüler — (school) pupil / student  (pl. die Schüler)
+der Rentner — pensioner / retiree  (pl. die Rentner)
+die Ausbildung — vocational training / apprenticeship  (pl. die Ausbildungen)
+das Praktikum — internship  (pl. die Praktika)
+im Moment — at the moment
+jetzt — now
+die Herkunft — origin  (pl. die Herkünfte)
+der Wohnort — place of residence  (pl. die Wohnorte)
+das Alter — age  (pl. die Alter)
+der Familienstand — marital status  (pl. die Familienstände)
+das Studium — university studies / degree  (pl. die Studien)
+die Krankenschwester — nurse (female)  (pl. die Krankenschwestern)
+das Tier — animal  (pl. die Tiere)
+der Tierarzt — vet / veterinarian  (pl. die Tierärzte)
+der Schauspieler — actor  (pl. die Schauspieler)
+der Sänger — singer  (pl. die Sänger)
+===== A1 – Chapter 3 =====
+die Familie — family  (pl. die Familien)
+die Mutter — mother  (pl. die Mütter)
+der Vater — father  (pl. die Väter)
+die Schwester — sister  (pl. die Schwestern)
+Ich glaube — I think / I believe
+glauben — to believe / to think  (glaubt, hat geglaubt)
+der Onkel — uncle  (pl. die Onkel)
+die Oma — grandma  (pl. die Omas)
+dein — your (informal)
+das Enkelkind — grandchild  (pl. die Enkelkinder)
+die Eltern — parents  (pl. die Eltern)
+der Sohn — son  (pl. die Söhne)
+die Tochter — daughter  (pl. die Töchter)
+der Bruder — brother  (pl. die Brüder)
+die Geschwister — siblings  (pl. die Geschwister)
+der Großvater — grandfather  (pl. die Großväter)
+die Großmutter — grandmother  (pl. die Großmütter)
+die Großeltern — grandparents  (pl. die Großeltern)
+der Enkel — grandson / grandchild  (pl. die Enkel)
+der Ehemann — husband  (pl. die Ehemänner)
+die Ehefrau — wife  (pl. die Ehefrauen)
+die Verwandten — relatives  (pl. die Verwandten)
+die Tante — aunt  (pl. die Tanten)
+planen — to plan  (plant, hat geplant)
+das Fest — celebration / festival / party  (pl. die Feste)
+die Liste — list  (pl. die Listen)
+nein — no
+doch — yes (contradicting a negative)
+Polen — Poland
+der Mann — man / husband  (pl. die Männer)
+das Mitglied — member  (pl. die Mitglieder)
+Spanisch — Spanish (language)
+Französisch — French (language)
+Welche Sprachen sprichst du? — Which languages do you speak?
+welche — which
+die Sprache — language  (pl. die Sprachen)
+sprechen — to speak  (spricht, hat gesprochen)
+ein bisschen — a little / a bit
+gar nicht — not at all
+Englisch — English (language)
+Russisch — Russian (language)
+Chinesisch — Chinese (language)
+Italienisch — Italian (language)
+Türkisch — Turkish (language)
+Deutsch — German (language)
+===== A1 – Chapter 4 =====
+zu Hause — at home
+das Geschäft — shop / store; business  (pl. die Geschäfte)
+die Möbel — furniture  (pl. die Möbel)
+das Bild — picture / image  (pl. die Bilder)
+schön — beautiful / nice
+teuer — expensive
+hässlich — ugly
+günstig — cheap / good value
+Ich finde — I think / I find (opinion)
+finden — to find; to think (opinion)  (findet, hat gefunden)
+der Stuhl — chair  (pl. die Stühle)
+oh — oh
+Oh ja! — Oh yes!
+Schau doch mal, da! — Look, over there!
+schauen — to look  (schaut, hat geschaut)
+mal — just / once (softening particle)
+da — there
+Wie viel kostet er denn? — So how much does it cost?
+wie viel — how much
+kosten — to cost  (kostet, hat gekostet)
+das Glück — luck; happiness
+nur — only
+der Euro — euro  (pl. die Euro)
+das Sonderangebot — special offer  (pl. die Sonderangebote)
+wirklich — really
+das Bett — bed  (pl. die Betten)
+das Sofa — sofa / couch  (pl. die Sofas)
+der Tisch — table  (pl. die Tische)
+kennen — to know (a person/place)  (kennt, hat gekannt)
+der Spiegel — mirror  (pl. die Spiegel)
+die Million — million  (pl. die Millionen)
+der Preis — price  (pl. die Preise)
+der Cent — cent  (pl. die Cent)
+das Zimmer — room  (pl. die Zimmer)
+modern — modern
+praktisch — practical
+zu — too (excessively)
+klein — small
+das Hotel — hotel  (pl. die Hotels)
+der Stern — star  (pl. die Sterne)
+groß — big / large; tall
+die Lampe — lamp  (pl. die Lampen)
+der Sessel — armchair  (pl. die Sessel)
+der Schrank — wardrobe / cupboard  (pl. die Schränke)
+der Teppich — carpet / rug  (pl. die Teppiche)
+das Regal — shelf  (pl. die Regale)
+===== A1 – Chapter 5 =====
+die Uhr — clock / watch; o'clock  (pl. die Uhren)
+das Auto — car  (pl. die Autos)
+das Handy — mobile phone  (pl. die Handys)
+zeichnen — to draw  (zeichnet, hat gezeichnet)
+ein — a / an (masc./neut.)
+eine — a / an (fem.)
+das Buch — book  (pl. die Bücher)
+der Bleistift — pencil  (pl. die Bleistifte)
+die Kamera — camera  (pl. die Kameras)
+die Tasche — bag  (pl. die Taschen)
+das Material — material  (pl. die Materialien)
+die Brille — glasses / spectacles  (pl. die Brillen)
+die Flasche — bottle  (pl. die Flaschen)
+die Kette — chain / necklace  (pl. die Ketten)
+der Kugelschreiber — ballpoint pen  (pl. die Kugelschreiber)
+der Schlüssel — key  (pl. die Schlüssel)
+das Holz — wood
+das Papier — paper  (pl. die Papiere)
+das Metall — metal  (pl. die Metalle)
+das Plastik — plastic
+das Glas — glass  (pl. die Gläser)
+weiß — white
+gelb — yellow
+orange — orange
+rot — red
+grün — green
+blau — blue
+braun — brown
+schwarz — black
+die Farbe — colour  (pl. die Farben)
+sehen — to see  (sieht, hat gesehen)
+etwas — something
+viele — many
+das Ding — thing  (pl. die Dinge)
+und so weiter — and so on / etc.
+sagen — to say  (sagt, hat gesagt)
+fragen — to ask  (fragt, hat gefragt)
+antworten — to answer  (antwortet, hat geantwortet)
+weiter — further / on (continue)
+das Feuerzeug — lighter  (pl. die Feuerzeuge)
+der Geldbeutel — wallet / purse  (pl. die Geldbeutel)
+das Taschentuch — tissue / handkerchief  (pl. die Taschentücher)
+der Regen — rain
+auf Deutsch — in German
+das Wort — word  (pl. die Wörter)
+nennen — to name / to call; to mention  (nennt, hat genannt)
+bitte — please; you're welcome
+Noch einmal, bitte. — Once more, please.
+Wie schreibt man ...? — How do you spell / write ...?
+schreiben — to write  (schreibt, hat geschrieben)
+man — one / you (general)
+sich bedanken — to say thank you / to thank  (bedankt sich, hat sich bedankt)
+danke schön — thank you very much
+das Problem — problem  (pl. die Probleme)
+Bitte schön. — You're welcome.
+Kein Problem. — No problem.
+das Wörterbuch — dictionary  (pl. die Wörterbücher)
+die Jacke — jacket  (pl. die Jacken)
+das Streichholz — match (for lighting)  (pl. die Streichhölzer)
+die Bürste — brush  (pl. die Bürsten)
+die Seife — soap  (pl. die Seifen)
+das Handtuch — towel  (pl. die Handtücher)
+der Föhn — hairdryer  (pl. die Föhne)
+Ich weiß nicht. — I don't know.
+online — online
+bestellen — to order  (bestellt, hat bestellt)
+die Sonne — sun  (pl. die Sonnen)
+die Sonnenbrille — sunglasses  (pl. die Sonnenbrillen)
+dunkel — dark
+hell — bright / light
+die Nummer — number  (pl. die Nummern)
+der Kunststoff — plastic (synthetic material)  (pl. die Kunststoffe)
+das Produkt — product  (pl. die Produkte)
+der Produktname — product name  (pl. die Produktnamen)
+die Menge — quantity / amount  (pl. die Mengen)
+das Formular — form (document)  (pl. die Formulare)
+die Anrede — form of address / salutation  (pl. die Anreden)
+die E-Mail — email  (pl. die E-Mails)
+das Telefon — telephone  (pl. die Telefone)
+das Haus — house  (pl. die Häuser)
+die Adresse — address  (pl. die Adressen)
+der Unterstrich — underscore (_)  (pl. die Unterstriche)
+die Straße — street  (pl. die Straßen)
+die Postleitzahl — postcode / ZIP code  (pl. die Postleitzahlen)
+die E-Mail-Adresse — email address  (pl. die E-Mail-Adressen)
+die Hausnummer — house number  (pl. die Hausnummern)
+der Ort — place / town  (pl. die Orte)
+die Telefonnummer — phone number  (pl. die Telefonnummern)
+===== A1 – Chapter 6 =====
+Oh Gott! — Oh God! / Oh my God!
+der Gott — God / god  (pl. die Götter)
+viel — much / a lot
+die Arbeit — work  (pl. die Arbeiten)
+Hilfe! — Help!
+das Passwort — password  (pl. die Passwörter)
+der Traum — dream  (pl. die Träume)
+der Albtraum — nightmare  (pl. die Albträume)
+die Person — person  (pl. die Personen)
+der Hunger — hunger
+telefonieren mit — to talk on the phone with  (telefoniert, hat telefoniert)
+das WLAN — Wi-Fi
+der Stift — pen  (pl. die Stifte)
+brauchen — to need  (braucht, hat gebraucht)
+der Kaffee — coffee  (pl. die Kaffees)
+die Nachricht — message; news  (pl. die Nachrichten)
+das Büro — office  (pl. die Büros)
+neu — new
+Viele Grüße — Best regards
+der Gruß — greeting  (pl. die Grüße)
+Yoga — yoga
+morgen — tomorrow
+leider — unfortunately
+die Zeit — time  (pl. die Zeiten)
+der Termin — appointment  (pl. die Termine)
+von — of / from
+Liebe Grüße — Love / Kind regards (informal)
+der Laptop — laptop  (pl. die Laptops)
+der Drucker — printer  (pl. die Drucker)
+die Maus — mouse  (pl. die Mäuse)
+der Computer — computer  (pl. die Computer)
+der Kalender — calendar  (pl. die Kalender)
+der Bildschirm — screen / monitor  (pl. die Bildschirme)
+das Tablet — tablet  (pl. die Tablets)
+die Visitenkarte — business card  (pl. die Visitenkarten)
+die Tastatur — keyboard  (pl. die Tastaturen)
+dann — then
+notieren — to note down  (notiert, hat notiert)
+in die Tasche packen — to put in the bag
+der Schreibtisch — desk  (pl. die Schreibtische)
+der Arbeitsplatz — workplace; workstation  (pl. die Arbeitsplätze)
+Ach, da ist er ja! — Ah, there it is!
+ach — oh / ah
+schon wieder — again (already)
+vielleicht — maybe / perhaps
+Hallo, ... hier. — Hello, ... speaking.
+Grüß Gott — hello (southern Germany & Austria)
+da ist ... — there is ...
+hier — here
+Was kann ich für Sie tun? — What can I do for you?
+da sein — to be there / to be present
+Auf Wiederhören. — Goodbye (on the phone)
+===== A1 – Chapter 7 =====
+können — can / to be able to  (kann, hat gekonnt)
+tanzen — to dance  (tanzt, hat getanzt)
+Ich finde das ... — I find that ... / I think that's ...
+toll — great / awesome
+normal — normal
+komisch — strange / funny (odd)
+überall — everywhere
+hören — to hear / to listen  (hört, hat gehört)
+zurzeit — currently / at the moment
+immer — always
+blöd — stupid / silly
+interessant — interesting
+lustig — funny
+kochen — to cook  (kocht, hat gekocht)
+singen — to sing  (singt, hat gesungen)
+schwimmen — to swim  (schwimmt, ist geschwommen)
+fotografieren — to take photos  (fotografiert, hat fotografiert)
+Schach spielen — to play chess
+malen — to paint  (malt, hat gemalt)
+backen — to bake  (bäckt, hat gebacken)
+Fußball spielen — to play football / soccer
+Tennis spielen — to play tennis
+Gitarre spielen — to play the guitar
+Rad fahren — to ride a bike / to cycle  (fährt Rad, ist Rad gefahren)
+Fahrrad fahren — to ride a bicycle  (fährt Fahrrad, ist Fahrrad gefahren)
+Ski fahren — to ski  (fährt Ski, ist Ski gefahren)
+reiten — to ride (a horse)  (reitet, ist geritten)
+das Hobby — hobby  (pl. die Hobbys)
+Du kannst ja ... — Wow, you can ...!
+Du kannst wirklich ... — You really can ...
+Du kannst aber ... — You sure can ...! (surprise)
+Herzlichen Dank! — Many thanks!
+wir alle — all of us
+alle drei — all three
+beide — both
+auch nicht — not ... either
+auflegen — to DJ / to play records; to hang up (phone)  (legt auf, hat aufgelegt)
+mixen — to mix  (mixt, hat gemixt)
+der DJ — DJ  (pl. die DJs)
+lieben — to love  (liebt, hat geliebt)
+das Kickboxen — kickboxing
+die Senioren — senior citizens  (pl. die Senioren)
+das Seniorenheim — retirement home  (pl. die Seniorenheime)
+richtig — really (intensifier); correct
+die Versicherung — insurance  (pl. die Versicherungen)
+der Kaufmann — businessman / merchant  (pl. die Kaufleute)
+der Versicherungskaufmann — insurance agent  (pl. die Versicherungskaufleute)
+die Freizeit — free time / leisure
+oft — often
+der Klub — club  (pl. die Klubs)
+das Fitnessstudio — gym  (pl. die Fitnessstudios)
+nie — never
+lange — long / for a long time
+manchmal — sometimes
+lesen — to read  (liest, hat gelesen)
+Freunde treffen — to meet friends
+der Freund — friend; boyfriend  (pl. die Freunde)
+fahren — to drive / to travel / to go (by vehicle)  (fährt, ist gefahren)
+der Ausflug — trip / excursion  (pl. die Ausflüge)
+im Internet surfen — to surf the internet
+das Internet — internet
+surfen — to surf  (surft, hat gesurft)
+Spaß machen — to be fun
+der Spaß — fun  (pl. die Späße)
+Lieblings- — favourite ...
+Was machst du gern? — What do you like doing?
+gern — gladly / (to like doing)
+in der Freizeit — in (one's) free time
+===== A1 – Chapter 8 =====
+das Schwimmbad — swimming pool  (pl. die Schwimmbäder)
+das Kino — cinema  (pl. die Kinos)
+heute — today
+der Nachmittag — afternoon  (pl. die Nachmittage)
+um — at (a time)
+der Wochentag — day of the week / weekday  (pl. die Wochentage)
+die Woche — week  (pl. die Wochen)
+der Donnerstag — Thursday  (pl. die Donnerstage)
+Wann? — When?
+das Wochenende — weekend  (pl. die Wochenenden)
+frei — free / off (not working)
+der Chat — chat  (pl. die Chats)
+die Nacht — night  (pl. die Nächte)
+Das weiß ich noch nicht. — I don't know yet.
+wissen — to know (a fact)  (weiß, hat gewusst)
+Lust auf ... — to feel like ...
+Keine Lust. — I don't feel like it.
+die Lust — desire / mood (to do sth.)
+die Idee — idea  (pl. die Ideen)
+Gute Idee. — Good idea.
+um Viertel nach — at quarter past
+spät — late
+der Montag — Monday  (pl. die Montage)
+der Dienstag — Tuesday  (pl. die Dienstage)
+der Mittwoch — Wednesday  (pl. die Mittwoche)
+der Freitag — Friday  (pl. die Freitage)
+der Samstag — Saturday  (pl. die Samstage)
+der Sonntag — Sunday  (pl. die Sonntage)
+okay — okay
+Bis dann! — See you then!
+der Morgen — morning  (pl. die Morgen)
+der Vormittag — late morning (before noon)  (pl. die Vormittage)
+der Mittag — midday / noon  (pl. die Mittage)
+der Abend — evening  (pl. die Abende)
+die Ausstellung — exhibition  (pl. die Ausstellungen)
+das Restaurant — restaurant  (pl. die Restaurants)
+das Museum — museum  (pl. die Museen)
+das Theater — theatre  (pl. die Theater)
+das Café — café  (pl. die Cafés)
+der Klub — club  (pl. die Klubs)
+das Fitnessstudio — gym  (pl. die Fitnessstudios)
+vor — before / to (time)
+nach — after / past (time)
+Viertel vor — quarter to
+halb — half (halb acht = 7:30)
+Wie viel Uhr ...? — What time ...?
+Wie spät ...? — What time ...? (lit. how late)
+Es ist ... — It is ... (o'clock)
+der Rücken — back (body)  (pl. die Rücken)
+Ja, genau. — Yes, exactly.
+der Vorschlag — suggestion  (pl. die Vorschläge)
+die Frage — question  (pl. die Fragen)
+die Antwort — answer  (pl. die Antworten)
+tut mir leid — I'm sorry
+===== A1 – Chapter 9 =====
+mögen — to like  (mag, hat gemocht)
+der Hamburger — hamburger  (pl. die Hamburger)
+die Schokolade — chocolate  (pl. die Schokoladen)
+der Käse — cheese  (pl. die Käse)
+der Salat — salad; lettuce  (pl. die Salate)
+der Tee — tea  (pl. die Tees)
+das Brot — bread  (pl. die Brote)
+das Fleisch — meat
+zum Frühstück — for breakfast
+das Frühstück — breakfast  (pl. die Frühstücke)
+besonders — especially
+Guten Appetit! — Enjoy your meal!
+hier bitte — here you go
+lecker — delicious / tasty
+essen — to eat  (isst, hat gegessen)
+der Ketchup — ketchup
+der Witz — joke  (pl. die Witze)
+fit — fit (in good shape)
+intelligent — intelligent
+prima — great / excellent
+das Gedicht — poem  (pl. die Gedichte)
+auf — on
+der Kuchen — cake  (pl. die Kuchen)
+die Suppe — soup  (pl. die Suppen)
+der Apfel — apple  (pl. die Äpfel)
+die Orange — orange (fruit)  (pl. die Orangen)
+der Fisch — fish  (pl. die Fische)
+die Tomate — tomato  (pl. die Tomaten)
+das Brötchen — bread roll  (pl. die Brötchen)
+die Marmelade — jam  (pl. die Marmeladen)
+der Saft — juice  (pl. die Säfte)
+trinken — to drink  (trinkt, hat getrunken)
+das Abendessen — dinner / supper  (pl. die Abendessen)
+das Mittagessen — lunch  (pl. die Mittagessen)
+das Getränk — drink / beverage  (pl. die Getränke)
+das Essen — food; meal  (pl. die Essen)
+die Butter — butter
+der Schinken — ham  (pl. die Schinken)
+das Ei — egg  (pl. die Eier)
+das Müsli — muesli / cereal  (pl. die Müsli)
+die Milch — milk
+wünschen — to wish; to want  (wünscht, hat gewünscht)
+möchten — would like  (möchte, hat gemocht)
+der Nusskuchen — nut cake  (pl. die Nusskuchen)
+der Apfelkuchen — apple cake / apple pie  (pl. die Apfelkuchen)
+der Schokoladenkuchen — chocolate cake  (pl. die Schokoladenkuchen)
+schade — what a pity / too bad
+na gut — oh well / all right then
+nehmen — to take; to have (order)  (nimmt, hat genommen)
+unser — our
+der Gast — guest  (pl. die Gäste)
+die Speisekarte — menu  (pl. die Speisekarten)
+der Apfelsaft — apple juice  (pl. die Apfelsäfte)
+der Orangensaft — orange juice  (pl. die Orangensäfte)
+das Wasser — water  (pl. die Wässer)
+die Speise — dish / food  (pl. die Speisen)
+die Vorspeise — starter / appetizer  (pl. die Vorspeisen)
+der Tomatensalat — tomato salad  (pl. die Tomatensalate)
+die Kartoffel — potato  (pl. die Kartoffeln)
+das Würstchen — sausage (small)  (pl. die Würstchen)
+das Hauptgericht — main course  (pl. die Hauptgerichte)
+die Pommes frites — French fries / chips  (pl. die Pommes frites)
+die Nudel — noodle / pasta  (pl. die Nudeln)
+die Soße — sauce  (pl. die Soßen)
+das Huhn — chicken  (pl. die Hühner)
+der Reis — rice
+das Dessert — dessert  (pl. die Desserts)
+das Eis — ice cream; ice  (pl. die Eis)
+die Vanille — vanilla  (pl. die Vanillen)
+die Erdbeere — strawberry  (pl. die Erdbeeren)
+die Kugel — scoop (of ice cream); ball  (pl. die Kugeln)
+die Portion — portion  (pl. die Portionen)
+die Sahne — cream
+das Obst — fruit
+das Stück — piece  (pl. die Stücke)
+die Zitrone — lemon  (pl. die Zitronen)
+der Zitronenkuchen — lemon cake  (pl. die Zitronenkuchen)
+der Nachtisch — dessert  (pl. die Nachtische)
+perfekt — perfect
+das Menü — set menu  (pl. die Menüs)
+===== A1 – Chapter 10 =====
+der Flughafen — airport  (pl. die Flughäfen)
+chatten — to chat (online)  (chattet, hat gechattet)
+der Kollege — colleague  (pl. die Kollegen)
+der Flug — flight  (pl. die Flüge)
+der Abendflug — evening flight  (pl. die Abendflüge)
+die Reise — journey / trip  (pl. die Reisen)
+kurz — short
+abfliegen — to take off / to depart (plane)  (fliegt ab, ist abgeflogen)
+starten — to start / to take off  (startet, ist gestartet)
+ankommen — to arrive  (kommt an, ist angekommen)
+dort — there
+so — so
+anrufen — to call (phone)  (ruft an, hat angerufen)
+noch mal — again / once more
+früh — early
+sicher — sure / certain; safe
+die Stimme — voice  (pl. die Stimmen)
+versuchen — to try  (versucht, hat versucht)
+hoffentlich — hopefully
+die Verspätung — delay  (pl. die Verspätungen)
+kaputt — broken
+die Maschine — aircraft; machine  (pl. die Maschinen)
+landen — to land  (landet, ist gelandet)
+alles — everything
+alles klar — all right / got it
+lieber — rather / preferably
+wenig — little / not much
+der Akku — (rechargeable) battery  (pl. die Akkus)
+abholen — to pick up (someone/something)  (holt ab, hat abgeholt)
+was für — what kind of
+natürlich — of course
+sich freuen — to be glad / to be happy  (freut sich, hat sich gefreut)
+Bis gleich! — See you soon!
+einsteigen — to get on / to board  (steigt ein, ist eingestiegen)
+umsteigen — to change (trains, buses)  (steigt um, ist umgestiegen)
+aussteigen — to get off  (steigt aus, ist ausgestiegen)
+der Verkehr — traffic
+das Verkehrsmittel — means of transport  (pl. die Verkehrsmittel)
+das Gepäck — luggage / baggage
+der Bahnhof — train station  (pl. die Bahnhöfe)
+die U-Bahn — underground / subway  (pl. die U-Bahnen)
+das Taxi — taxi  (pl. die Taxis)
+der Bus — bus  (pl. die Busse)
+der Zug — train  (pl. die Züge)
+die Straßenbahn — tram  (pl. die Straßenbahnen)
+die S-Bahn — suburban / commuter train  (pl. die S-Bahnen)
+das Flugzeug — airplane  (pl. die Flugzeuge)
+der Koffer — suitcase  (pl. die Koffer)
+der Rucksack — backpack  (pl. die Rucksäcke)
+einkaufen — to go shopping  (kauft ein, hat eingekauft)
+abfahren — to depart / to leave  (fährt ab, ist abgefahren)
+fernsehen — to watch TV  (sieht fern, hat ferngesehen)
+die Durchsage — announcement (station/airport)  (pl. die Durchsagen)
+der Intercity — intercity train  (pl. die Intercitys)
+der Bahnsteig — platform (train)  (pl. die Bahnsteige)
+die Richtung — direction  (pl. die Richtungen)
+das Gleis — track / platform  (pl. die Gleise)
+die Fahrt — journey / ride  (pl. die Fahrten)
+enden — to end  (endet, hat geendet)
+der Ausgang — exit  (pl. die Ausgänge)
+nächst — next
+der Halt — stop (bus/train)  (pl. die Halte)
+der Hauptbahnhof — main train station  (pl. die Hauptbahnhöfe)
+Vorsicht — Careful! / Caution
+Achtung — Attention! / Watch out!
+===== A1 – Chapter 11 =====
+gestern — yesterday
+der Spaziergang — walk / stroll  (pl. die Spaziergänge)
+der Wald — forest  (pl. die Wälder)
+die Zeitung — newspaper  (pl. die Zeitungen)
+aufräumen — to tidy up  (pl. räumt auf; hat aufgeräumt, )
+zu wenig — too little
+zu viel — too much
+der Vogel — bird  (pl. die Vögel)
+der Film — film / movie  (pl. die Filme)
+die Pause — break  (pl. die Pausen)
+der Doktor — doctor (title)  (pl. die Doktoren)
+die Doktorarbeit — doctoral thesis  (pl. die Doktorarbeiten)
+abwaschen — to wash the dishes  (pl. wäscht ab; hat abgewaschen, )
+die Hausaufgabe — homework  (pl. die Hausaufgaben)
+die Serie — series (TV)  (pl. die Serien)
+von ... bis — from ... to / until
+Basketball — basketball
+danach — afterwards
+kaufen — to buy  (pl. kauft; hat gekauft, )
+das T-Shirt — T-shirt  (pl. die T-Shirts)
+ab — from (starting at)
+ganze — whole / entire
+zurückkommen — to come back  (pl. kommt zurück; ist zurückgekommen, )
+der Kuss — kiss  (pl. die Küsse)
+geöffnet — open(ed)
+das Schild — sign  (pl. die Schilder)
+der Kinderarzt — paediatrician  (pl. die Kinderärzte)
+die Boutique — boutique  (pl. die Boutiquen)
+die Mode — fashion  (pl. die Moden)
+der Urlaub — holiday / vacation  (pl. die Urlaube)
+der Unterricht — lesson / class  (pl. die Unterrichte)
+der Kursleiter — course instructor  (pl. die Kursleiter)
+die Blume — flower  (pl. die Blumen)
+der Laden — shop / store  (pl. die Läden)
+geschlossen — closed
+das Eiscafé — ice-cream parlour  (pl. die Eiscafés)
+die Praxis — (doctor's) practice  (pl. die Praxen)
+der Kiosk — kiosk  (pl. die Kioske)
+der Zahn — tooth  (pl. die Zähne)
+letzt — last
+der Sport — sport  (pl. die Sportarten)
+einladen — to invite  (pl. lädt ein; hat eingeladen, )
+Ja, habe ich. — Yes, I have / I did.
+Nein, habe ich nicht. — No, I haven't / I didn't.
+der Chor — choir  (pl. die Chöre)
+der Handball — handball  (pl. die Handbälle)
+die Wäsche — laundry
+waschen — to wash  (pl. wäscht; hat gewaschen, )
+das Geschenk — present / gift  (pl. die Geschenke)
+===== A1 – Chapter 12 =====
+der Marathon — marathon  (pl. die Marathons)
+laufen — to run; to walk  (pl. läuft; ist gelaufen, )
+es gibt — there is / there are
+seit — since / for (time)
+der Kilometer — kilometre  (pl. die Kilometer)
+unterwegs — on the way / out and about
+der August — August  (pl. die Auguste)
+die Radtour — bike tour  (pl. die Radtouren)
+nach — to (a city/country)
+weiterfahren — to continue (travelling)  (pl. fährt weiter; ist weitergefahren, )
+die Tour — tour  (pl. die Touren)
+das Wetter — weather
+der Herbst — autumn / fall  (pl. die Herbste)
+ein paar — a few
+besuchen — to visit  (pl. besucht; hat besucht, )
+bleiben — to stay  (pl. bleibt; ist geblieben, )
+das Volksfest — funfair / folk festival  (pl. die Volksfeste)
+also — so / therefore
+fast — almost
+die Mitte — middle  (pl. die Mitten)
+der Oktober — October  (pl. die Oktober)
+der Anfang — beginning  (pl. die Anfänge)
+der November — November  (pl. die November)
+dieser — this (masc.)
+diese — this (fem.) / these
+dieses — this (neut.)
+etwa — about / approximately
+der Besucher — visitor  (pl. die Besucher)
+der Winter — winter  (pl. die Winter)
+der Dezember — December  (pl. die Dezember)
+Weihnachten — Christmas
+feiern — to celebrate  (pl. feiert; hat gefeiert, )
+zurückfahren — to drive / travel back  (pl. fährt zurück; ist zurückgefahren, )
+Silvester — New Year's Eve
+ziemlich — quite / rather
+cool — cool
+der Sommer — summer  (pl. die Sommer)
+durch — through
+die Jahreszeit — season  (pl. die Jahreszeiten)
+der Monat — month  (pl. die Monate)
+der Geburtstag — birthday  (pl. die Geburtstage)
+der Frühling — spring  (pl. die Frühlinge)
+der März — March  (pl. die Märze)
+der Mai — May  (pl. die Maie)
+der Juni — June  (pl. die Junis)
+der Juli — July  (pl. die Julis)
+der September — September  (pl. die September)
+der Januar — January  (pl. die Januare)
+der Februar — February  (pl. die Februare)
+die Erdbeere — strawberry  (pl. die Erdbeeren)
+passieren — to happen  (pl. passiert; ist passiert, )
+wandern — to hike  (pl. wandert; ist gewandert, )
+segeln — to sail  (pl. segelt; ist gesegelt, )
+springen — to jump  (pl. springt; ist gesprungen, )
+nachts — at night
+Ja, das stimmt. — Yes, that's right.
+der Hafen — harbour / port  (pl. die Häfen)
+jeder — every / each (masc.)
+jedes — every / each (neut.)
+jede — every / each (fem.)
+wie lange — how long
+dauern — to last / to take (time)  (pl. dauert; hat gedauert, )
+das Schiff — ship  (pl. die Schiffe)
+===== A1 – Chapter 13 =====
+die Mauer — wall (outdoor)  (pl. die Mauern)
+geteilt — divided
+teilen — to share / to divide  (pl. teilt; hat geteilt, )
+der Mietpreis — rent price  (pl. die Mietpreise)
+der Tipp — tip  (pl. die Tipps)
+der Zoo — zoo  (pl. die Zoos)
+der Tierpark — wildlife park  (pl. die Tierparks)
+die Informatik — computer science
+zeigen — to show  (pl. zeigt; hat gezeigt, )
+die Kunst — art  (pl. die Künste)
+die Kultur — culture  (pl. die Kulturen)
+das Festival — festival  (pl. die Festivals)
+mancher — some (masc.)
+manches — some (neut.)
+manche — some (fem./pl.)
+verrückt — crazy
+anders — different(ly)
+denken — to think  (pl. denkt; hat gedacht, )
+gefallen — to please / to like  (pl. gefällt; hat gefallen, )
+billig — cheap
+die Wohnung — flat / apartment  (pl. die Wohnungen)
+recht haben — to be right
+der Spielplatz — playground  (pl. die Spielplätze)
+zum Beispiel — for example
+das Märchen — fairy tale  (pl. die Märchen)
+ganz — quite; whole
+die Nähe — vicinity / nearness
+danken — to thank  (pl. dankt; hat gedankt, )
+helfen — to help  (pl. hilft; hat geholfen, )
+der Park — park  (pl. die Parks)
+der Kinderfilm — children's film  (pl. die Kinderfilme)
+die Stadt — city / town  (pl. die Städte)
+die Altstadt — old town  (pl. die Altstädte)
+der Brunnen — fountain; well  (pl. die Brunnen)
+gehören — to belong (to)  (pl. gehört; hat gehört, )
+wohin — where (to)
+reisen — to travel  (pl. reist; ist gereist, )
+die Bibliothek — library  (pl. die Bibliotheken)
+fehlen — to be missing  (pl. fehlt; hat gefehlt, )
+das Viertel — district / quarter  (pl. die Viertel)
+das Picknick — picnic  (pl. die Picknicke)
+das Boot — boat  (pl. die Boote)
+mieten — to rent  (pl. mietet; hat gemietet, )
+Volleyball — volleyball
+die Natur — nature
+der Ball — ball  (pl. die Bälle)
+angeln — to fish  (pl. angelt; hat geangelt, )
+die Kirche — church  (pl. die Kirchen)
+das Rathaus — town hall  (pl. die Rathäuser)
+das Schloss — castle; lock  (pl. die Schlösser)
+der Markt — market  (pl. die Märkte)
+der See — lake  (pl. die Seen)
+===== A1 – Chapter 14 =====
+das Kaufhaus — department store  (pl. die Kaufhäuser)
+weit — far
+der Weg — way / path  (pl. die Wege)
+der Fuß — foot  (pl. die Füße)
+rechts — (on the) right
+links — (on the) left
+geradeaus — straight ahead
+abbiegen — to turn (off)  (pl. biegt ab; ist abgebogen, )
+über — over / across
+der Meter — metre  (pl. die Meter)
+die Ampel — traffic light  (pl. die Ampeln)
+der Platz — square; place / space  (pl. die Plätze)
+unter — under
+an — at / on (vertical surface)
+vor — in front of
+hinter — behind
+neben — next to
+zwischen — between
+die Brücke — bridge  (pl. die Brücken)
+der Baum — tree  (pl. die Bäume)
+das Foto — photo  (pl. die Fotos)
+das Smartphone — smartphone  (pl. die Smartphones)
+beschreiben — to describe  (pl. beschreibt; hat beschrieben, )
+aussehen — to look (appearance)  (pl. sieht aus; hat ausgesehen, )
+der Plan — map; plan  (pl. die Pläne)
+das Zentrum — centre  (pl. die Zentren)
+die Stadtmitte — city centre  (pl. die Stadtmitten)
+die Ecke — corner  (pl. die Ecken)
+das Krankenhaus — hospital  (pl. die Krankenhäuser)
+die Post — post office
+die Bank — bank; bench  (pl. die Banken)
+die Kreuzung — crossroads / intersection  (pl. die Kreuzungen)
+die Polizei — police
+die Apotheke — pharmacy  (pl. die Apotheken)
+die Schule — school  (pl. die Schulen)
+der Kindergarten — kindergarten  (pl. die Kindergärten)
+erste — first
+zweite — second
+dritte — third
+fremd — foreign / strange
+===== A1 – Chapter 15 =====
+die Wohngemeinschaft — shared flat  (pl. die Wohngemeinschaften)
+die WG — shared flat (abbr.)  (pl. die WGs)
+gemütlich — cosy
+ordentlich — tidy / neat
+überhaupt — at all
+der Balkon — balcony  (pl. die Balkone)
+das Fenster — window  (pl. die Fenster)
+die Tür — door  (pl. die Türen)
+der Garten — garden  (pl. die Gärten)
+die Küche — kitchen  (pl. die Küchen)
+das Kinderzimmer — children's room  (pl. die Kinderzimmer)
+das Wohnzimmer — living room  (pl. die Wohnzimmer)
+das Arbeitszimmer — study / home office  (pl. die Arbeitszimmer)
+das Bad — bathroom  (pl. die Bäder)
+der Flur — hallway  (pl. die Flure)
+das Schlafzimmer — bedroom  (pl. die Schlafzimmer)
+die Toilette — toilet  (pl. die Toiletten)
+oben — upstairs / at the top
+hinten — at the back
+vorn — at the front
+unten — downstairs / at the bottom
+ihr — her / their
+ihre — her / their (fem./pl.)
+sein — his / its
+seine — his / its (fem./pl.)
+umziehen — to move (house)  (pl. zieht um; ist umgezogen, )
+laut — loud / noisy
+die Miete — rent  (pl. die Mieten)
+der Quadratmeter — square metre  (pl. die Quadratmeter)
+übermorgen — the day after tomorrow
+das Semester — semester  (pl. die Semester)
+anfangen — to begin / to start  (pl. fängt an; hat angefangen, )
+schlecht — bad
+die Leute — people  (pl. die Leute)
+inklusive — including
+die Nebenkosten — additional costs / utilities  (pl. die Nebenkosten)
+dabei — included; with it
+bald — soon
+die Anzeige — advertisement  (pl. die Anzeigen)
+das Erdgeschoss — ground floor  (pl. die Erdgeschosse)
+möbliert — furnished
+das Apartment — apartment  (pl. die Apartments)
+sofort — immediately
+maximal — at most / maximum
+bezahlen — to pay  (pl. bezahlt; hat bezahlt, )
+Traum- — dream ...
+das Dachgeschoss — attic floor / top floor  (pl. die Dachgeschosse)
+die Treppe — stairs  (pl. die Treppen)
+der Keller — cellar / basement  (pl. die Keller)
+===== A1 – Chapter 16 =====
+der Aufzug — lift / elevator  (pl. die Aufzüge)
+kennenlernen — to get to know  (pl. lernt kennen; hat kennengelernt, )
+nervös — nervous
+die Angst — fear  (pl. die Ängste)
+das Netz — network; net  (pl. die Netze)
+funktionieren — to work / to function  (pl. funktioniert; hat funktioniert, )
+los sein — to be going on / happening
+reparieren — to repair  (pl. repariert; hat repariert, )
+anbieten — to offer  (pl. bietet an; hat angeboten, )
+die Bitte — request  (pl. die Bitten)
+die Dusche — shower  (pl. die Duschen)
+der Kühlschrank — fridge  (pl. die Kühlschränke)
+der Fernseher — TV set  (pl. die Fernseher)
+die Heizung — heating  (pl. die Heizungen)
+das Licht — light  (pl. die Lichter)
+der Herd — stove / cooker  (pl. die Herde)
+die Klingel — doorbell  (pl. die Klingeln)
+die Steckdose — power socket  (pl. die Steckdosen)
+die Waschmaschine — washing machine  (pl. die Waschmaschinen)
+der Handwerker — tradesman / repairman  (pl. die Handwerker)
+selbst — oneself / myself
+erklären — to explain  (pl. erklärt; hat erklärt, )
+die Reparatur — repair  (pl. die Reparaturen)
+ausmachen — to turn off; to arrange  (pl. macht aus; hat ausgemacht, )
+vereinbaren — to arrange / to agree on  (pl. vereinbart; hat vereinbart, )
+pünktlich — punctual / on time
+vorschlagen — to suggest  (pl. schlägt vor; hat vorgeschlagen, )
+absagen — to cancel  (pl. sagt ab; hat abgesagt, )
+verschieben — to postpone  (pl. verschiebt; hat verschoben, )
+Sehr geehrte — Dear (formal letter)
+Mit freundlichen Grüßen — Yours sincerely / Kind regards
+bekommen — to get / to receive  (pl. bekommt; hat bekommen, )
+das Vorstellungsgespräch — job interview  (pl. die Vorstellungsgespräche)
+nach Hause — (to) home
+erst — only / not until; first
+Oje, du Arme! — Oh dear, you poor thing!
+klappen — to work out  (pl. klappt; hat geklappt, )
+das Training — training  (pl. die Trainings)
+das Treffen — meeting  (pl. die Treffen)
+===== A1 – Chapter 17 =====
+werden — to become  (pl. wird; ist geworden, )
+auf jeden Fall — definitely / in any case
+unbedingt — absolutely / definitely
+auf keinen Fall — no way / under no circumstances
+der Astronaut — astronaut  (pl. die Astronauten)
+der Polizist — police officer  (pl. die Polizisten)
+wollen — to want  (pl. will; hat gewollt, )
+der Plan — plan  (pl. die Pläne)
+gründen — to found / to set up  (pl. gründet; hat gegründet, )
+das Geld — money  (pl. die Gelder)
+Geld verdienen — to earn money
+der Profi — professional  (pl. die Profis)
+das Berufsleben — working life
+jung — young
+das Marketing — marketing
+der Lifestyle — lifestyle  (pl. die Lifestyles)
+die Wirtschaft — economy  (pl. die Wirtschaften)
+die Halbtagsstelle — part-time job  (pl. die Halbtagsstellen)
+selbstständig — self-employed / independent
+eigen — own
+der Influencer — influencer  (pl. die Influencer)
+damit — so that
+der Abschluss — degree / qualification  (pl. die Abschlüsse)
+der Studienplatz — university place  (pl. die Studienplätze)
+die Note — grade / mark  (pl. die Noten)
+der Krankenpfleger — nurse (male)  (pl. die Krankenpfleger)
+ohne — without
+die Grenze — border / limit  (pl. die Grenzen)
+die Welt — world  (pl. die Welten)
+der Mensch — human / person  (pl. die Menschen)
+wichtig — important
+die Freiheit — freedom  (pl. die Freiheiten)
+die Selbstständigkeit — independence / self-employment
+halbtags — part-time
+der Hund — dog  (pl. die Hunde)
+traurig — sad
+der Politiker — politician  (pl. die Politiker)
+die Fremdsprache — foreign language  (pl. die Fremdsprachen)
+der Chef — boss  (pl. die Chefs)
+heiraten — to marry  (pl. heiratet; hat geheiratet, )
+der Berg — mountain  (pl. die Berge)
+Europa — Europe
+das Ausland — abroad
+das Motorrad — motorbike  (pl. die Motorräder)
+der Führerschein — driving licence  (pl. die Führerscheine)
+das Instrument — instrument  (pl. die Instrumente)
+Norwegen — Norway
+der Koch — cook / chef  (pl. die Köche)
+===== A1 – Chapter 18 =====
+die Übung — exercise  (pl. die Übungen)
+der Kopf — head  (pl. die Köpfe)
+der Schmerz — pain  (pl. die Schmerzen)
+müde — tired
+schlimm — bad / serious
+gegen — against
+die Situation — situation  (pl. die Situationen)
+üblich — usual
+sitzen — to sit  (pl. sitzt; hat gesessen, )
+krank — sick / ill
+gesund — healthy
+die Bewegung — movement / exercise  (pl. die Bewegungen)
+ungefähr — approximately
+sogar — even
+bedeuten — to mean  (pl. bedeutet; hat bedeutet, )
+das Übergewicht — overweight
+das Herz — heart  (pl. die Herzen)
+die Krankheit — illness / disease  (pl. die Krankheiten)
+dagegen — against it; on the other hand
+aufstehen — to get up / to stand up  (pl. steht auf; ist aufgestanden, )
+benutzen — to use  (pl. benutzt; hat benutzt, )
+der Ratschlag — piece of advice  (pl. die Ratschläge)
+schicken — to send  (pl. schickt; hat geschickt, )
+gewinnen — to win  (pl. gewinnt; hat gewonnen, )
+das Frisbee — frisbee  (pl. die Frisbees)
+der Roller — scooter  (pl. die Roller)
+der Körper — body  (pl. die Körper)
+das Körperteil — body part  (pl. die Körperteile)
+die Brust — chest  (pl. die Brüste)
+der Finger — finger  (pl. die Finger)
+der Hals — neck / throat  (pl. die Hälse)
+der Bauch — stomach / belly  (pl. die Bäuche)
+der Arm — arm  (pl. die Arme)
+die Hand — hand  (pl. die Hände)
+das Bein — leg  (pl. die Beine)
+das Knie — knee  (pl. die Knie)
+das Auge — eye  (pl. die Augen)
+der Mund — mouth  (pl. die Münder)
+die Nase — nose  (pl. die Nasen)
+das Ohr — ear  (pl. die Ohren)
+das Forum — forum  (pl. die Foren)
+der Schnupfen — runny nose / cold
+wehtun — to hurt  (pl. tut weh; hat wehgetan, )
+genug — enough
+die Erkältung — cold (illness)  (pl. die Erkältungen)
+der Husten — cough
+der Honig — honey  (pl. die Honige)
+sollen — should / to be supposed to  (pl. soll; hat gesollt, )
+das Fieber — fever
+die Ruhe — rest / quiet
+die Tablette — tablet / pill  (pl. die Tabletten)
+das Medikament — medicine  (pl. die Medikamente)
+die Salbe — ointment  (pl. die Salben)
+der Hustensaft — cough syrup  (pl. die Hustensäfte)
+die Umfrage — survey  (pl. die Umfragen)
+===== A1 – Chapter 19 =====
+aufmachen — to open  (pl. macht auf; hat aufgemacht, )
+zumachen — to close  (pl. macht zu; hat zugemacht, )
+der Abfall — waste / rubbish  (pl. die Abfälle)
+der Müll — rubbish / trash
+sauer — angry; sour
+der Haushalt — household / housework  (pl. die Haushalte)
+rausbringen — to take out (the rubbish)  (pl. bringt raus; hat rausgebracht, )
+die Spülmaschine — dishwasher  (pl. die Spülmaschinen)
+ausräumen — to empty / to unload  (pl. räumt aus; hat ausgeräumt, )
+sauber — clean
+putzen — to clean  (pl. putzt; hat geputzt, )
+der Boden — floor  (pl. die Böden)
+wischen — to wipe / to mop  (pl. wischt; hat gewischt, )
+vergessen — to forget  (pl. vergisst; hat vergessen, )
+herkommen — to come here  (pl. kommt her; ist hergekommen, )
+lieb — kind / dear
+rauchen — to smoke  (pl. raucht; hat geraucht, )
+heiß — hot
+die Luft — air  (pl. die Lüfte)
+anmachen — to turn on  (pl. macht an; hat angemacht, )
+ausmachen — to turn off  (pl. macht aus; hat ausgemacht, )
+zuhören — to listen  (pl. hört zu; hat zugehört, )
+das Lied — song  (pl. die Lieder)
+die Notiz — note  (pl. die Notizen)
+leise sein — to be quiet
+das Spiel — game  (pl. die Spiele)
+lachen — to laugh  (pl. lacht; hat gelacht, )
+die Tüte — bag (plastic/paper)  (pl. die Tüten)
+schmutzig — dirty
+zurückrufen — to call back  (pl. ruft zurück; hat zurückgerufen, )
+der Grund — reason  (pl. die Gründe)
+in Ordnung — okay / all right
+Das geht so nicht. — That's not okay.
+böse — angry; evil
+===== A1 – Chapter 20 =====
+die Website — website  (pl. die Websites)
+die Webseite — web page  (pl. die Webseiten)
+der Service — service  (pl. die Services)
+der Fehler — mistake / error  (pl. die Fehler)
+beraten — to advise  (pl. berät; hat beraten, )
+das Team — team  (pl. die Teams)
+der Berater — consultant / adviser  (pl. die Berater)
+der Experte — expert  (pl. die Experten)
+das Projekt — project  (pl. die Projekte)
+der Manager — manager  (pl. die Manager)
+der Psychologe — psychologist  (pl. die Psychologen)
+der Fachmann — specialist / expert  (pl. die Fachleute)
+die Medien — media  (pl. die Medien)
+die Kommunikation — communication  (pl. die Kommunikationen)
+die Szene — scene  (pl. die Szenen)
+irgendwann — sometime / at some point
+lange Haare — long hair
+glatte Haare — straight hair
+dunkle Haare — dark hair
+blonde Haare — blond hair
+der Bart — beard  (pl. die Bärte)
+die Locke — curl  (pl. die Locken)
+der Schritt — step  (pl. die Schritte)
+die Organisation — organisation  (pl. die Organisationen)
+verbessern — to improve  (pl. verbessert; hat verbessert, )
+die Technik — technology / technique  (pl. die Techniken)
+das Werkzeug — tool  (pl. die Werkzeuge)
+mehrere — several
+erfolgreich — successful
+mitarbeiten — to collaborate / to work on  (pl. arbeitet mit; hat mitgearbeitet, )
+der Spezialist — specialist  (pl. die Spezialisten)
+die Werbung — advertising  (pl. die Werbungen)
+sympathisch — likeable / nice
+freundlich — friendly
+kräftig — strong / sturdy
+schlank — slim
+fröhlich — cheerful
+kreativ — creative
+ruhig — calm / quiet
+langweilig — boring
+die Agentur — agency  (pl. die Agenturen)
+zufrieden — satisfied / content
+verpassen — to miss  (pl. verpasst; hat verpasst, )
+verlieren — to lose  (pl. verliert; hat verloren, )
+das Päckchen — small parcel  (pl. die Päckchen)
+Echt? — Really?
+Puh! — Phew!
+lila — purple
+===== A1 – Chapter 21 =====
+werfen — to throw  (pl. wirft; hat geworfen, )
+verboten — forbidden
+erlaubt — allowed
+der Helm — helmet  (pl. die Helme)
+gefährlich — dangerous
+nutzen — to use  (pl. nutzt; hat genutzt, )
+der Fahrer — driver  (pl. die Fahrer)
+grillen — to barbecue / to grill  (pl. grillt; hat gegrillt, )
+stören — to disturb  (pl. stört; hat gestört, )
+der Nachbar — neighbour  (pl. die Nachbarn)
+die Region — region  (pl. die Regionen)
+unglaublich — unbelievable
+total — totally
+der Grill — grill / barbecue  (pl. die Grills)
+das Grillfest — barbecue party  (pl. die Grillfeste)
+die Terrasse — terrace / patio  (pl. die Terrassen)
+das Grillfleisch — barbecue meat
+der Bekannte — acquaintance  (pl. die Bekannten)
+schwierig — difficult
+nämlich — namely / you see (because)
+dürfen — may / to be allowed to  (pl. darf; hat gedurft, )
+der Mieter — tenant  (pl. die Mieter)
+müssen — must / to have to  (pl. muss; hat gemusst, )
+die Hausordnung — house rules  (pl. die Hausordnungen)
+darin — in it
+meinen — to mean / to think  (pl. meint; hat gemeint, )
+der Rauch — smoke
+gemeinsam — together / shared
+die Umwelt — environment
+das Gemüse — vegetables  (pl. die Gemüse)
+der Tofu — tofu
+tragen — to wear; to carry  (pl. trägt; hat getragen, )
+zelten — to camp (in a tent)  (pl. zeltet; hat gezeltet, )
+baden — to bathe / to swim  (pl. badet; hat gebadet, )
+abladen — to unload  (pl. lädt ab; hat abgeladen, )
+parken — to park  (pl. parkt; hat geparkt, )
+langsam — slow
+die Leine — leash / lead  (pl. die Leinen)
+schieben — to push  (pl. schiebt; hat geschoben, )
+stoßen — to push / to bump  (pl. stößt; hat gestoßen, )
+die Wiese — meadow / lawn  (pl. die Wiesen)
+wegwerfen — to throw away  (pl. wirft weg; hat weggeworfen, )
+das Lokal — restaurant / bar  (pl. die Lokale)
+mitnehmen — to take along  (pl. nimmt mit; hat mitgenommen, )
+das Verbot — ban / prohibition  (pl. die Verbote)
+die Grundschule — primary school  (pl. die Grundschulen)
+mitbringen — to bring along  (pl. bringt mit; hat mitgebracht, )
+angenehm — pleasant
+mega — mega / super (slang)
+===== A1 – Chapter 22 =====
+die Kleidung — clothing
+der Platz — space / room  (pl. die Plätze)
+die Unordnung — mess / disorder
+die Jeans — jeans  (pl. die Jeans)
+das Kleidungsstück — item of clothing  (pl. die Kleidungsstücke)
+circa — about / approximately
+pro — per
+anziehen — to put on (clothes)  (pl. zieht an; hat angezogen, )
+zweimal — twice
+der Wahnsinn — madness
+die Billigkleidung — cheap clothing
+anhaben — to have on / to wear  (pl. hat an; hat angehabt, )
+der Pullover — pullover / sweater  (pl. die Pullover)
+das Hemd — shirt  (pl. die Hemden)
+die Hose — trousers / pants  (pl. die Hosen)
+der Mantel — coat  (pl. die Mäntel)
+die Bluse — blouse  (pl. die Blusen)
+der Hut — hat  (pl. die Hüte)
+die Mütze — cap / woolly hat  (pl. die Mützen)
+das Kleid — dress  (pl. die Kleider)
+der Rock — skirt  (pl. die Röcke)
+der Anzug — suit  (pl. die Anzüge)
+die Socke — sock  (pl. die Socken)
+der Schuh — shoe  (pl. die Schuhe)
+der Stiefel — boot  (pl. die Stiefel)
+der Strumpf — stocking  (pl. die Strümpfe)
+die Qualität — quality  (pl. die Qualitäten)
+tauschen — to swap / to exchange  (pl. tauscht; hat getauscht, )
+der Billigladen — discount shop  (pl. die Billigläden)
+die Möglichkeit — possibility  (pl. die Möglichkeiten)
+sich halten — to last  (pl. hält sich; hat sich gehalten, )
+die Sachen — things / stuff  (pl. die Sachen)
+die Klamotten — clothes (colloquial)  (pl. die Klamotten)
+nähen — to sew  (pl. näht; hat genäht, )
+am liebsten — most of all (preferably)
+meistens — mostly / usually
+verschieden — different / various
+zusammenpassen — to go together / to match  (pl. passt zusammen; hat zusammengepasst, )
+am meisten — the most
+der Roman — novel  (pl. die Romane)
+hoch — high
+welcher — which (masc.)
+welches — which (neut.)
+welche — which (fem./pl.)
+witzig — funny / witty
+===== A1 – Chapter 23 =====
+draußen — outside
+glücklich — happy
+die Heimat — home / homeland  (pl. die Heimaten)
+sonnig — sunny
+kühl — cool
+kalt — cold
+warm — warm
+der Regen — rain
+Es regnet — It's raining
+der Schnee — snow
+Es schneit — It's snowing
+das Gewitter — thunderstorm  (pl. die Gewitter)
+Es donnert und blitzt — There's thunder and lightning
+der Hagel — hail
+Es hagelt — It's hailing
+die Wolke — cloud  (pl. die Wolken)
+Es ist bewölkt — It's cloudy
+der Wind — wind  (pl. die Winde)
+Es ist windig — It's windy
+der Nebel — fog  (pl. die Nebel)
+Es ist neblig — It's foggy
+das Grad — degree (temperature)  (pl. die Grad)
+das Meer — sea  (pl. die Meere)
+stark — strong
+wohl — probably; well
+los — go! / going on
+scheinen — to shine; to seem  (pl. scheint; hat geschienen, )
+der Himmel — sky  (pl. die Himmel)
+irgendwie — somehow
+der Schneemann — snowman  (pl. die Schneemänner)
+der Hai — shark  (pl. die Haie)
+einsam — lonely
+warum — why
+das Angebot — offer  (pl. die Angebote)
+der Strand — beach  (pl. die Strände)
+der Dschungel — jungle  (pl. die Dschungel)
+die Wüste — desert  (pl. die Wüsten)
+die Insel — island  (pl. die Inseln)
+der Mond — moon  (pl. die Monde)
+verfügbar — available
+das Reisebüro — travel agency  (pl. die Reisebüros)
+still — quiet / still
+das Zelt — tent  (pl. die Zelte)
+das Kamel — camel  (pl. die Kamele)
+===== A1 – Chapter 24 =====
+Ostern — Easter
+eigentlich — actually
+schaffen — to manage / to make it  (pl. schafft; hat geschafft, )
+die Liebe — love
+der Blick — look / glance; view  (pl. die Blicke)
+die Katze — cat  (pl. die Katzen)
+sterben — to die  (pl. stirbt; ist gestorben, )
+das Paar — couple / pair  (pl. die Paare)
+das Datum — date  (pl. die Daten)
+das Ereignis — event  (pl. die Ereignisse)
+Neujahr — New Year's Day
+der Karneval — carnival  (pl. die Karnevale)
+der Feiertag — public holiday  (pl. die Feiertage)
+die Hochzeit — wedding  (pl. die Hochzeiten)
+bestehen — to pass (an exam)  (pl. besteht; hat bestanden, )
+die Prüfung — exam  (pl. die Prüfungen)
+der Glückwunsch — congratulations  (pl. die Glückwünsche)
+gratulieren — to congratulate  (pl. gratuliert; hat gratuliert, )
+die Aktion — campaign / action  (pl. die Aktionen)
+die Lösung — solution  (pl. die Lösungen)
+beachten — to observe / to pay attention to  (pl. beachtet; hat beachtet, )
+der Mitmensch — fellow human being  (pl. die Mitmenschen)
+weltweit — worldwide
+stattfinden — to take place  (pl. findet statt; hat stattgefunden, )
+die Freude — joy  (pl. die Freuden)
+es geht um — it's about
+die Sympathie — liking / sympathy  (pl. die Sympathien)
+zusammengehören — to belong together  (pl. gehört zusammen; hat zusammengehört, )
+das Haustier — pet  (pl. die Haustiere)
+das Insekt — insect  (pl. die Insekten)
+mitmachen — to join in / to take part  (pl. macht mit; hat mitgemacht, )
+die Generation — generation  (pl. die Generationen)
+die Veranstaltung — event  (pl. die Veranstaltungen)
+im Freien — outdoors
+nachsehen — to check / to look up  (pl. sieht nach; hat nachgesehen, )
+der Kommentar — comment  (pl. die Kommentare)
+wunderbar — wonderful
+umarmen — to hug  (pl. umarmt; hat umarmt, )
+niemals — never
+doof — stupid / dumb (colloquial)
+fasten — to fast  (pl. fastet; hat gefastet, )
+das Kompliment — compliment  (pl. die Komplimente)
+faulenzen — to laze around  (pl. faulenzt; hat gefaulenzt, )
+die Gesundheit — health`;
+
+    const rawA2Text = `
+===== A2 – Chapter 1 =====
+das Jubiläum — anniversary / jubilee  (pl. die Jubiläen)
+die Europameisterschaft — European Championship  (pl. die Europameisterschaften)
+die EM — European Championship (abbr.)  (pl. die EMs)
+das Finale — final (match)  (pl. die Finale)
+der Neffe — nephew  (pl. die Neffen)
+die Nichte — niece  (pl. die Nichten)
+der Preis — prize; price  (pl. die Preise)
+probieren — to try / to taste  (probiert, hat probiert)
+verkaufen — to sell  (verkauft, hat verkauft)
+behalten — to keep  (behält, hat behalten)
+draußen übernachten — to sleep outside
+auf Bäume klettern — to climb trees
+Fußballbilder sammeln — to collect football stickers
+Skateboard fahren — to skateboard
+Comics lesen — to read comics
+Süßigkeiten essen — to eat sweets / candy
+Seil springen — to jump rope
+Tagebuch schreiben — to keep a diary
+Schneemänner bauen — to build snowmen
+früher — in the past / formerly
+die Kindheit — childhood  (pl. die Kindheiten)
+die Geschichte — story; history  (pl. die Geschichten)
+aufpassen — to pay attention / to look after  (passt auf, hat aufgepasst)
+das Mal — time (occasion)  (pl. die Male)
+die Sorte — kind / type / variety  (pl. die Sorten)
+sich vorstellen — to introduce oneself; to imagine  (stellt sich vor, hat sich vorgestellt)
+die Mensa — university cafeteria  (pl. die Mensen)
+die Universität — university  (pl. die Universitäten)
+die Uni — uni (university)  (pl. die Unis)
+===== A2 – Chapter 2 =====
+die Panne — breakdown (vehicle)  (pl. die Pannen)
+die Pannenhilfe — roadside assistance  (pl. die Pannenhilfen)
+der Wagen — car  (pl. die Wagen)
+die Werkstatt — workshop / garage  (pl. die Werkstätten)
+der Pannenhelfer — roadside assistance worker  (pl. die Pannenhelfer)
+die Messe — trade fair  (pl. die Messen)
+der Held — hero  (pl. die Helden)
+der Alltag — everyday life
+aufgeregt — excited / nervous
+ausmachen — to make up / to matter; to turn off  (macht aus, hat ausgemacht)
+die Batterie — battery  (pl. die Batterien)
+die Eile — hurry / rush
+der Erfolg — success  (pl. die Erfolge)
+erleben — to experience  (erlebt, hat erlebt)
+die Ferien — holidays / vacation (school)  (pl. die Ferien)
+die Freikarte — free ticket  (pl. die Freikarten)
+furchtbar — terrible / awful
+hart — hard / tough
+die Kälte — cold (coldness)
+leicht — easy; light
+die Oper — opera  (pl. die Opern)
+der Reifen — tyre  (pl. die Reifen)
+die Rolle — role  (pl. die Rollen)
+stressig — stressful
+verzweifelt — desperate
+der Vorteil — advantage  (pl. die Vorteile)
+der Nachteil — disadvantage  (pl. die Nachteile)
+wechseln — to change / to switch  (wechselt, hat gewechselt)
+weil — because
+im Freien — outdoors
+drinnen — inside / indoors
+Schicht arbeiten — to work shifts
+Überstunden machen — to work overtime
+feste Arbeitszeiten — fixed working hours
+flexible Arbeitszeiten — flexible working hours
+der Mitbewohner — roommate / flatmate  (pl. die Mitbewohner)
+der Stress — stress
+===== A2 – Chapter 3 =====
+aufbauen — to set up / to build  (baut auf, hat aufgebaut)
+anstrengend — exhausting / strenuous
+aufregend — exciting
+ausziehen — to move out  (zieht aus, ist ausgezogen)
+spannend — exciting / gripping
+vermissen — to miss (someone/something)  (vermisst, hat vermisst)
+vorbeikommen — to drop by / to come by  (kommt vorbei, ist vorbeigekommen)
+das Ufer — shore / bank (of a river/lake)  (pl. die Ufer)
+die Landschaft — landscape  (pl. die Landschaften)
+das Dorf — village  (pl. die Dörfer)
+das Tal — valley  (pl. die Täler)
+die Alternative — alternative  (pl. die Alternativen)
+der Sand — sand
+der Fan — fan  (pl. die Fans)
+joggen — to jog  (joggt, ist gejoggt)
+das Bier — beer  (pl. die Biere)
+die Limonade — lemonade / soft drink  (pl. die Limonaden)
+das Mountainbike — mountain bike  (pl. die Mountainbikes)
+selten — rarely / seldom
+aktiv — active
+sportlich — sporty / athletic
+übrigens — by the way
+die Umgebung — surroundings / area  (pl. die Umgebungen)
+wunderschön — beautiful / gorgeous
+der Norden — north
+der Süden — south
+der Westen — west
+der Osten — east
+die Biene — bee  (pl. die Bienen)
+der Frosch — frog  (pl. die Frösche)
+die Kuh — cow  (pl. die Kühe)
+das Pferd — horse  (pl. die Pferde)
+das Schaf — sheep  (pl. die Schafe)
+der Unterschied — difference  (pl. die Unterschiede)
+der Hügel — hill  (pl. die Hügel)
+das Feld — field  (pl. die Felder)
+der Kanal — canal; channel  (pl. die Kanäle)
+die Nordsee — North Sea
+die Ostsee — Baltic Sea
+außerdem — besides / in addition
+===== A2 – Chapter 4 =====
+freitags — on Fridays
+das Homeoffice — working from home
+das Seminar — seminar  (pl. die Seminare)
+das Meeting — meeting  (pl. die Meetings)
+die Präsentation — presentation  (pl. die Präsentationen)
+gestresst — stressed
+ausschalten — to switch off  (schaltet aus, hat ausgeschaltet)
+das Mikrofon — microphone  (pl. die Mikrofone)
+teilnehmen — to take part / to participate  (nimmt teil, hat teilgenommen)
+der Werbespot — advert / commercial  (pl. die Werbespots)
+aufgehen — to rise (sun); to open  (geht auf, ist aufgegangen)
+mittags — at midday / at lunchtime
+die Besprechung — meeting / discussion  (pl. die Besprechungen)
+der Vertrag — contract  (pl. die Verträge)
+die Einladung — invitation  (pl. die Einladungen)
+die Rechnung — bill / invoice  (pl. die Rechnungen)
+die Geschäftsreise — business trip  (pl. die Geschäftsreisen)
+kontaktieren — to contact  (kontaktiert, hat kontaktiert)
+unterschreiben — to sign  (unterschreibt, hat unterschrieben)
+verschicken — to send (out)  (verschickt, hat verschickt)
+vorbereiten — to prepare  (bereitet vor, hat vorbereitet)
+deshalb — therefore / that's why
+reden — to talk  (redet, hat geredet)
+die Bäckerei — bakery  (pl. die Bäckereien)
+möglich — possible
+dringend — urgent
+der Auftrag — order / assignment / task  (pl. die Aufträge)
+erteilen — to give / to place (an order)  (erteilt, hat erteilt)
+negativ — negative
+positiv — positive
+übernehmen — to take over / to take on  (übernimmt, hat übernommen)
+erledigen — to get done / to take care of  (erledigt, hat erledigt)
+buchen — to book  (bucht, hat gebucht)
+informieren — to inform  (informiert, hat informiert)
+reservieren — to reserve  (reserviert, hat reserviert)
+===== A2 – Chapter 5 =====
+das Eishockey — ice hockey
+das Stadion — stadium  (pl. die Stadien)
+wählen — to choose; to vote; to dial  (wählt, hat gewählt)
+die Überraschung — surprise  (pl. die Überraschungen)
+überraschen — to surprise  (überrascht, hat überrascht)
+das Ticket — ticket  (pl. die Tickets)
+enttäuscht — disappointed
+begeistert — enthusiastic / thrilled
+das Theaterstück — play (theatre)  (pl. die Theaterstücke)
+die Ausstellung — exhibition  (pl. die Ausstellungen)
+das Krimidinner — murder mystery dinner  (pl. die Krimidinner)
+schenken — to give (as a gift)  (schenkt, hat geschenkt)
+die Story — story  (pl. die Storys)
+fantastisch — fantastic
+das Konzert — concert  (pl. die Konzerte)
+die Oper — opera  (pl. die Opern)
+das Ballett — ballet  (pl. die Ballette)
+das Festival — festival  (pl. die Festivals)
+die Lesung — (book) reading  (pl. die Lesungen)
+das Musical — musical  (pl. die Musicals)
+das Basketballspiel — basketball game  (pl. die Basketballspiele)
+die Zaubershow — magic show  (pl. die Zaubershows)
+das Kabarett — cabaret (satirical comedy)  (pl. die Kabaretts)
+die Ahnung — idea / clue / hunch  (pl. die Ahnungen)
+der Star — star (celebrity)  (pl. die Stars)
+das Autogramm — autograph  (pl. die Autogramme)
+der Künstler — artist  (pl. die Künstler)
+warten — to wait  (wartet, hat gewartet)
+das Ende — end  (pl. die Enden)
+die Dauer — duration
+neugierig — curious
+klingen — to sound  (klingt, hat geklungen)
+die Tournee — tour (concert tour)  (pl. die Tourneen)
+der Clown — clown  (pl. die Clowns)
+einverstanden — agreed / in agreement
+halten — to hold; to give (a speech)  (hält, hat gehalten)
+mitkommen — to come along  (kommt mit, ist mitgekommen)
+zustimmen — to agree  (stimmt zu, hat zugestimmt)
+etwas höflich ablehnen — to politely decline something
+das Klavier — piano  (pl. die Klaviere)
+der Autor — author  (pl. die Autoren)
+jemand — someone / somebody
+überreden — to persuade / to talk into  (überredet, hat überredet)
+überzeugen — to convince  (überzeugt, hat überzeugt)
+zögernd — hesitant / hesitantly
+bestimmt — certainly / definitely
+===== A2 – Chapter 6 =====
+das Programm — programme / program  (pl. die Programme)
+bereit — ready
+losgehen — to start; to set off  (geht los, ist losgegangen)
+trainieren — to train / to work out  (trainiert, hat trainiert)
+abends — in the evening(s)
+die Einheit — unit; (training) session  (pl. die Einheiten)
+verdoppeln — to double  (verdoppelt, hat verdoppelt)
+niemand — nobody / no one
+häufig — often / frequent
+das Kilogramm — kilogram  (pl. die Kilogramm)
+wiegen — to weigh  (wiegt, hat gewogen)
+die Sportart — type of sport  (pl. die Sportarten)
+Judo — judo
+Badminton — badminton
+Golf — golf
+Tischtennis — table tennis
+Pingpong — ping-pong
+Walken — (Nordic) walking
+Aquafitness — aqua fitness
+der Mitarbeiter — employee / staff member  (pl. die Mitarbeiter)
+die Halle — hall  (pl. die Hallen)
+die Platte — (table tennis) table; plate  (pl. die Platten)
+der Wettkampf — competition  (pl. die Wettkämpfe)
+die Daten — data  (pl. die Daten)
+das Leben — life  (pl. die Leben)
+ausgehen — to go out  (geht aus, ist ausgegangen)
+die Mannschaft — team  (pl. die Mannschaften)
+ausprobieren — to try out  (probiert aus, hat ausprobiert)
+Rudern — rowing
+Stand-Up-Paddeln — stand-up paddling
+Tauchen — diving
+unterschiedlich — different / varied
+die Meinung — opinion  (pl. die Meinungen)
+morgens — in the morning(s)
+direkt — directly / direct
+die Entspannung — relaxation  (pl. die Entspannungen)
+kostenlos — free (of charge)
+der Verein — club / association  (pl. die Vereine)
+die Unterstützung — support
+===== A2 – Chapter 7 =====
+der Alkohol — alcohol  (pl. die Alkohole)
+genießen — to enjoy  (genießt, hat genossen)
+miteinander — with each other / together
+der Humor — humour
+kritisch — critical
+hoffen — to hope  (hofft, hat gehofft)
+fürchten — to fear  (fürchtet, hat gefürchtet)
+das Mineralwasser — mineral water  (pl. die Mineralwässer)
+die Cola — cola  (pl. die Colas)
+der Wein — wine  (pl. die Weine)
+die Saftschorle — juice spritzer (juice + sparkling water)  (pl. die Saftschorlen)
+der Kakao — cocoa / hot chocolate  (pl. die Kakaos)
+die Pizza — pizza  (pl. die Pizzen)
+das Sandwich — sandwich  (pl. die Sandwiches)
+die Bratwurst — grilled sausage  (pl. die Bratwürste)
+die Erdbeertorte — strawberry tart  (pl. die Erdbeertorten)
+der Birnenkuchen — pear cake  (pl. die Birnenkuchen)
+der Marmorkuchen — marble cake  (pl. die Marmorkuchen)
+die Sahne — cream
+die Birne — pear  (pl. die Birnen)
+die Banane — banana  (pl. die Bananen)
+der Imbissstand — snack stand / food stall  (pl. die Imbissstände)
+die Angestellte — employee (female)  (pl. die Angestellten)
+sonst — otherwise; else
+zahlen — to pay  (zahlt, hat gezahlt)
+getrennt — separately
+bar — (in) cash
+die Karte — card; ticket; menu  (pl. die Karten)
+aufnehmen — to take (an order); to record  (nimmt auf, hat aufgenommen)
+der Augenblick — moment  (pl. die Augenblicke)
+kompliziert — complicated
+die Kasse — checkout / till  (pl. die Kassen)
+der Supermarkt — supermarket  (pl. die Supermärkte)
+liefern — to deliver  (liefert, hat geliefert)
+der Lieferservice — delivery service  (pl. die Lieferservices)
+regelmäßig — regularly
+das Rezept — recipe; prescription  (pl. die Rezepte)
+der Pfannkuchen — pancake  (pl. die Pfannkuchen)
+===== A2 – Chapter 8 =====
+peinlich — embarrassing
+der Raum — room / space  (pl. die Räume)
+der Personalchef — HR manager  (pl. die Personalchefs)
+der Azubi — apprentice / trainee  (pl. die Azubis)
+die Produktion — production  (pl. die Produktionen)
+die IT-Abteilung — IT department  (pl. die IT-Abteilungen)
+die Personalabteilung — HR department  (pl. die Personalabteilungen)
+das Lager — warehouse / storage  (pl. die Lager)
+die Kantine — canteen  (pl. die Kantinen)
+der Konferenzraum — conference room  (pl. die Konferenzräume)
+das Personal — staff / personnel
+entfernen — to remove  (entfernt, hat entfernt)
+die Wirtschaft — economy  (pl. die Wirtschaften)
+regional — regional / local
+dorthin — (to) there
+das Unternehmen — company / enterprise  (pl. die Unternehmen)
+einrichten — to furnish / to set up  (richtet ein, hat eingerichtet)
+die Untersuchung — investigation / examination / study  (pl. die Untersuchungen)
+der Arbeitnehmer — employee  (pl. die Arbeitnehmer)
+der Arbeitgeber — employer  (pl. die Arbeitgeber)
+der Betrieb — company / business / plant  (pl. die Betriebe)
+das Klima — climate; atmosphere  (pl. die Klimate)
+der Artikel — article  (pl. die Artikel)
+besprechen — to discuss  (bespricht, hat besprochen)
+untersuchen — to examine / to investigate  (untersucht, hat untersucht)
+seltsam — strange / odd
+Es wundert mich — It surprises me
+mindestens — at least
+===== A2 – Chapter 9 =====
+an die Wand hängen — to hang on the wall
+hinter den Schrank stellen — to put behind the cupboard
+unter das Bett legen — to put under the bed
+hängen — to hang  (hängt, hat gehangen)
+legen — to lay / to put (flat)  (legt, hat gelegt)
+liegen — to lie (be lying flat)  (liegt, hat gelegen)
+stehen — to stand  (steht, hat gestanden)
+stellen — to put / to place (upright)  (stellt, hat gestellt)
+das Kissen — pillow / cushion  (pl. die Kissen)
+der Polster — cushion (sofa) (Austrian)  (pl. die Polster)
+die Wand — wall  (pl. die Wände)
+die Garderobe — coat rack / cloakroom  (pl. die Garderoben)
+das Heft — notebook / exercise book  (pl. die Hefte)
+der Lautsprecher — loudspeaker  (pl. die Lautsprecher)
+die Pflanze — plant  (pl. die Pflanzen)
+das Plakat — poster / placard  (pl. die Plakate)
+das Poster — poster  (pl. die Poster)
+der Radiergummi — eraser / rubber  (pl. die Radiergummis)
+die Schachtel — box  (pl. die Schachteln)
+der Block — notepad  (pl. die Blöcke)
+der Zettel — note / slip of paper  (pl. die Zettel)
+der Ordner — folder / binder  (pl. die Ordner)
+die Schere — scissors  (pl. die Scheren)
+innen — inside
+abschneiden — to cut off  (schneidet ab, hat abgeschnitten)
+komplett — complete / completely
+verlassen — to leave  (verlässt, hat verlassen)
+kontrollieren — to check / to control  (kontrolliert, hat kontrolliert)
+schneiden — to cut  (schneidet, hat geschnitten)
+die Briefmarke — stamp (postage)  (pl. die Briefmarken)
+aussuchen — to pick out / to choose  (sucht aus, hat ausgesucht)
+ähnlich — similar
+süß — sweet; cute
+ungewöhnlich — unusual
+der Beitrag — contribution; post  (pl. die Beiträge)
+die Gewohnheit — habit  (pl. die Gewohnheiten)
+veröffentlichen — to publish  (veröffentlicht, hat veröffentlicht)
+zählen — to count  (zählt, hat gezählt)
+die Stufe — step; level / stage  (pl. die Stufen)
+Mathematik — mathematics
+gespannt — eager / curious (to see)
+die Buchhandlung — bookshop  (pl. die Buchhandlungen)
+riechen — to smell  (riecht, hat gerochen)
+der Händler — dealer / trader  (pl. die Händler)
+außen — outside
+===== A2 – Chapter 10 =====
+der E-Scooter — e-scooter  (pl. die E-Scooter)
+das Mietauto — rental car  (pl. die Mietautos)
+das Leihrad — rental bike  (pl. die Leihräder)
+dafür — for it / for that; in return
+versprechen — to promise  (verspricht, hat versprochen)
+ablehnen — to reject / to decline  (lehnt ab, hat abgelehnt)
+definitiv — definitely
+gegenüber — opposite; towards
+die Reihe — row / line  (pl. die Reihen)
+der Stau — traffic jam  (pl. die Staus)
+unternehmen — to do / to undertake  (unternimmt, hat unternommen)
+herrlich — wonderful / glorious
+der Bäcker — baker  (pl. die Bäcker)
+endlich — finally / at last
+das Chaos — chaos
+der Zebrastreifen — zebra crossing / crosswalk  (pl. die Zebrastreifen)
+der Bürgersteig — pavement / sidewalk  (pl. die Bürgersteige)
+die Fußgängerzone — pedestrian zone  (pl. die Fußgängerzonen)
+die Fahrbahn — carriageway / road lane  (pl. die Fahrbahnen)
+die Autobahn — motorway / highway  (pl. die Autobahnen)
+die Ausfahrt — exit (motorway)  (pl. die Ausfahrten)
+die Baustelle — construction site / roadworks  (pl. die Baustellen)
+die Umleitung — detour / diversion  (pl. die Umleitungen)
+der Unfall — accident  (pl. die Unfälle)
+der Pkw — car (passenger vehicle)  (pl. die Pkws)
+der Lkw — truck / lorry  (pl. die Lkws)
+die Nachricht — message; news  (pl. die Nachrichten)
+folgen — to follow  (folgt, ist gefolgt)
+Bundes- — federal ...
+vorsichtig — careful
+überholen — to overtake  (überholt, hat überholt)
+===== A2 – Chapter 11 =====
+die Überquerung — crossing  (pl. die Überquerungen)
+die Aussicht — view; prospect  (pl. die Aussichten)
+das Camping — camping
+die Sauna — sauna  (pl. die Saunen)
+das Luxushotel — luxury hotel  (pl. die Luxushotels)
+die Zahnbürste — toothbrush  (pl. die Zahnbürsten)
+die Zahnpasta — toothpaste  (pl. die Zahnpasten)
+die Sonnencreme — sunscreen  (pl. die Sonnencremes)
+der Sonnenhut — sun hat  (pl. die Sonnenhüte)
+das Pflaster — plaster / band-aid  (pl. die Pflaster)
+das Handtuch — towel  (pl. die Handtücher)
+der Schlafsack — sleeping bag  (pl. die Schlafsäcke)
+die Wolldecke — wool blanket  (pl. die Wolldecken)
+das Ladegerät — charger  (pl. die Ladegeräte)
+das Taschenmesser — pocketknife  (pl. die Taschenmesser)
+die Taschenlampe — torch / flashlight  (pl. die Taschenlampen)
+die Trinkflasche — water bottle  (pl. die Trinkflaschen)
+die Wanderung — hike  (pl. die Wanderungen)
+der Bergführer — mountain guide  (pl. die Bergführer)
+erreichen — to reach  (erreicht, hat erreicht)
+überqueren — to cross  (überquert, hat überquert)
+leer — empty
+träumen — to dream  (träumt, hat geträumt)
+die Chance — chance / opportunity  (pl. die Chancen)
+der Berg — mountain  (pl. die Berge)
+die Berge — the mountains  (pl. die Berge)
+der Knochen — bone  (pl. die Knochen)
+der Muskel — muscle  (pl. die Muskeln)
+plötzlich — suddenly
+der Stein — stone  (pl. die Steine)
+vorher — before / beforehand
+der Zucker — sugar
+die Kreuzfahrt — cruise  (pl. die Kreuzfahrten)
+das Kajak — kayak  (pl. die Kajaks)
+reduzieren — to reduce  (reduziert, hat reduziert)
+das Prozent — percent  (pl. die Prozente)
+die meisten — most (of)
+rund — around / approximately; round
+die Hälfte — half  (pl. die Hälften)
+das Viertel — quarter; district  (pl. die Viertel)
+einige — some / a few
+Wellness — wellness / spa
+das Abenteuer — adventure  (pl. die Abenteuer)
+===== A2 – Chapter 12 =====
+Kopf hoch! — Chin up! / Cheer up!
+ansehen — to look at / to watch  (sieht an, hat angesehen)
+anschauen — to look at / to watch  (schaut an, hat angeschaut)
+rufen — to call / to shout  (ruft, hat gerufen)
+das Visum — visa  (pl. die Visa)
+der Reisepass — passport  (pl. die Reisepässe)
+der Personalausweis — ID card  (pl. die Personalausweise)
+das Zeugnis — certificate / school report  (pl. die Zeugnisse)
+der Lebenslauf — CV / résumé  (pl. die Lebensläufe)
+die Bewerbung — job application  (pl. die Bewerbungen)
+die Gesundheitskarte — health insurance card  (pl. die Gesundheitskarten)
+die Impfung — vaccination  (pl. die Impfungen)
+freiwillig — voluntary
+erfahren — to find out / to learn; to experience  (erfährt, hat erfahren)
+passen (zu) — to suit / to fit (with)  (passt, hat gepasst)
+der Freiwillige — volunteer  (pl. die Freiwilligen)
+die Betreuung — care / supervision  (pl. die Betreuungen)
+gleichzeitig — at the same time
+bereits — already
+die Voraussetzung — requirement / prerequisite  (pl. die Voraussetzungen)
+die Kenntnis — knowledge  (pl. die Kenntnisse)
+gültig — valid
+eventuell — possibly / perhaps
+die Ausnahme — exception  (pl. die Ausnahmen)
+die Öffnungszeit — opening hours  (pl. die Öffnungszeiten)
+die Demonstration — demonstration (protest)  (pl. die Demonstrationen)
+die Anmeldung — registration  (pl. die Anmeldungen)
+historisch — historical / historic
+die Tankstelle — petrol / gas station  (pl. die Tankstellen)
+der Zugang — access / entrance  (pl. die Zugänge)
+der Saal — hall (large room)  (pl. die Säle)
+ausleihen — to borrow; to lend  (leiht aus, hat ausgeliehen)
+der Eintritt — admission / entry (fee)  (pl. die Eintritte)
+öffentlich — public
+die Linie — line (bus/metro)  (pl. die Linien)
+die Gefahr — danger  (pl. die Gefahren)
+die Innenstadt — city centre / downtown  (pl. die Innenstädte)
+kopieren — to copy  (kopiert, hat kopiert)
+ehrlich — honest / honestly
+sich überlegen — to think about / to consider  (überlegt sich, hat sich überlegt)
+die Erfahrung — experience  (pl. die Erfahrungen)
+die Leitung — management / leadership  (pl. die Leitungen)
+unterstützen — to support  (unterstützt, hat unterstützt)
+leiten — to lead / to manage  (leitet, hat geleitet)
+die Geduld — patience
+===== A2 – Chapter 13 =====
+typisch — typical
+der Abschied — farewell / goodbye  (pl. die Abschiede)
+scharf — spicy; sharp
+das Verhalten — behaviour
+unmöglich — impossible
+der Durst — thirst
+wegräumen — to clear away / to put away  (räumt weg, hat weggeräumt)
+bemerken — to notice  (bemerkt, hat bemerkt)
+das Geschirr — dishes / crockery
+der Teller — plate  (pl. die Teller)
+das Glas — glass (drinking)  (pl. die Gläser)
+die Tasse — cup  (pl. die Tassen)
+das Messer — knife  (pl. die Messer)
+die Gabel — fork  (pl. die Gabeln)
+der Löffel — spoon  (pl. die Löffel)
+das Salz — salt  (pl. die Salze)
+die Karaffe — carafe / jug  (pl. die Karaffen)
+die Schüssel — bowl  (pl. die Schüsseln)
+der Topf — pot / saucepan  (pl. die Töpfe)
+das Besteck — cutlery  (pl. die Bestecke)
+der Pfeffer — pepper
+der Zucker — sugar
+der Essig — vinegar  (pl. die Essige)
+das Öl — oil  (pl. die Öle)
+die Praline — chocolate / praline  (pl. die Pralinen)
+fett — fatty; fat
+bitter — bitter
+salzig — salty
+willkommen — welcome
+satt — full (after eating)
+sich verabschieden — to say goodbye  (verabschiedet sich, hat sich verabschiedet)
+===== A2 – Chapter 14 =====
+herunter / runter — down (downwards)
+schimpfen — to scold / to grumble  (schimpft, hat geschimpft)
+üben — to practise  (übt, hat geübt)
+lassen — to let / to leave; to have something done  (lässt, hat gelassen)
+der Dienst — service; duty / shift  (pl. die Dienste)
+schwer — heavy; difficult
+der Umzug — move (moving house)  (pl. die Umzüge)
+das Dach — roof  (pl. die Dächer)
+der Stock — floor / storey  (pl. die Stockwerke)
+der Eingang — entrance  (pl. die Eingänge)
+das Treppenhaus — stairwell  (pl. die Treppenhäuser)
+die Wohnungstür — apartment door  (pl. die Wohnungstüren)
+die Garage — garage  (pl. die Garagen)
+der Fahrradkeller — bicycle cellar  (pl. die Fahrradkeller)
+der Hof — courtyard; yard  (pl. die Höfe)
+die Mülltonne — rubbish bin / trash can  (pl. die Mülltonnen)
+der Briefkasten — mailbox / letterbox  (pl. die Briefkästen)
+die Hausnummer — house number  (pl. die Hausnummern)
+die Nachbarschaft — neighbourhood  (pl. die Nachbarschaften)
+sich aussuchen — to choose (for oneself)  (sucht sich aus, hat sich ausgesucht)
+der Ton — tone; sound  (pl. die Töne)
+der Bewohner — resident  (pl. die Bewohner)
+die Unterhaltung — conversation; entertainment  (pl. die Unterhaltungen)
+spontan — spontaneous
+hilfsbereit — helpful
+damals — back then / at that time
+die Kräuter — herbs  (pl. die Kräuter)
+der Hinterhof — backyard / rear courtyard  (pl. die Hinterhöfe)
+der Einkauf — shopping / purchase  (pl. die Einkäufe)
+rauf — up (upwards)
+lösen — to solve  (löst, hat gelöst)
+ansprechen — to speak to / to address  (spricht an, hat angesprochen)
+persönlich — personal / in person
+hell — bright; light (colour)
+der Song — song  (pl. die Songs)
+genial — brilliant / genius
+der Radfahrer — cyclist  (pl. die Radfahrer)
+berühmt — famous
+===== A2 – Chapter 15 =====
+der Arbeitstag — working day  (pl. die Arbeitstage)
+raten — to advise; to guess  (rät, hat geraten)
+die Krawatte — tie  (pl. die Krawatten)
+die Party — party  (pl. die Partys)
+das Date — date (romantic)  (pl. die Dates)
+elegant — elegant
+gelten — to be valid; to be considered  (gilt, hat gegolten)
+schick — smart / chic
+das Experiment — experiment  (pl. die Experimente)
+hübsch — pretty / handsome
+das Lächeln — smile
+die Regel — rule  (pl. die Regeln)
+das Ritual — ritual  (pl. die Rituale)
+duzen — to address someone with "du"  (duzt, hat geduzt)
+das Gegenteil — opposite  (pl. die Gegenteile)
+das Interesse — interest  (pl. die Interessen)
+der Parkplatz — parking space / car park  (pl. die Parkplätze)
+der Kopierer — photocopier  (pl. die Kopierer)
+der Sekretär — secretary  (pl. die Sekretäre)
+der Urlaub — holiday / vacation (from work)  (pl. die Urlaube)
+chaotisch — chaotic
+niedrig — low
+verliebt — in love
+das Gesicht — face  (pl. die Gesichter)
+reich — rich
+schief — crooked; wrong (go wrong)
+der Rat — advice  (pl. die Ratschläge)
+die Stellenanzeige — job advertisement  (pl. die Stellenanzeigen)
+der Lift — lift / elevator  (pl. die Lifte)
+die Rezeption — reception (desk)  (pl. die Rezeptionen)
+das Sekretariat — secretary's office  (pl. die Sekretariate)
+der Hausmeister — caretaker / janitor  (pl. die Hausmeister)
+der Lohn — wage / pay  (pl. die Löhne)
+der Feierabend — end of the working day  (pl. die Feierabende)
+Vollzeit arbeiten — to work full-time
+Teilzeit arbeiten — to work part-time
+===== A2 – Chapter 16 =====
+die Stimmung — mood / atmosphere  (pl. die Stimmungen)
+wiedersehen — to see again  (sieht wieder, hat wiedergesehen)
+die Laune — mood  (pl. die Launen)
+das Videospiel — video game  (pl. die Videospiele)
+der Podcast — podcast  (pl. die Podcasts)
+die Zeitschrift — magazine  (pl. die Zeitschriften)
+die Talkshow — talk show  (pl. die Talkshows)
+der Krimi — crime film / crime novel  (pl. die Krimis)
+die Nachrichten — the news  (pl. die Nachrichten)
+die Doku — documentary  (pl. die Dokus)
+das Hörbuch — audiobook  (pl. die Hörbücher)
+das Tutorial — tutorial  (pl. die Tutorials)
+streiten — to argue / to quarrel  (streitet, hat gestritten)
+weggehen — to go away / to go out  (geht weg, ist weggegangen)
+sich verlieben — to fall in love  (verliebt sich, hat sich verliebt)
+verbringen — to spend (time)  (verbringt, hat verbracht)
+verstehen — to understand  (versteht, hat verstanden)
+sich entschuldigen — to apologise  (entschuldigt sich, hat sich entschuldigt)
+die Sorge — worry / concern  (pl. die Sorgen)
+ständig — constantly
+sich treffen — to meet (each other)  (trifft sich, hat sich getroffen)
+sich ärgern — to be annoyed  (ärgert sich, hat sich geärgert)
+sich fühlen — to feel  (fühlt sich, hat sich gefühlt)
+sich unterhalten — to chat / to talk; to enjoy oneself  (unterhält sich, hat sich unterhalten)
+sich beeilen — to hurry  (beeilt sich, hat sich beeilt)
+sich beschweren — to complain  (beschwert sich, hat sich beschwert)
+der Kommissar — detective / inspector  (pl. die Kommissare)
+die Figur — character (in a story); figure  (pl. die Figuren)
+der Mord — murder  (pl. die Morde)
+aktuell — current / up to date
+die Folge — episode; consequence  (pl. die Folgen)
+tot — dead
+die Band — band (music)  (pl. die Bands)
+die Hütte — hut / cabin  (pl. die Hütten)
+nervig — annoying
+logisch — logical
+insgesamt — in total / overall
+privat — private
+der Patient — patient  (pl. die Patienten)
+nerven — to annoy / to get on someone's nerves  (nervt, hat genervt)
+sich erinnern — to remember  (erinnert sich, hat sich erinnert)
+der Streit — argument / quarrel  (pl. die Streite)
+romantisch — romantic
+===== A2 – Chapter 17 =====
+genervt — annoyed
+gut gelaunt — in a good mood
+schlecht gelaunt — in a bad mood
+höflich — polite
+kooperativ — cooperative
+unkooperativ — uncooperative
+unsicher — unsure / insecure
+vorwärts — forward(s)
+achten — to pay attention  (achtet, hat geachtet)
+die Zusammenarbeit — cooperation / collaboration
+produktiv — productive
+unproduktiv — unproductive
+sich interessieren — to be interested  (interessiert sich, hat sich interessiert)
+das Wissen — knowledge
+gegenseitig — mutual / each other
+das Ergebnis — result  (pl. die Ergebnisse)
+frustriert — frustrated
+ideal — ideal
+tolerant sein — to be tolerant
+sich kümmern — to take care (of)  (kümmert sich, hat sich gekümmert)
+bunt — colourful
+das Ziel — goal / destination  (pl. die Ziele)
+die Kooperation — cooperation  (pl. die Kooperationen)
+die Interaktion — interaction  (pl. die Interaktionen)
+sich kümmern um — to take care of / to look after
+sich freuen auf — to look forward to
+sich freuen über — to be happy about
+sich interessieren für — to be interested in
+sich ärgern über — to be annoyed about
+erzählen von — to tell about
+träumen von — to dream of
+achten auf — to pay attention to
+sich konzentrieren auf — to concentrate on
+sich erinnern an — to remember
+warten auf — to wait for
+sprechen mit — to speak with
+sprechen über — to talk about
+zufrieden sein mit — to be satisfied with
+enttäuscht sein von — to be disappointed by
+Angst haben vor — to be afraid of
+Lust haben auf — to feel like / to fancy
+die Schlange — snake; queue / line  (pl. die Schlangen)
+die Politik — politics
+der Geschäftsführer — managing director / CEO  (pl. die Geschäftsführer)
+die Aufgabe — task; exercise  (pl. die Aufgaben)
+absolut — absolutely
+der Auftritt — appearance / performance  (pl. die Auftritte)
+entscheiden — to decide  (entscheidet, hat entschieden)
+der Wunsch — wish  (pl. die Wünsche)
+die Geschäftsführung — management
+der Snack — snack  (pl. die Snacks)
+aufteilen — to divide up / to split  (teilt auf, hat aufgeteilt)
+sich einigen — to agree / to come to an agreement  (einigt sich, hat sich geeinigt)
+der Leiter — head / leader / manager  (pl. die Leiter)
+verteilen — to distribute / to hand out  (verteilt, hat verteilt)
+===== A2 – Chapter 18 =====
+entdecken — to discover  (entdeckt, hat entdeckt)
+der QR-Code — QR code  (pl. die QR-Codes)
+die Datei — file (digital)  (pl. die Dateien)
+der Link — link  (pl. die Links)
+aufladen — to charge (battery); to top up  (lädt auf, hat aufgeladen)
+installieren — to install  (installiert, hat installiert)
+recherchieren — to research  (recherchiert, hat recherchiert)
+heben — to lift / to raise  (hebt, hat gehoben)
+trotzdem — nevertheless / anyway
+bearbeiten — to edit / to process  (bearbeitet, hat bearbeitet)
+herunterladen — to download  (lädt herunter, hat heruntergeladen)
+hochladen — to upload  (lädt hoch, hat hochgeladen)
+liken — to like (on social media)  (likt, hat gelikt)
+mailen — to email  (mailt, hat gemailt)
+posten — to post (online)  (postet, hat gepostet)
+scannen — to scan  (scannt, hat gescannt)
+weiterleiten — to forward  (leitet weiter, hat weitergeleitet)
+bequem — comfortable; convenient
+aufhören — to stop  (hört auf, hat aufgehört)
+anklicken — to click on  (klickt an, hat angeklickt)
+checken — to check  (checkt, hat gecheckt)
+überweisen — to transfer (money)  (überweist, hat überwiesen)
+einchecken — to check in  (checkt ein, hat eingecheckt)
+tippen — to type; to tap  (tippt, hat getippt)
+die Suchmaschine — search engine  (pl. die Suchmaschinen)
+das Resultat — result  (pl. die Resultate)
+wenigstens — at least
+die Plattform — platform  (pl. die Plattformen)
+die Community — community (online)  (pl. die Communitys)
+digital — digital
+die Diät — diet  (pl. die Diäten)
+die Sucht — addiction  (pl. die Süchte)
+das Thema — topic / subject  (pl. die Themen)
+einschalten — to switch on  (schaltet ein, hat eingeschaltet)
+===== A2 – Chapter 19 =====
+die Mango — mango  (pl. die Mangos)
+das Tattoo — tattoo  (pl. die Tattoos)
+fangen — to catch  (fängt, hat gefangen)
+besichtigen — to visit / to tour (sights)  (besichtigt, hat besichtigt)
+aufbleiben — to stay up  (bleibt auf, ist aufgeblieben)
+die Mitternacht — midnight
+die Zigarette — cigarette  (pl. die Zigaretten)
+die Spritze — injection / syringe  (pl. die Spritzen)
+das Heimweh — homesickness
+das Gewissen — conscience  (pl. die Gewissen)
+das Feuer — fire  (pl. die Feuer)
+der Liebeskummer — heartbreak / lovesickness
+tätowieren — to tattoo  (tätowiert, hat tätowiert)
+die Angel — fishing rod  (pl. die Angeln)
+der Bundeskanzler — Federal Chancellor  (pl. die Bundeskanzler)
+wahr — true
+das Pech — bad luck
+der Cousin — cousin (male)  (pl. die Cousins)
+außer — except (for)
+einen Tanzkurs machen — to take a dance class
+sich in einer Bürgerinitiative engagieren — to get involved in a citizens' initiative
+einen Baum pflanzen — to plant a tree
+die Not — need / hardship / emergency  (pl. die Nöte)
+ein Sabbatical machen — to take a sabbatical
+spenden — to donate  (spendet, hat gespendet)
+sich vegan ernähren — to eat a vegan diet
+an einem Triathlon teilnehmen — to take part in a triathlon
+einen Salto machen — to do a somersault
+einen Hund adoptieren — to adopt a dog
+ein Fest feiern — to celebrate / to throw a party
+in einer Karaoke-Bar singen — to sing in a karaoke bar
+Griechenland — Greece
+beantragen — to apply for  (beantragt, hat beantragt)
+===== A2 – Chapter 20 =====
+der Imker — beekeeper  (pl. die Imker)
+produzieren — to produce  (produziert, hat produziert)
+stechen — to sting  (sticht, hat gestochen)
+die Tradition — tradition  (pl. die Traditionen)
+stundenlang — for hours
+vorbei an — past (going by)
+die Erde — earth; soil  (pl. die Erden)
+der Bauernhof — farm  (pl. die Bauernhöfe)
+das Tor — gate; goal  (pl. die Tore)
+besitzen — to own / to possess  (besitzt, hat besessen)
+der Besitzer — owner  (pl. die Besitzer)
+der Bienenstock — beehive  (pl. die Bienenstöcke)
+der Kasten — box / crate  (pl. die Kästen)
+die Steuer — tax  (pl. die Steuern)
+ziehen — to move (house); to pull  (zieht, ist gezogen)
+kündigen — to quit (a job); to cancel  (kündigt, hat gekündigt)
+mutig — brave / courageous
+einen Geschäftsplan machen — to make a business plan
+Kontakte knüpfen — to make contacts / to network
+reduzieren — to reduce
+beraten — to advise / to consult
+Vorträge über ... halten — to give talks about ...
+Werbung machen — to advertise
+Workshops besuchen — to attend workshops
+Workshops geben — to give workshops
+irgend- — some- / any- (prefix)
+verändern — to change  (verändert, hat verändert)
+lebendig — alive / lively
+sich anfühlen — to feel (to the touch)  (fühlt sich an, hat sich angefühlt)
+===== A2 – Chapter 21 =====
+demonstrieren — to demonstrate / to protest  (demonstriert, hat demonstriert)
+der Klimawandel — climate change
+nachdenken — to think (about) / to reflect  (denkt nach, hat nachgedacht)
+der Unsinn — nonsense
+vorgestern — the day before yesterday
+der Redakteur — editor  (pl. die Redakteure)
+die Redaktion — editorial office / team  (pl. die Redaktionen)
+der Schutz — protection
+schnell — fast / quick
+weitermachen — to carry on / to continue  (macht weiter, hat weitergemacht)
+ändern — to change  (ändert, hat geändert)
+gerecht — fair / just
+verantwortlich — responsible
+inzwischen — meanwhile / by now
+der Elektromotor — electric motor  (pl. die Elektromotoren)
+fair — fair
+widersprechen — to contradict / to disagree  (widerspricht, hat widersprochen)
+begründen — to justify / to give reasons for  (begründet, hat begründet)
+blockieren — to block  (blockiert, hat blockiert)
+die Frisur — hairstyle  (pl. die Frisuren)
+lassen — to leave / to let
+fliegen — to fly
+Lastenfahrrad — cargo bike
+auf Fleisch verzichten — to give up meat
+sich für den Tierschutz engagieren — to get involved in animal protection
+Secondhandkleidung kaufen — to buy second-hand clothes
+Geräte selbst reparieren — to repair devices yourself
+Heizkosten sparen — to save on heating costs
+Plastik vermeiden — to avoid plastic
+regionale Lebensmittel kaufen — to buy local food
+Kosmetik selbst machen — to make your own cosmetics
+für das Klima demonstrieren — to protest for the climate
+===== A2 – Chapter 22 =====
+der König — king  (pl. die Könige)
+die Zukunft — future
+glücklich — happy
+froh — glad / happy
+stressig — stressful
+der Sinn — meaning / sense  (pl. die Sinne)
+sozial — social
+das Engagement — commitment / involvement  (pl. die Engagements)
+die Religion — religion  (pl. die Religionen)
+der Umweltschutz — environmental protection
+der Frieden — peace
+traurig — sad
+optimistisch — optimistic
+pessimistisch — pessimistic
+ängstlich — anxious / fearful
+entspannt — relaxed
+nervös — nervous
+fröhlich — cheerful
+langweilig — boring
+spannend — exciting
+das Netzwerk — network  (pl. die Netzwerke)
+wahrscheinlich — probably
+die Rente — pension; retirement  (pl. die Renten)
+der Motorroller — motor scooter  (pl. die Motorroller)
+die Operation — operation (surgery)  (pl. die Operationen)
+===== A2 – Chapter 23 =====
+bewegen — to move  (bewegt, hat bewegt)
+die Nähmaschine — sewing machine  (pl. die Nähmaschinen)
+vorne — at the front
+der Elefant — elephant  (pl. die Elefanten)
+das Spielzeug — toy  (pl. die Spielzeuge)
+die Nadel — needle  (pl. die Nadeln)
+der Stoff — fabric / material  (pl. die Stoffe)
+weich — soft
+der Knopf — button  (pl. die Knöpfe)
+die Biografie — biography  (pl. die Biografien)
+das Unternehmen — company / enterprise  (pl. die Unternehmen)
+der Unternehmer — entrepreneur / businessman  (pl. die Unternehmer)
+international — international
+der Schüler — (school) pupil  (pl. die Schüler)
+der Schulabschluss — school leaving qualification  (pl. die Schulabschlüsse)
+die Ausbildung — vocational training  (pl. die Ausbildungen)
+der Studierende — (university) student  (pl. die Studierenden)
+das Studium — university studies  (pl. die Studien)
+die Geburt — birth  (pl. die Geburten)
+die Führung — guided tour; leadership  (pl. die Führungen)
+erfahren — experienced
+der Wagen — car; carriage / cart  (pl. die Wagen)
+die Werkstatt — workshop  (pl. die Werkstätten)
+mehrere — several
+riesig — huge / enormous
+der Beginn — beginning / start  (pl. die Beginne)
+der Bär — bear  (pl. die Bären)
+präsentieren — to present  (präsentiert, hat präsentiert)
+der Präsident — president  (pl. die Präsidenten)
+beliebt — popular
+das Baby — baby  (pl. die Babys)
+der Praktikant — intern  (pl. die Praktikanten)
+der Grieche — Greek (person)  (pl. die Griechen)
+eröffnen — to open (a business)  (eröffnet, hat eröffnet)
+geboren — born
+die Hochschule — university / college  (pl. die Hochschulen)
+der Professor — professor  (pl. die Professoren)
+die Klinik — clinic / hospital  (pl. die Kliniken)
+===== A2 – Chapter 24 =====
+offen — open
+der Blumenladen — flower shop / florist  (pl. die Blumenläden)
+die Bäckerei — bakery  (pl. die Bäckereien)
+die Buchhandlung — bookshop  (pl. die Buchhandlungen)
+der Gemüse- und Obststand — fruit and vegetable stall  (pl. die Gemüse- und Obststände)
+der Getränkemarkt — drinks store  (pl. die Getränkemärkte)
+die Kneipe — pub / bar  (pl. die Kneipen)
+der Coiffeur — hairdresser (Swiss)  (pl. die Coiffeure)
+das Kapitel — chapter  (pl. die Kapitel)
+realisieren — to realise / to carry out  (realisiert, hat realisiert)
+europäisch — European
+führen — to lead / to run (a business)  (führt, hat geführt)
+pflegen — to take care of / to maintain  (pflegt, hat gepflegt)
+überzeugt — convinced
+der Handyladen — mobile phone shop  (pl. die Handyläden)
+das Juweliergeschäft — jewellery shop  (pl. die Juweliergeschäfte)
+die Boutique — boutique  (pl. die Boutiquen)
+das Optikgeschäft — optician's  (pl. die Optikgeschäfte)
+die Reinigung — dry cleaner's; cleaning  (pl. die Reinigungen)
+das Schuhgeschäft — shoe shop  (pl. die Schuhgeschäfte)
+die Eröffnung — opening  (pl. die Eröffnungen)
+der Salon — salon  (pl. die Salons)
+dick — thick; fat
+die Dekoration — decoration  (pl. die Dekorationen)
+das Geschäft — shop / business  (pl. die Geschäfte)
+`;
+
+    document.addEventListener('DOMContentLoaded', () => app.init());
+  </script>
+</body>
+</html>
