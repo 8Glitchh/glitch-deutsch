@@ -553,7 +553,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 12;
+    const APP_VERSION = 13;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -561,6 +561,7 @@
       share: '<path d="M12 3v12M8 7l4-4 4 4"/><path d="M7 10H6a1.5 1.5 0 0 0-1.5 1.5v8A1.5 1.5 0 0 0 6 21h12a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 18 10h-1"/>',
       plusSq: '<rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 8v8M8 12h8"/>',
       menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+      pageMenu: '<path d="M5 7h14M5 12h14M5 17h9"/>',
       dots: '<circle cx="12" cy="5" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="12" cy="19" r="1.2"/>',
       more: '<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>',
       cards: '<rect x="3" y="6" width="14" height="14" rx="2.5"/><path d="M7 3h11a3 3 0 0 1 3 3v11"/>',
@@ -1059,10 +1060,11 @@
         const body = os === 'ios' ? `
             <ol class="inst-list">
               ${li(1, `Open this page in <b>Safari</b>. (Chrome on iPhone can do it too, via its ${g('share')} button.)`)}
-              ${li(2, `Tap the <b>Share</b> button ${g('share')} in the bar at the bottom. On newer iPhones, tap ${g('more')} first to find it.`)}
-              ${li(3, `Scroll down and tap <b>Add to Home Screen</b> ${g('plusSq')}.`)}
-              ${li(4, `If you see <b>Open as Web App</b>, leave it switched on. Tap <b>Add</b> at the top right.`)}
-              ${finish(5)}
+              ${li(2, `Tap the <b>menu</b> button ${g('pageMenu')} on the left of the address bar at the bottom.`)}
+              ${li(3, `Tap <b>Share</b> ${g('share')}. (On older iPhones there's no menu button — the Share button ${g('share')} is right in the bottom bar, so start here.)`)}
+              ${li(4, `Scroll down and tap <b>Add to Home Screen</b> ${g('plusSq')}. If you don't see it, tap <b>More</b> ${g('more')} first.`)}
+              ${li(5, `If you see <b>Open as Web App</b>, leave it switched on. Tap <b>Add</b> at the top right.`)}
+              ${finish(6)}
             </ol>
             <div class="inst-note">Always open it from the icon, not a Safari tab — your progress is saved separately in each.</div>`
           : `
