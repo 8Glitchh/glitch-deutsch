@@ -555,7 +555,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 16;
+    const APP_VERSION = 17;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -753,6 +753,7 @@
       data: { A1: {}, A2: {}, B1: {} },
       level: 'A1', chapter: 1, mode: 'cards',
       s: {},          // per-mode session state
+      sessions: {},   // saved sessions for other parts/modes of the current chapter
       timers: [],
 
       init() {
@@ -768,6 +769,7 @@
         Speech.init();
         $('#settings-btn').innerHTML = icon('gear');
         this.renderInstallBtn();
+        this.loadSession();
         document.addEventListener('click', e => this.onClick(e));
         document.addEventListener('keydown', e => this.onKey(e));
         this.render();
@@ -815,8 +817,51 @@
         return p == null ? 1 : p;
       },
       setPart(p) {
+        this.stashSession();
         Store.d.chapterPart = Object.assign({}, Store.d.chapterPart, { [this.chKey()]: p });
-        Store.save(); this.s = {}; this.render();
+        Store.save(); this.loadSession(); this.render();
+      },
+
+      // Your place in each part and mode is kept while you stay in the same chapter.
+      sessKey() { return this.chKey() + '|' + this.part + '|' + this.mode; },
+      stashSession() {
+        // Sprint and Match are timed rounds: leaving one ends it.
+        if (this.mode === 'sprint' || this.mode === 'match') return;
+        this.sessions[this.sessKey()] = this.s;
+      },
+      loadSession() {
+        const s = this.s = this.sessions[this.sessKey()] || (this.mode === 'cards' && this.restoreCards()) || {};
+        // Coming back after answering: move on to the next question instead of a locked one.
+        if (s.flipped) s.flipped = false;
+        if (s.answered) { s.i++; s.answered = false; }
+        if (s.done) { s.i++; s.done = false; }
+        if (s.checked != null && s.qs) { s.i++; s.placed = []; s.checked = null; s.order = null; }
+      },
+      forgetSessions() { this.sessions = {}; Store.d.cardSession = null; Store.save(); },
+
+      // Flashcard position is also saved to storage, so it survives the app being closed.
+      saveCards() {
+        const s = this.s;
+        if (!s.deck) return;
+        let cs = Store.d.cardSession;
+        if (!cs || cs.ch !== this.chKey()) cs = Store.d.cardSession = { ch: this.chKey(), parts: {} };
+        cs.parts[this.part] = {
+          filter: s.filter, shuffled: s.shuffled, i: s.i, got: s.got, again: s.again,
+          deck: s.deck.map(w => w.de), againList: s.againList.map(w => w.de),
+        };
+        Store.save();
+      },
+      restoreCards() {
+        const cs = Store.d.cardSession;
+        const d = cs && cs.ch === this.chKey() && cs.parts[this.part];
+        if (!d) return null;
+        const byKey = new Map(this.pool().map(w => [w.de, w]));
+        const deck = d.deck.map(k => byKey.get(k)).filter(Boolean);
+        if (!deck.length) return null;
+        return {
+          filter: d.filter || 'all', shuffled: !!d.shuffled, deck, i: Math.min(d.i || 0, deck.length), flipped: false,
+          got: d.got || 0, again: d.again || 0, againList: (d.againList || []).map(k => byKey.get(k)).filter(Boolean),
+        };
       },
       pool() { const p = this.part; return p ? (this.partLists()[p - 1] || this.words()) : this.words(); },
       poolName() { return this.part ? 'Part ' + this.part : 'this chapter'; },
@@ -934,12 +979,14 @@
       refreshStats() { this.renderStreak(); this.renderChapterCard(); this.renderModes(); },
 
       setChapter(level, ch, stay) {
-        this.level = level; this.chapter = ch; this.s = {};
+        if (level !== this.level || ch !== this.chapter) this.forgetSessions();
+        else this.stashSession();
+        this.level = level; this.chapter = ch; this.loadSession();
         this.persist(); this.render();
         if (!stay) window.scrollTo({ top: 0, behavior: 'smooth' });
       },
 
-      setMode(m) { this.mode = m; this.s = {}; this.persist(); this.renderModes(); this.renderPanel(); },
+      setMode(m) { this.stashSession(); this.mode = m; this.loadSession(); this.persist(); this.renderModes(); this.renderPanel(); },
 
       toast(msg) {
         const t = document.createElement('div');
@@ -994,7 +1041,7 @@
           case 'reset-all': {
             if (!confirm('Reset ALL progress (mastered words, practice list, streak)? This cannot be undone.')) return;
             Object.assign(Store.d, { completedChapters: {}, learnedWords: {}, difficultWords: {}, streak: { day: null, count: 0 }, best: {} });
-            Store.save(); this.closeSheet(); this.s = {}; this.render(); return this.toast('Progress reset');
+            Store.save(); this.closeSheet(); this.forgetSessions(); this.s = {}; this.render(); return this.toast('Progress reset');
           }
           case 'speak': e.stopPropagation(); return Speech.say(ds.text);
         }
@@ -1183,7 +1230,7 @@
             const d = JSON.parse(r.result);
             if (!d || typeof d.learnedWords !== 'object') throw 0;
             localStorage.setItem(Store.KEY, JSON.stringify(d));
-            Store.load(); this.closeSheet(); this.applyTheme(); this.s = {}; this.render();
+            Store.load(); this.closeSheet(); this.applyTheme(); this.forgetSessions(); this.s = {}; this.render();
             this.toast('Progress imported');
           } catch (e) { alert('That file is not a Glitch Deutsch backup.'); }
         };
@@ -1230,7 +1277,8 @@
 
       renderCards(p) {
         const s = this.s;
-        if (!s.deck) { s.filter = s.filter || (this.counts().hard ? 'all' : 'all'); s.shuffled = !!s.shuffled; this.buildDeck(); }
+        if (!s.deck) { s.filter = s.filter || 'all'; s.shuffled = !!s.shuffled; this.buildDeck(); }
+        this.saveCards();
         const dir = Store.d.settings.dir;
         const c = this.countList(this.pool());
         const head = `
@@ -1370,14 +1418,22 @@
         if (a === 'c-flip') { if (el.dataset.swiped) return; return this.flipCard(); }
         if (a === 'c-rate') return this.rateCard(el.dataset.r);
         if (a === 'c-step') { s.i = Math.max(0, s.i + +el.dataset.d); s.flipped = false; return this.renderCards($('#panel')); }
-        if (a === 'c-filter') { s.filter = el.dataset.f; this.buildDeck(); return this.renderCards($('#panel')); }
-        if (a === 'c-shuffle') { s.shuffled = !s.shuffled; this.buildDeck(); this.toast(s.shuffled ? 'Cards shuffled into random order' : 'Cards back in normal order'); return this.renderCards($('#panel')); }
+        if (a === 'c-filter') {
+          const f = el.dataset.f;
+          if (f === s.filter) return;
+          if (s.filter === 'all') s.savedAll = { deck: s.deck, i: s.i, got: s.got, again: s.again, againList: s.againList, shuffled: s.shuffled };
+          s.filter = f;
+          if (f === 'all' && s.savedAll && s.savedAll.shuffled === s.shuffled) { Object.assign(s, s.savedAll, { flipped: false }); s.savedAll = null; }
+          else this.buildDeck();
+          return this.renderCards($('#panel'));
+        }
+        if (a === 'c-shuffle') { s.shuffled = !s.shuffled; s.savedAll = null; this.buildDeck(); this.toast(s.shuffled ? 'Cards shuffled into random order' : 'Cards back in normal order'); return this.renderCards($('#panel')); }
         if (a === 'c-dir') { Store.d.settings.dir = Store.d.settings.dir === 'de-en' ? 'en-de' : 'de-en'; Store.save(); s.flipped = false; this.toast(Store.d.settings.dir === 'de-en' ? 'German first, then English' : 'English first, then German'); return this.renderCards($('#panel')); }
-        if (a === 'c-restart') { this.buildDeck(); return this.renderCards($('#panel')); }
+        if (a === 'c-restart') { s.savedAll = null; this.buildDeck(); return this.renderCards($('#panel')); }
         if (a === 'c-reset-open') {
           for (const w of this.pool()) { delete Store.d.learnedWords[w.de]; delete Store.d.difficultWords[w.de]; }
           Store.save();
-          s.filter = 'all';
+          s.filter = 'all'; s.savedAll = null;
           this.buildDeck();
           this.refreshStats();
           this.toast((this.part ? 'Part ' + this.part : 'Chapter') + ' restarted');
