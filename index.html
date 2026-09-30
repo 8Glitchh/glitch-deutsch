@@ -327,6 +327,14 @@
     .swipe-tag.r { right: 18px; background: var(--ok); color: #04150e; transform: rotate(8deg); }
     .rate { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .deck-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+    .deck-mid { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .deck-mid .btn { height: 28px; padding: 0 10px; font-size: .78rem; color: var(--text-2); }
+    .reset-opt { width: 100%; display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: center; text-align: left; padding: 14px; border-radius: var(--r-md); background: var(--surface); border: 1.5px solid transparent; margin-bottom: 8px; }
+    .reset-opt:hover { border-color: var(--line-strong); }
+    .reset-opt .ri { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+    .reset-opt.danger .ri { background: var(--bad-soft); color: var(--bad); }
+    .reset-opt b { display: block; font-size: .98rem; }
+    .reset-opt span span { display: block; font-size: .82rem; color: var(--text-2); margin-top: 2px; }
     .summary { text-align: center; padding: 30px 10px; }
     .summary .big { font-size: 3.2rem; line-height: 1; margin-bottom: 10px; }
     .summary h2 { font-size: 1.5rem; letter-spacing: -0.01em; margin-bottom: 6px; }
@@ -553,7 +561,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 14;
+    const APP_VERSION = 15;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -1307,7 +1315,10 @@
           </div>
           <div class="deck-nav">
             <button class="btn btn-sm btn-ghost" data-action="c-step" data-d="-1" ${s.i === 0 ? 'disabled style="opacity:.4"' : ''}>${icon('left')} Back</button>
-            <span class="muted small" style="font-variant-numeric:tabular-nums">${s.i + 1} / ${s.deck.length}</span>
+            <span class="deck-mid">
+              <span class="muted small" style="font-variant-numeric:tabular-nums">${s.i + 1} / ${s.deck.length}</span>
+              <button class="btn btn-sm btn-ghost" data-action="c-reset-open" title="Go back to the first card">${icon('restart')} Restart</button>
+            </span>
             <button class="btn btn-sm btn-ghost" data-action="c-step" data-d="1">Skip ${icon('right')}</button>
           </div>
           <div class="kbd-hint"><kbd>Space</kbd> flip · <kbd>←</kbd> practise · <kbd>→</kbd> got it · <kbd>S</kbd> speak · or swipe the card</div>`;
@@ -1369,6 +1380,34 @@
         if (a === 'c-shuffle') { s.shuffled = !s.shuffled; this.buildDeck(); this.toast(s.shuffled ? 'Cards shuffled into random order' : 'Cards back in normal order'); return this.renderCards($('#panel')); }
         if (a === 'c-dir') { Store.d.settings.dir = Store.d.settings.dir === 'de-en' ? 'en-de' : 'de-en'; Store.save(); s.flipped = false; this.toast(Store.d.settings.dir === 'de-en' ? 'German first, then English' : 'English first, then German'); return this.renderCards($('#panel')); }
         if (a === 'c-restart') { this.buildDeck(); return this.renderCards($('#panel')); }
+        if (a === 'c-reset-open') {
+          const where = this.part ? 'Part ' + this.part : 'this chapter';
+          const c = this.countList(this.pool());
+          return this.openSheet(`
+            <div class="sheet-head"><h3>Restart flashcards</h3><button class="icon-btn" data-action="close-sheet" aria-label="Close">${icon('x')}</button></div>
+            <div class="sheet-body">
+              <button class="reset-opt" data-action="c-reset" data-how="start">
+                <span class="ri">${icon('restart')}</span>
+                <span><b>Back to card 1</b><span>Start ${where} again from the beginning. Your ✓ and ✗ marks stay.</span></span>
+              </button>
+              <button class="reset-opt danger" data-action="c-reset" data-how="fresh">
+                <span class="ri">${icon('x')}</span>
+                <span><b>Start fresh</b><span>Also clear the marks in ${where} (${c.learned} mastered, ${c.hard} to practise) so every card is new again.</span></span>
+              </button>
+            </div>`);
+        }
+        if (a === 'c-reset') {
+          this.closeSheet();
+          if (el.dataset.how === 'fresh') {
+            for (const w of this.pool()) { delete Store.d.learnedWords[w.de]; delete Store.d.difficultWords[w.de]; }
+            Store.save();
+            this.refreshStats();
+          }
+          s.filter = 'all';
+          this.buildDeck();
+          this.toast(el.dataset.how === 'fresh' ? 'Marks cleared — starting fresh' : 'Back to card 1');
+          return this.renderCards($('#panel'));
+        }
         if (a === 'c-again') { const list = s.shuffled ? shuffle(s.againList) : s.againList; Object.assign(s, { deck: list, i: 0, flipped: false, got: 0, again: 0, againList: [] }); return this.renderCards($('#panel')); }
       },
       key_cards(e, typing) {
