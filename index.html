@@ -135,6 +135,23 @@
     .ch-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 6px; }
     .ch-title svg { color: var(--text-3); flex: none; }
     .ch-arrows { display: flex; gap: 6px; }
+    .ch-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+    .lvl { display: inline-flex; align-items: center; gap: 8px; }
+    .lvl-label { font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
+    .lvl .seg button { padding: 7px 16px; font-size: .88rem; }
+    .lvl .seg button.on { background: var(--accent); color: var(--accent-ink); }
+    .ch-switch {
+      width: 100%; margin-top: 12px; display: flex; align-items: center; gap: 12px; text-align: left;
+      padding: 12px 14px; border-radius: var(--r-md); background: var(--accent-soft);
+      border: 1.5px dashed var(--accent); color: var(--text); transition: background .15s, transform .1s;
+    }
+    .ch-switch:hover { background: rgba(255,200,61,0.22); }
+    .ch-switch:active { transform: scale(.985); }
+    .ch-switch .sw-ic { width: 38px; height: 38px; border-radius: 11px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; flex: none; }
+    .ch-switch .sw-t { flex: 1; min-width: 0; }
+    .ch-switch .sw-t b { display: block; font-size: .95rem; }
+    .ch-switch .sw-t span { display: block; font-size: .78rem; color: var(--text-2); }
+    .ch-switch .sw-go { color: var(--accent); font-weight: 800; font-size: .85rem; display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
     .progress { height: 8px; background: var(--surface-3); border-radius: 99px; overflow: hidden; display: flex; margin: 16px 0 10px; }
     .progress i { display: block; height: 100%; transition: width .4s var(--ease); }
     .progress .p-ok { background: var(--ok); }
@@ -628,7 +645,7 @@
       title(level = this.level, ch = this.chapter) { return CHAPTER_TITLES[level][ch - 1] || `Chapter ${ch}`; },
       chKey() { return `${this.level}_${this.chapter}`; },
 
-      persist() { Object.assign(Store.d, { lastLevel: this.level, lastChapter: this.chapter, lastMode: this.mode }); Store.save(); },
+      persist() { Store.d.levelChapter = Object.assign({}, Store.d.levelChapter, { [this.level]: this.chapter }); Object.assign(Store.d, { lastLevel: this.level, lastChapter: this.chapter, lastMode: this.mode }); Store.save(); },
 
       clearTimers() { this.timers.forEach(t => clearInterval(t)); this.timers = []; },
 
@@ -667,16 +684,30 @@
         const done = !!Store.d.completedChapters[this.chKey()];
         const pct = x => c.total ? (x / c.total * 100) : 0;
         $('#chapter-card').innerHTML = `
+          <div class="ch-top">
+            <div class="lvl">
+              <span class="lvl-label">Level</span>
+              <div class="seg">
+                <button class="${this.level === 'A1' ? 'on' : ''}" data-action="set-level" data-level="A1">A1</button>
+                <button class="${this.level === 'A2' ? 'on' : ''}" data-action="set-level" data-level="A2">A2</button>
+              </div>
+            </div>
+          </div>
           <div class="ch-row">
             <button class="ch-pick" data-action="chapters" aria-label="Choose chapter">
-              <span class="ch-kicker">${this.level} · Chapter ${this.chapter} of 24</span>
-              <span class="ch-title">${esc(this.title())} ${icon('down')}</span>
+              <span class="ch-kicker">Chapter ${this.chapter} of 24</span>
+              <span class="ch-title">${esc(this.title())}</span>
             </button>
             <div class="ch-arrows">
               <button class="icon-btn" data-action="ch-step" data-dir="-1" aria-label="Previous chapter" ${this.chapter === 1 ? 'disabled style="opacity:.35"' : ''}>${icon('left')}</button>
               <button class="icon-btn" data-action="ch-step" data-dir="1" aria-label="Next chapter" ${this.chapter === 24 ? 'disabled style="opacity:.35"' : ''}>${icon('right')}</button>
             </div>
           </div>
+          <button class="ch-switch" data-action="chapters">
+            <span class="sw-ic">${icon('list')}</span>
+            <span class="sw-t"><b>Change chapter</b><span>Pick any of the 24 ${this.level} chapters</span></span>
+            <span class="sw-go">Open ${icon('right')}</span>
+          </button>
           <div class="progress" role="progressbar" aria-valuenow="${Math.round(pct(c.learned))}" aria-valuemin="0" aria-valuemax="100">
             <i class="p-ok" style="width:${pct(c.learned)}%"></i><i class="p-bad" style="width:${pct(c.hard)}%"></i>
           </div>
@@ -733,6 +764,7 @@
           case 'mode': return this.setMode(ds.mode);
           case 'chapters': return this.openChapters(this.level);
           case 'sheet-level': return this.openChapters(ds.level);
+          case 'set-level': if (ds.level === this.level) return; this.toast(ds.level + ' selected'); return this.setChapter(ds.level, (Store.d.levelChapter || {})[ds.level] || 1);
           case 'pick-ch': this.closeSheet(); return this.setChapter(ds.level, +ds.ch);
           case 'ch-step': return this.setChapter(this.level, Math.min(24, Math.max(1, this.chapter + +ds.dir)));
           case 'close-sheet': if (el.classList.contains('scrim') && e.target !== el) return; return this.closeSheet();
