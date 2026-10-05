@@ -553,7 +553,8 @@
     .notice-sec p { text-align: left; margin: 0 0 12px; max-width: none; font-size: .9rem; }
     .notice-sec .wa, .notice-sec .site { margin-bottom: 0; }
     .notice .site { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px; border-radius: 14px; background: var(--accent); color: var(--accent-ink); font-weight: 800; text-decoration: none; }
-    .notice .site small { font-weight: 650; opacity: .75; }
+    .notice .site { white-space: nowrap; }
+    .notice .dom { font-size: .75rem; color: var(--text-3); margin-top: 6px; }
     .notice .wa { display: inline-flex; align-items: center; gap: 8px; height: 46px; padding: 0 18px; border-radius: 14px; background: #25D366; color: #06200f; font-weight: 800; text-decoration: none; margin-bottom: 16px; }
     .hold-btn { position: relative; overflow: hidden; width: 100%; height: 54px; border-radius: 16px; background: var(--surface-2); border: 1.5px solid var(--line-strong); font-weight: 800; font-size: 1rem; user-select: none; -webkit-user-select: none; touch-action: none; -webkit-touch-callout: none; }
     .hold-btn i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--accent); }
@@ -606,7 +607,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 24;
+    const APP_VERSION = 25;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -1148,7 +1149,8 @@
               <div class="k">Word lists</div>
               <b class="who">Dr. Omar Alduais</b>
               <p>All the German words in this app come from Dr. Omar Alduais. Full credit and thanks to him for putting the vocabulary together. His website is the original, with Arabic meanings:</p>
-              <a class="site" href="https://o-alduais-momente.pages.dev/" target="_blank" rel="noopener">${icon('ext')} Original website <small>o-alduais-momente.pages.dev</small></a>
+              <a class="site" href="https://o-alduais-momente.pages.dev/" target="_blank" rel="noopener">${icon('ext')} Visit the original website</a>
+              <div class="dom">o-alduais-momente.pages.dev</div>
             </div>
             <div class="notice-sec">
               <div class="k">English translations</div>
