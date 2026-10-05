@@ -518,7 +518,7 @@
       display: flex; align-items: center; gap: 10px; margin: 0 0 10px; padding: 10px 12px;
       border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line);
     }
-    .pb-label { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
+    .pb-label { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; overflow: hidden; }
     .pb-label b { font-size: .95rem; font-weight: 850; white-space: nowrap; }
     .pb-label b em { font-style: normal; color: var(--accent); }
     .pb-label span { font-size: .72rem; color: var(--text-3); font-weight: 650; white-space: nowrap; }
@@ -597,7 +597,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 20;
+    const APP_VERSION = 21;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -844,8 +844,8 @@
           return `<button class="pb-pill ${cur === i + 1 ? 'on' : ''} ${full ? 'full' : ''}" data-action="set-part" data-p="${i + 1}" aria-label="Part ${i + 1}">${i + 1}</button>`;
         }).join('') + `<button class="pb-pill all ${cur === 0 ? 'on' : ''}" data-action="set-part" data-p="0">All</button>`;
         const label = cur
-          ? `<b>Part <em>${cur}</em> of ${n}</b><span>${lists[cur - 1].length} words · ${n} parts in this chapter</span>`
-          : `<b>Whole chapter</b><span>${this.words().length} words · ${n} parts</span>`;
+          ? `<b>Part <em>${cur}</em> of ${n}</b><span>${lists[cur - 1].length} words</span>`
+          : `<b>Whole chapter</b><span>${this.words().length} words</span>`;
         const next = cur && cur < n ? `<button class="pb-next" data-action="set-part" data-p="${cur + 1}"><span class="t">Next part</span>${icon('right')}</button>` : '';
         $('#partbar').innerHTML = `<div class="pb-label">${label}</div><div class="pb-pills">${pills}</div>${next}`;
       },
