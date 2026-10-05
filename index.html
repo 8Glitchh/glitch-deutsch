@@ -564,6 +564,7 @@
     .notice .site { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px; border-radius: 14px; background: var(--accent); color: var(--accent-ink); font-weight: 800; text-decoration: none; }
     .notice .site { white-space: nowrap; }
     .notice .dom { font-size: .75rem; color: var(--text-3); margin-top: 6px; }
+    .notice .mail { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 18px; border-radius: 14px; background: var(--text); color: var(--bg); font-weight: 800; text-decoration: none; white-space: nowrap; }
     .notice .wa { display: inline-flex; align-items: center; gap: 8px; height: 46px; padding: 0 18px; border-radius: 14px; background: #25D366; color: #06200f; font-weight: 800; text-decoration: none; margin-bottom: 16px; }
     .hold-btn { position: relative; overflow: hidden; width: 100%; height: 54px; border-radius: 16px; background: var(--surface-2); border: 1.5px solid var(--line-strong); font-weight: 800; font-size: 1rem; user-select: none; -webkit-user-select: none; touch-action: none; -webkit-touch-callout: none; }
     .hold-btn i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--accent); }
@@ -617,11 +618,12 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 26;
+    const APP_VERSION = 27;
 
     /* ================= Icons ================= */
     const ICONS = {
       info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>',
+      mail: '<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/>',
       ext: '<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/>',
       chat: '<path d="M4 20l1.4-4.2A8 8 0 1 1 8.5 19z"/>',
       phoneDl: '<rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M12 7v6M9.5 10.5 12 13l2.5-2.5M11 18.5h2"/>',
@@ -1165,8 +1167,9 @@
             </div>
             <div class="notice-sec">
               <div class="k">English translations</div>
-              <p>The English translations were made by AI. If you find any mistakes, send me a message on WhatsApp:</p>
-              <a class="wa" href="https://wa.me/962799061563" target="_blank" rel="noopener">${icon('chat')} +962 79 906 1563</a>
+              <p>The English translations were made by AI. If you find any mistakes, send me an email:</p>
+              <a class="mail" href="mailto:glitchdeutschmomente@gmail.com?subject=Translation%20mistake">${icon('mail')} Send an email</a>
+              <div class="dom" style="user-select:all">glitchdeutschmomente@gmail.com</div>
             </div>
             <div style="height:6px"></div>
             ${first
