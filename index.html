@@ -513,6 +513,44 @@
     }
     .update-bar span { flex: 1; }
     .update-bar button { height: 36px; padding: 0 16px; border-radius: 11px; background: var(--accent-ink); color: var(--accent); font-weight: 800; }
+    /* Part bar: shown above every mode so it's obvious a chapter has several parts */
+    .partbar {
+      display: flex; align-items: center; gap: 10px; margin: 0 0 10px; padding: 10px 12px;
+      border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line);
+    }
+    .pb-label { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
+    .pb-label b { font-size: .95rem; font-weight: 850; white-space: nowrap; }
+    .pb-label b em { font-style: normal; color: var(--accent); }
+    .pb-label span { font-size: .72rem; color: var(--text-3); font-weight: 650; white-space: nowrap; }
+    .pb-pills { display: flex; gap: 4px; margin-left: auto; }
+    .pb-pill { width: 30px; height: 30px; border-radius: 9px; background: var(--surface-2); color: var(--text-2); font-weight: 850; font-size: .82rem; display: grid; place-items: center; position: relative; }
+    .pb-pill.full { color: var(--ok); }
+    .pb-pill.on { background: var(--accent); color: var(--accent-ink); }
+    .pb-pill.all { width: auto; padding: 0 8px; }
+    .pb-next { height: 30px; padding: 0 10px; border-radius: 9px; background: var(--accent-soft); color: var(--accent); font-weight: 800; font-size: .8rem; display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
+    @media (max-width: 420px) { .pb-next .t { display: none; } .pb-next { padding: 0 6px; } .pb-pill { width: 28px; } }
+    .parts-hint { margin-top: 12px; padding: 8px 12px; border-radius: 12px; background: var(--accent-soft); color: var(--text); font-size: .8rem; font-weight: 650; display: flex; align-items: center; gap: 8px; }
+    .parts-hint b { color: var(--accent); }
+    .cc .np { font-size: .72rem; font-weight: 700; color: var(--text-3); }
+    .cc.on .np { color: var(--text-2); }
+    .next-part { margin: 0 auto 18px; max-width: 420px; padding: 14px; border-radius: var(--r-md); background: var(--accent-soft); border: 1.5px dashed var(--accent); }
+    .next-part b { display: block; font-size: 1rem; margin-bottom: 2px; }
+    .next-part span { font-size: .85rem; color: var(--text-2); }
+    /* Translation notice */
+    .foot { text-align: center; margin-top: 18px; }
+    .foot button { font-size: .8rem; color: var(--text-3); font-weight: 650; padding: 8px 12px; border-radius: 10px; display: inline-flex; align-items: center; gap: 6px; }
+    .foot button:hover { color: var(--text); background: var(--surface); }
+    .notice { text-align: center; padding: 6px 4px 4px; }
+    .notice .n-ic { width: 60px; height: 60px; margin: 0 auto 14px; border-radius: 18px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+    .notice .n-ic svg { width: 30px; height: 30px; }
+    .notice h3 { font-size: 1.25rem; margin-bottom: 8px; }
+    .notice p { color: var(--text-2); font-size: .95rem; line-height: 1.5; margin: 0 auto 16px; max-width: 400px; }
+    .notice .wa { display: inline-flex; align-items: center; gap: 8px; height: 46px; padding: 0 18px; border-radius: 14px; background: #25D366; color: #06200f; font-weight: 800; text-decoration: none; margin-bottom: 16px; }
+    .hold-btn { position: relative; overflow: hidden; width: 100%; height: 54px; border-radius: 16px; background: var(--surface-2); border: 1.5px solid var(--line-strong); font-weight: 800; font-size: 1rem; user-select: none; -webkit-user-select: none; touch-action: none; -webkit-touch-callout: none; }
+    .hold-btn i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--accent); }
+    .hold-btn span { position: relative; }
+    .hold-btn.holding span { color: var(--accent-ink); }
+    .hold-btn.holding i { width: 100%; transition: width 1.5s linear; }
     .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 20px); transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: .88rem; z-index: 60; animation: up .25s var(--ease); box-shadow: var(--shadow); }
 
     @media (max-width: 520px) {
@@ -545,6 +583,7 @@
 
     <section class="course" id="chapter-card"></section>
     <nav class="modes" id="modes" aria-label="Practice modes"></nav>
+    <div class="partbar" id="partbar"></div>
     <section class="panel" id="panel">
       <div id="nojs" style="text-align:center;padding:40px 12px">
         <div style="font-size:2.4rem;margin-bottom:10px">📱</div>
@@ -552,15 +591,18 @@
         <p style="color:var(--text-2);max-width:420px;margin:0 auto">You’re seeing a file preview (like the iPhone Files or OneDrive preview), which doesn’t run the app’s code — so the words don’t load. Open this page in <b>Safari</b> or <b>Chrome</b> from a web link instead.</p>
       </div>
     </section>
+    <footer class="foot"><button data-action="notice">ⓘ English translations were made by AI · report a mistake</button></footer>
   </div>
   <div id="overlay"></div>
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 19;
+    const APP_VERSION = 20;
 
     /* ================= Icons ================= */
     const ICONS = {
+      info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>',
+      chat: '<path d="M4 20l1.4-4.2A8 8 0 1 1 8.5 19z"/>',
       phoneDl: '<rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M12 7v6M9.5 10.5 12 13l2.5-2.5M11 18.5h2"/>',
       share: '<path d="M12 3v12M8 7l4-4 4 4"/><path d="M7 10H6a1.5 1.5 0 0 0-1.5 1.5v8A1.5 1.5 0 0 0 6 21h12a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 18 10h-1"/>',
       plusSq: '<rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 8v8M8 12h8"/>',
@@ -772,6 +814,7 @@
         $('#settings-btn').innerHTML = icon('gear');
         this.renderInstallBtn();
         this.loadSession();
+        if (!Store.d.seenNotice) setTimeout(() => this.openNotice(true), 300);
         document.addEventListener('click', e => this.onClick(e));
         document.addEventListener('keydown', e => this.onKey(e));
         this.render();
@@ -790,7 +833,21 @@
         this.renderStreak();
         this.renderChapterCard();
         this.renderModes();
+        this.renderPartBar();
         this.renderPanel();
+      },
+
+      renderPartBar() {
+        const lists = this.partLists(), cur = this.part, n = lists.length;
+        const pills = lists.map((l, i) => {
+          const c = this.countList(l), full = c.total && c.learned === c.total;
+          return `<button class="pb-pill ${cur === i + 1 ? 'on' : ''} ${full ? 'full' : ''}" data-action="set-part" data-p="${i + 1}" aria-label="Part ${i + 1}">${i + 1}</button>`;
+        }).join('') + `<button class="pb-pill all ${cur === 0 ? 'on' : ''}" data-action="set-part" data-p="0">All</button>`;
+        const label = cur
+          ? `<b>Part <em>${cur}</em> of ${n}</b><span>${lists[cur - 1].length} words · ${n} parts in this chapter</span>`
+          : `<b>Whole chapter</b><span>${this.words().length} words · ${n} parts</span>`;
+        const next = cur && cur < n ? `<button class="pb-next" data-action="set-part" data-p="${cur + 1}"><span class="t">Next part</span>${icon('right')}</button>` : '';
+        $('#partbar').innerHTML = `<div class="pb-label">${label}</div><div class="pb-pills">${pills}</div>${next}`;
       },
 
       renderStreak() {
@@ -819,6 +876,7 @@
         return p == null ? 1 : p;
       },
       setPart(p) {
+        if (p !== 1 && !Store.d.seenParts) Store.d.seenParts = true;
         this.stashSession();
         Store.d.chapterPart = Object.assign({}, Store.d.chapterPart, { [this.chKey()]: p });
         Store.save(); this.loadSession(); this.render();
@@ -895,6 +953,7 @@
           return `<button class="cc ${ch === this.chapter ? 'on' : ''}" data-action="pick-ch" data-level="${this.level}" data-ch="${ch}">
               <span class="n">Chapter ${ch}${isDone ? icon('check') : `<span>${Math.round(pct)}%</span>`}</span>
               <span class="t">${esc(this.title(this.level, ch))}</span>
+              <span class="np">${this.partLists(this.level, ch).length} parts · ${c.total} words</span>
               <span class="bar"><i style="width:${pct}%"></i></span>
             </button>`;
         }).join('');
@@ -921,6 +980,7 @@
           <div class="cur">
             <div class="cur-head"><b>${cur ? `Part ${cur} of ${lists.length}` : 'Whole chapter'}</b><span>${cur ? 'words ' + this.chapterRange() : all.total + ' words'}</span></div>
             <div class="steps">${steps}</div>
+            ${Store.d.seenParts ? '' : `<div class="parts-hint">👆 This chapter has <b>${lists.length} parts</b> — tap a number to switch part</div>`}
             <div class="cur-info">
               <div class="cur-stats">
                 <span><i class="dot" style="background:var(--ok)"></i><b>${pc.learned}</b> mastered</span>
@@ -978,7 +1038,7 @@
         this[fn](p);
       },
 
-      refreshStats() { this.renderStreak(); this.renderChapterCard(); this.renderModes(); },
+      refreshStats() { this.renderStreak(); this.renderChapterCard(); this.renderModes(); this.renderPartBar(); },
 
       setChapter(level, ch, stay) {
         if (level !== this.level || ch !== this.chapter) this.forgetSessions();
@@ -1009,7 +1069,7 @@
           case 'set-level': if (ds.level === this.level) return; this.toast(ds.level + ' selected'); return this.setChapter(ds.level, (Store.d.levelChapter || {})[ds.level] || 1);
           case 'pick-ch': { const fromSheet = !!$('#overlay').firstChild; this.closeSheet(); if (!fromSheet && +ds.ch === this.chapter && ds.level === this.level) return; return this.setChapter(ds.level, +ds.ch, !fromSheet); }
           case 'ch-step': return this.setChapter(this.level, Math.min(24, Math.max(1, this.chapter + +ds.dir)));
-          case 'close-sheet': if (el.classList.contains('scrim') && e.target !== el) return; return this.closeSheet();
+          case 'close-sheet': if (el.classList.contains('scrim') && e.target !== el) return; if (this.sheetLocked) return; return this.closeSheet();
           case 'set-part': return this.setPart(+ds.p);
           case 'toggle-done': {
             const k = this.chKey();
@@ -1038,6 +1098,7 @@
             return;
           }
           case 'do-update': return location.reload();
+          case 'notice': return this.openNotice(false);
           case 'export': return this.exportProgress();
           case 'import': return $('#import-file').click();
           case 'reset-all': {
@@ -1052,7 +1113,7 @@
       },
 
       onKey(e) {
-        if ($('#overlay').firstChild) { if (e.key === 'Escape') this.closeSheet(); return; }
+        if ($('#overlay').firstChild) { if (e.key === 'Escape' && !this.sheetLocked) this.closeSheet(); return; }
         const typing = e.target.matches('input, textarea');
         if (e.metaKey || e.ctrlKey || e.altKey) return;
         const h = this[`key_${this.mode}`];
@@ -1064,7 +1125,39 @@
         $('#overlay').innerHTML = `<div class="scrim" data-action="close-sheet"><div class="sheet" role="dialog" aria-modal="true"><div class="sheet-grab"></div>${html}</div></div>`;
         document.body.style.overflow = 'hidden';
       },
-      closeSheet() { $('#overlay').innerHTML = ''; document.body.style.overflow = ''; },
+      closeSheet() { this.sheetLocked = false; $('#overlay').innerHTML = ''; document.body.style.overflow = ''; },
+
+      // Shown on first open (must be held to close), and from the footer / settings afterwards.
+      openNotice(first) {
+        this.openSheet(`
+          ${first ? '' : `<div class="sheet-head"><h3></h3><button class="icon-btn" data-action="close-sheet" aria-label="Close">${icon('x')}</button></div>`}
+          <div class="sheet-body"><div class="notice">
+            <div class="n-ic">${icon('info')}</div>
+            <h3>About the translations</h3>
+            <p>The English translations were made by AI. If you find any mistakes, send me a message on WhatsApp:</p>
+            <a class="wa" href="https://wa.me/962799061563" target="_blank" rel="noopener">${icon('chat')} +962 79 906 1563</a>
+            ${first
+              ? `<button class="hold-btn" id="hold-btn" aria-label="Press and hold to close"><i></i><span>Hold to close</span></button>`
+              : `<button class="btn btn-lg" style="width:100%" data-action="close-sheet">Got it</button>`}
+          </div></div>`);
+        if (!first) return;
+        this.sheetLocked = true;
+        const btn = $('#hold-btn'), label = btn.querySelector('span');
+        let timer = null;
+        const start = e => {
+          e.preventDefault();
+          btn.classList.add('holding'); label.textContent = 'Keep holding…';
+          timer = setTimeout(() => { Store.d.seenNotice = true; Store.save(); this.closeSheet(); }, 1500);
+        };
+        const stop = () => {
+          if (!timer) return;
+          clearTimeout(timer); timer = null;
+          btn.classList.remove('holding'); label.textContent = 'Hold to close';
+        };
+        btn.addEventListener('pointerdown', start);
+        ['pointerup', 'pointerleave', 'pointercancel'].forEach(t => btn.addEventListener(t, stop));
+        btn.addEventListener('contextmenu', e => e.preventDefault());
+      },
 
       openChapters(level) {
         const items = Array.from({ length: 24 }, (_, i) => i + 1).map(ch => {
@@ -1159,6 +1252,8 @@
               <button class="btn btn-sm ${this.isStandalone() ? '' : 'btn-primary'}" data-action="install">${this.isStandalone() ? 'Open guide' : 'Show me how'}</button></div>
             <div class="set-row"><div class="lbl"><b>Appearance</b><span>${document.documentElement.dataset.theme === 'light' ? 'Light' : 'Dark'} mode</span></div>
               <button class="btn btn-sm" data-action="theme">${icon(document.documentElement.dataset.theme === 'light' ? 'moon' : 'sun')} Switch to ${document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'}</button></div>
+            <div class="set-row"><div class="lbl"><b>About the translations</b><span>English was made by AI — report mistakes</span></div>
+              <button class="btn btn-sm" data-action="notice">Open</button></div>
             <div class="set-row"><div class="lbl"><b>Speak German automatically</b><span>Read each German word aloud on flashcards${Speech.ok ? '' : ' (not supported on this device)'}</span></div>
               <button class="toggle ${st.autoSpeak ? 'on' : ''}" data-action="set-toggle" data-key="autoSpeak" aria-label="Auto speak"></button></div>
             <div class="set-row"><div class="lbl"><b>App version ${APP_VERSION}</b><span id="update-status">Updates install automatically when you're online</span></div>
@@ -1312,6 +1407,7 @@
               <div class="big">${perfect ? '🏆' : '💪'}</div>
               <h2>${perfect ? 'Perfect round!' : 'Round complete'}${this.part ? ' · Part ' + this.part : ''}</h2>
               <p>${perfect ? 'You knew every card.' : 'Go again with just the cards you missed.'}</p>
+              ${this.part && this.part < this.partLists().length ? `<div class="next-part"><b>Part ${this.part} of ${this.partLists().length} done</b><span>This chapter has ${this.partLists().length - this.part} more part${this.partLists().length - this.part === 1 ? '' : 's'} to go.</span></div>` : this.part ? `<div class="next-part"><b>That was the last part 🎉</b><span>You've been through all ${this.partLists().length} parts of this chapter.</span></div>` : ''}
               <div class="stat-row">
                 <div class="stat"><b style="color:var(--ok)">${s.got}</b><span>Got it</span></div>
                 <div class="stat"><b style="color:var(--bad)">${s.again}</b><span>Still learning</span></div>
@@ -1360,7 +1456,7 @@
           <div class="deck-nav">
             <button class="btn btn-sm btn-ghost" data-action="c-step" data-d="-1" ${s.i === 0 ? 'disabled style="opacity:.4"' : ''}>${icon('left')} Back</button>
             <span class="deck-mid">
-              <span class="muted small" style="font-variant-numeric:tabular-nums">${s.i + 1} / ${s.deck.length}</span>
+              <span class="muted small" style="font-variant-numeric:tabular-nums">${s.i + 1} / ${s.deck.length}${this.part ? ' · Part ' + this.part + ' of ' + this.partLists().length : ''}</span>
               <button class="btn btn-sm btn-ghost" data-action="c-reset-open" title="Clear this part's marks and start it again from the first card">${icon('restart')} Restart</button>
             </span>
             <button class="btn btn-sm btn-ghost" data-action="c-step" data-d="1">Skip ${icon('right')}</button>
@@ -2492,7 +2588,7 @@ abfliegen — to take off / to depart (plane)  (fliegt ab, ist abgeflogen)
 starten — to start / to take off  (startet, ist gestartet)
 ankommen — to arrive  (kommt an, ist angekommen)
 dort — there
-so — so
+so — so / very
 anrufen — to call (phone)  (ruft an, hat angerufen)
 noch mal — again / once more
 früh — early
@@ -2551,7 +2647,7 @@ gestern — yesterday
 der Spaziergang — walk / stroll  (pl. die Spaziergänge)
 der Wald — forest  (pl. die Wälder)
 die Zeitung — newspaper  (pl. die Zeitungen)
-aufräumen — to tidy up  (pl. räumt auf; hat aufgeräumt, )
+aufräumen — to tidy up  (räumt auf, hat aufgeräumt)
 zu wenig — too little
 zu viel — too much
 der Vogel — bird  (pl. die Vögel)
@@ -2559,17 +2655,17 @@ der Film — film / movie  (pl. die Filme)
 die Pause — break  (pl. die Pausen)
 der Doktor — doctor (title)  (pl. die Doktoren)
 die Doktorarbeit — doctoral thesis  (pl. die Doktorarbeiten)
-abwaschen — to wash the dishes  (pl. wäscht ab; hat abgewaschen, )
+abwaschen — to wash the dishes  (wäscht ab, hat abgewaschen)
 die Hausaufgabe — homework  (pl. die Hausaufgaben)
 die Serie — series (TV)  (pl. die Serien)
 von ... bis — from ... to / until
 Basketball — basketball
 danach — afterwards
-kaufen — to buy  (pl. kauft; hat gekauft, )
+kaufen — to buy  (kauft, hat gekauft)
 das T-Shirt — T-shirt  (pl. die T-Shirts)
 ab — from (starting at)
 ganze — whole / entire
-zurückkommen — to come back  (pl. kommt zurück; ist zurückgekommen, )
+zurückkommen — to come back  (kommt zurück, ist zurückgekommen)
 der Kuss — kiss  (pl. die Küsse)
 geöffnet — open(ed)
 das Schild — sign  (pl. die Schilder)
@@ -2588,17 +2684,17 @@ der Kiosk — kiosk  (pl. die Kioske)
 der Zahn — tooth  (pl. die Zähne)
 letzt — last
 der Sport — sport  (pl. die Sportarten)
-einladen — to invite  (pl. lädt ein; hat eingeladen, )
+einladen — to invite  (lädt ein, hat eingeladen)
 Ja, habe ich. — Yes, I have / I did.
 Nein, habe ich nicht. — No, I haven't / I didn't.
 der Chor — choir  (pl. die Chöre)
 der Handball — handball  (pl. die Handbälle)
 die Wäsche — laundry
-waschen — to wash  (pl. wäscht; hat gewaschen, )
+waschen — to wash  (wäscht, hat gewaschen)
 das Geschenk — present / gift  (pl. die Geschenke)
 ===== A1 – Chapter 12 =====
 der Marathon — marathon  (pl. die Marathons)
-laufen — to run; to walk  (pl. läuft; ist gelaufen, )
+laufen — to run; to walk  (läuft, ist gelaufen)
 es gibt — there is / there are
 seit — since / for (time)
 der Kilometer — kilometre  (pl. die Kilometer)
@@ -2606,13 +2702,13 @@ unterwegs — on the way / out and about
 der August — August  (pl. die Auguste)
 die Radtour — bike tour  (pl. die Radtouren)
 nach — to (a city/country)
-weiterfahren — to continue (travelling)  (pl. fährt weiter; ist weitergefahren, )
+weiterfahren — to continue (travelling)  (fährt weiter, ist weitergefahren)
 die Tour — tour  (pl. die Touren)
 das Wetter — weather
 der Herbst — autumn / fall  (pl. die Herbste)
 ein paar — a few
-besuchen — to visit  (pl. besucht; hat besucht, )
-bleiben — to stay  (pl. bleibt; ist geblieben, )
+besuchen — to visit  (besucht, hat besucht)
+bleiben — to stay  (bleibt, ist geblieben)
 das Volksfest — funfair / folk festival  (pl. die Volksfeste)
 also — so / therefore
 fast — almost
@@ -2628,8 +2724,8 @@ der Besucher — visitor  (pl. die Besucher)
 der Winter — winter  (pl. die Winter)
 der Dezember — December  (pl. die Dezember)
 Weihnachten — Christmas
-feiern — to celebrate  (pl. feiert; hat gefeiert, )
-zurückfahren — to drive / travel back  (pl. fährt zurück; ist zurückgefahren, )
+feiern — to celebrate  (feiert, hat gefeiert)
+zurückfahren — to drive / travel back  (fährt zurück, ist zurückgefahren)
 Silvester — New Year's Eve
 ziemlich — quite / rather
 cool — cool
@@ -2647,10 +2743,10 @@ der September — September  (pl. die September)
 der Januar — January  (pl. die Januare)
 der Februar — February  (pl. die Februare)
 die Erdbeere — strawberry  (pl. die Erdbeeren)
-passieren — to happen  (pl. passiert; ist passiert, )
-wandern — to hike  (pl. wandert; ist gewandert, )
-segeln — to sail  (pl. segelt; ist gesegelt, )
-springen — to jump  (pl. springt; ist gesprungen, )
+passieren — to happen  (passiert, ist passiert)
+wandern — to hike  (wandert, ist gewandert)
+segeln — to sail  (segelt, ist gesegelt)
+springen — to jump  (springt, ist gesprungen)
 nachts — at night
 Ja, das stimmt. — Yes, that's right.
 der Hafen — harbour / port  (pl. die Häfen)
@@ -2658,18 +2754,18 @@ jeder — every / each (masc.)
 jedes — every / each (neut.)
 jede — every / each (fem.)
 wie lange — how long
-dauern — to last / to take (time)  (pl. dauert; hat gedauert, )
+dauern — to last / to take (time)  (dauert, hat gedauert)
 das Schiff — ship  (pl. die Schiffe)
 ===== A1 – Chapter 13 =====
 die Mauer — wall (outdoor)  (pl. die Mauern)
 geteilt — divided
-teilen — to share / to divide  (pl. teilt; hat geteilt, )
+teilen — to share / to divide  (teilt, hat geteilt)
 der Mietpreis — rent price  (pl. die Mietpreise)
 der Tipp — tip  (pl. die Tipps)
 der Zoo — zoo  (pl. die Zoos)
 der Tierpark — wildlife park  (pl. die Tierparks)
 die Informatik — computer science
-zeigen — to show  (pl. zeigt; hat gezeigt, )
+zeigen — to show  (zeigt, hat gezeigt)
 die Kunst — art  (pl. die Künste)
 die Kultur — culture  (pl. die Kulturen)
 das Festival — festival  (pl. die Festivals)
@@ -2678,8 +2774,8 @@ manches — some (neut.)
 manche — some (fem./pl.)
 verrückt — crazy
 anders — different(ly)
-denken — to think  (pl. denkt; hat gedacht, )
-gefallen — to please / to like  (pl. gefällt; hat gefallen, )
+denken — to think  (denkt, hat gedacht)
+gefallen — to please / to like  (gefällt, hat gefallen)
 billig — cheap
 die Wohnung — flat / apartment  (pl. die Wohnungen)
 recht haben — to be right
@@ -2688,26 +2784,26 @@ zum Beispiel — for example
 das Märchen — fairy tale  (pl. die Märchen)
 ganz — quite; whole
 die Nähe — vicinity / nearness
-danken — to thank  (pl. dankt; hat gedankt, )
-helfen — to help  (pl. hilft; hat geholfen, )
+danken — to thank  (dankt, hat gedankt)
+helfen — to help  (hilft, hat geholfen)
 der Park — park  (pl. die Parks)
 der Kinderfilm — children's film  (pl. die Kinderfilme)
 die Stadt — city / town  (pl. die Städte)
 die Altstadt — old town  (pl. die Altstädte)
 der Brunnen — fountain; well  (pl. die Brunnen)
-gehören — to belong (to)  (pl. gehört; hat gehört, )
+gehören — to belong (to)  (gehört, hat gehört)
 wohin — where (to)
-reisen — to travel  (pl. reist; ist gereist, )
+reisen — to travel  (reist, ist gereist)
 die Bibliothek — library  (pl. die Bibliotheken)
-fehlen — to be missing  (pl. fehlt; hat gefehlt, )
+fehlen — to be missing  (fehlt, hat gefehlt)
 das Viertel — district / quarter  (pl. die Viertel)
 das Picknick — picnic  (pl. die Picknicke)
 das Boot — boat  (pl. die Boote)
-mieten — to rent  (pl. mietet; hat gemietet, )
+mieten — to rent  (mietet, hat gemietet)
 Volleyball — volleyball
 die Natur — nature
 der Ball — ball  (pl. die Bälle)
-angeln — to fish  (pl. angelt; hat geangelt, )
+angeln — to fish  (angelt, hat geangelt)
 die Kirche — church  (pl. die Kirchen)
 das Rathaus — town hall  (pl. die Rathäuser)
 das Schloss — castle; lock  (pl. die Schlösser)
@@ -2721,7 +2817,7 @@ der Fuß — foot  (pl. die Füße)
 rechts — (on the) right
 links — (on the) left
 geradeaus — straight ahead
-abbiegen — to turn (off)  (pl. biegt ab; ist abgebogen, )
+abbiegen — to turn (off)  (biegt ab, ist abgebogen)
 über — over / across
 der Meter — metre  (pl. die Meter)
 die Ampel — traffic light  (pl. die Ampeln)
@@ -2736,8 +2832,8 @@ die Brücke — bridge  (pl. die Brücken)
 der Baum — tree  (pl. die Bäume)
 das Foto — photo  (pl. die Fotos)
 das Smartphone — smartphone  (pl. die Smartphones)
-beschreiben — to describe  (pl. beschreibt; hat beschrieben, )
-aussehen — to look (appearance)  (pl. sieht aus; hat ausgesehen, )
+beschreiben — to describe  (beschreibt, hat beschrieben)
+aussehen — to look (appearance)  (sieht aus, hat ausgesehen)
 der Plan — map; plan  (pl. die Pläne)
 das Zentrum — centre  (pl. die Zentren)
 die Stadtmitte — city centre  (pl. die Stadtmitten)
@@ -2780,13 +2876,13 @@ ihr — her / their
 ihre — her / their (fem./pl.)
 sein — his / its
 seine — his / its (fem./pl.)
-umziehen — to move (house)  (pl. zieht um; ist umgezogen, )
+umziehen — to move (house)  (zieht um, ist umgezogen)
 laut — loud / noisy
 die Miete — rent  (pl. die Mieten)
 der Quadratmeter — square metre  (pl. die Quadratmeter)
 übermorgen — the day after tomorrow
 das Semester — semester  (pl. die Semester)
-anfangen — to begin / to start  (pl. fängt an; hat angefangen, )
+anfangen — to begin / to start  (fängt an, hat angefangen)
 schlecht — bad
 die Leute — people  (pl. die Leute)
 inklusive — including
@@ -2799,21 +2895,21 @@ möbliert — furnished
 das Apartment — apartment  (pl. die Apartments)
 sofort — immediately
 maximal — at most / maximum
-bezahlen — to pay  (pl. bezahlt; hat bezahlt, )
+bezahlen — to pay  (bezahlt, hat bezahlt)
 Traum- — dream ...
 das Dachgeschoss — attic floor / top floor  (pl. die Dachgeschosse)
 die Treppe — stairs  (pl. die Treppen)
 der Keller — cellar / basement  (pl. die Keller)
 ===== A1 – Chapter 16 =====
 der Aufzug — lift / elevator  (pl. die Aufzüge)
-kennenlernen — to get to know  (pl. lernt kennen; hat kennengelernt, )
+kennenlernen — to get to know  (lernt kennen, hat kennengelernt)
 nervös — nervous
 die Angst — fear  (pl. die Ängste)
 das Netz — network; net  (pl. die Netze)
-funktionieren — to work / to function  (pl. funktioniert; hat funktioniert, )
+funktionieren — to work / to function  (funktioniert, hat funktioniert)
 los sein — to be going on / happening
-reparieren — to repair  (pl. repariert; hat repariert, )
-anbieten — to offer  (pl. bietet an; hat angeboten, )
+reparieren — to repair  (repariert, hat repariert)
+anbieten — to offer  (bietet an, hat angeboten)
 die Bitte — request  (pl. die Bitten)
 die Dusche — shower  (pl. die Duschen)
 der Kühlschrank — fridge  (pl. die Kühlschränke)
@@ -2826,34 +2922,34 @@ die Steckdose — power socket  (pl. die Steckdosen)
 die Waschmaschine — washing machine  (pl. die Waschmaschinen)
 der Handwerker — tradesman / repairman  (pl. die Handwerker)
 selbst — oneself / myself
-erklären — to explain  (pl. erklärt; hat erklärt, )
+erklären — to explain  (erklärt, hat erklärt)
 die Reparatur — repair  (pl. die Reparaturen)
-ausmachen — to turn off; to arrange  (pl. macht aus; hat ausgemacht, )
-vereinbaren — to arrange / to agree on  (pl. vereinbart; hat vereinbart, )
+ausmachen — to turn off; to arrange  (macht aus, hat ausgemacht)
+vereinbaren — to arrange / to agree on  (vereinbart, hat vereinbart)
 pünktlich — punctual / on time
-vorschlagen — to suggest  (pl. schlägt vor; hat vorgeschlagen, )
-absagen — to cancel  (pl. sagt ab; hat abgesagt, )
-verschieben — to postpone  (pl. verschiebt; hat verschoben, )
+vorschlagen — to suggest  (schlägt vor, hat vorgeschlagen)
+absagen — to cancel  (sagt ab, hat abgesagt)
+verschieben — to postpone  (verschiebt, hat verschoben)
 Sehr geehrte — Dear (formal letter)
 Mit freundlichen Grüßen — Yours sincerely / Kind regards
-bekommen — to get / to receive  (pl. bekommt; hat bekommen, )
+bekommen — to get / to receive  (bekommt, hat bekommen)
 das Vorstellungsgespräch — job interview  (pl. die Vorstellungsgespräche)
 nach Hause — (to) home
 erst — only / not until; first
 Oje, du Arme! — Oh dear, you poor thing!
-klappen — to work out  (pl. klappt; hat geklappt, )
+klappen — to work out  (klappt, hat geklappt)
 das Training — training  (pl. die Trainings)
 das Treffen — meeting  (pl. die Treffen)
 ===== A1 – Chapter 17 =====
-werden — to become  (pl. wird; ist geworden, )
+werden — to become  (wird, ist geworden)
 auf jeden Fall — definitely / in any case
 unbedingt — absolutely / definitely
 auf keinen Fall — no way / under no circumstances
 der Astronaut — astronaut  (pl. die Astronauten)
 der Polizist — police officer  (pl. die Polizisten)
-wollen — to want  (pl. will; hat gewollt, )
+wollen — to want  (will, hat gewollt)
 der Plan — plan  (pl. die Pläne)
-gründen — to found / to set up  (pl. gründet; hat gegründet, )
+gründen — to found / to set up  (gründet, hat gegründet)
 das Geld — money  (pl. die Gelder)
 Geld verdienen — to earn money
 der Profi — professional  (pl. die Profis)
@@ -2884,7 +2980,7 @@ traurig — sad
 der Politiker — politician  (pl. die Politiker)
 die Fremdsprache — foreign language  (pl. die Fremdsprachen)
 der Chef — boss  (pl. die Chefs)
-heiraten — to marry  (pl. heiratet; hat geheiratet, )
+heiraten — to marry  (heiratet, hat geheiratet)
 der Berg — mountain  (pl. die Berge)
 Europa — Europe
 das Ausland — abroad
@@ -2902,22 +2998,22 @@ schlimm — bad / serious
 gegen — against
 die Situation — situation  (pl. die Situationen)
 üblich — usual
-sitzen — to sit  (pl. sitzt; hat gesessen, )
+sitzen — to sit  (sitzt, hat gesessen)
 krank — sick / ill
 gesund — healthy
 die Bewegung — movement / exercise  (pl. die Bewegungen)
 ungefähr — approximately
 sogar — even
-bedeuten — to mean  (pl. bedeutet; hat bedeutet, )
+bedeuten — to mean  (bedeutet, hat bedeutet)
 das Übergewicht — overweight
 das Herz — heart  (pl. die Herzen)
 die Krankheit — illness / disease  (pl. die Krankheiten)
 dagegen — against it; on the other hand
-aufstehen — to get up / to stand up  (pl. steht auf; ist aufgestanden, )
-benutzen — to use  (pl. benutzt; hat benutzt, )
+aufstehen — to get up / to stand up  (steht auf, ist aufgestanden)
+benutzen — to use  (benutzt, hat benutzt)
 der Ratschlag — piece of advice  (pl. die Ratschläge)
-schicken — to send  (pl. schickt; hat geschickt, )
-gewinnen — to win  (pl. gewinnt; hat gewonnen, )
+schicken — to send  (schickt, hat geschickt)
+gewinnen — to win  (gewinnt, hat gewonnen)
 das Frisbee — frisbee  (pl. die Frisbees)
 der Roller — scooter  (pl. die Roller)
 der Körper — body  (pl. die Körper)
@@ -2936,12 +3032,12 @@ die Nase — nose  (pl. die Nasen)
 das Ohr — ear  (pl. die Ohren)
 das Forum — forum  (pl. die Foren)
 der Schnupfen — runny nose / cold
-wehtun — to hurt  (pl. tut weh; hat wehgetan, )
+wehtun — to hurt  (tut weh, hat wehgetan)
 genug — enough
 die Erkältung — cold (illness)  (pl. die Erkältungen)
 der Husten — cough
 der Honig — honey  (pl. die Honige)
-sollen — should / to be supposed to  (pl. soll; hat gesollt, )
+sollen — should / to be supposed to  (soll, hat gesollt)
 das Fieber — fever
 die Ruhe — rest / quiet
 die Tablette — tablet / pill  (pl. die Tabletten)
@@ -2950,36 +3046,36 @@ die Salbe — ointment  (pl. die Salben)
 der Hustensaft — cough syrup  (pl. die Hustensäfte)
 die Umfrage — survey  (pl. die Umfragen)
 ===== A1 – Chapter 19 =====
-aufmachen — to open  (pl. macht auf; hat aufgemacht, )
-zumachen — to close  (pl. macht zu; hat zugemacht, )
+aufmachen — to open  (macht auf, hat aufgemacht)
+zumachen — to close  (macht zu, hat zugemacht)
 der Abfall — waste / rubbish  (pl. die Abfälle)
 der Müll — rubbish / trash
 sauer — angry; sour
 der Haushalt — household / housework  (pl. die Haushalte)
-rausbringen — to take out (the rubbish)  (pl. bringt raus; hat rausgebracht, )
+rausbringen — to take out (the rubbish)  (bringt raus, hat rausgebracht)
 die Spülmaschine — dishwasher  (pl. die Spülmaschinen)
-ausräumen — to empty / to unload  (pl. räumt aus; hat ausgeräumt, )
+ausräumen — to empty / to unload  (räumt aus, hat ausgeräumt)
 sauber — clean
-putzen — to clean  (pl. putzt; hat geputzt, )
+putzen — to clean  (putzt, hat geputzt)
 der Boden — floor  (pl. die Böden)
-wischen — to wipe / to mop  (pl. wischt; hat gewischt, )
-vergessen — to forget  (pl. vergisst; hat vergessen, )
-herkommen — to come here  (pl. kommt her; ist hergekommen, )
+wischen — to wipe / to mop  (wischt, hat gewischt)
+vergessen — to forget  (vergisst, hat vergessen)
+herkommen — to come here  (kommt her, ist hergekommen)
 lieb — kind / dear
-rauchen — to smoke  (pl. raucht; hat geraucht, )
+rauchen — to smoke  (raucht, hat geraucht)
 heiß — hot
 die Luft — air  (pl. die Lüfte)
-anmachen — to turn on  (pl. macht an; hat angemacht, )
-ausmachen — to turn off  (pl. macht aus; hat ausgemacht, )
-zuhören — to listen  (pl. hört zu; hat zugehört, )
+anmachen — to turn on  (macht an, hat angemacht)
+ausmachen — to turn off  (macht aus, hat ausgemacht)
+zuhören — to listen  (hört zu, hat zugehört)
 das Lied — song  (pl. die Lieder)
 die Notiz — note  (pl. die Notizen)
 leise sein — to be quiet
 das Spiel — game  (pl. die Spiele)
-lachen — to laugh  (pl. lacht; hat gelacht, )
+lachen — to laugh  (lacht, hat gelacht)
 die Tüte — bag (plastic/paper)  (pl. die Tüten)
 schmutzig — dirty
-zurückrufen — to call back  (pl. ruft zurück; hat zurückgerufen, )
+zurückrufen — to call back  (ruft zurück, hat zurückgerufen)
 der Grund — reason  (pl. die Gründe)
 in Ordnung — okay / all right
 Das geht so nicht. — That's not okay.
@@ -2989,7 +3085,7 @@ die Website — website  (pl. die Websites)
 die Webseite — web page  (pl. die Webseiten)
 der Service — service  (pl. die Services)
 der Fehler — mistake / error  (pl. die Fehler)
-beraten — to advise  (pl. berät; hat beraten, )
+beraten — to advise  (berät, hat beraten)
 das Team — team  (pl. die Teams)
 der Berater — consultant / adviser  (pl. die Berater)
 der Experte — expert  (pl. die Experten)
@@ -3009,12 +3105,12 @@ der Bart — beard  (pl. die Bärte)
 die Locke — curl  (pl. die Locken)
 der Schritt — step  (pl. die Schritte)
 die Organisation — organisation  (pl. die Organisationen)
-verbessern — to improve  (pl. verbessert; hat verbessert, )
+verbessern — to improve  (verbessert, hat verbessert)
 die Technik — technology / technique  (pl. die Techniken)
 das Werkzeug — tool  (pl. die Werkzeuge)
 mehrere — several
 erfolgreich — successful
-mitarbeiten — to collaborate / to work on  (pl. arbeitet mit; hat mitgearbeitet, )
+mitarbeiten — to collaborate / to work on  (arbeitet mit, hat mitgearbeitet)
 der Spezialist — specialist  (pl. die Spezialisten)
 die Werbung — advertising  (pl. die Werbungen)
 sympathisch — likeable / nice
@@ -3027,22 +3123,22 @@ ruhig — calm / quiet
 langweilig — boring
 die Agentur — agency  (pl. die Agenturen)
 zufrieden — satisfied / content
-verpassen — to miss  (pl. verpasst; hat verpasst, )
-verlieren — to lose  (pl. verliert; hat verloren, )
+verpassen — to miss  (verpasst, hat verpasst)
+verlieren — to lose  (verliert, hat verloren)
 das Päckchen — small parcel  (pl. die Päckchen)
 Echt? — Really?
 Puh! — Phew!
 lila — purple
 ===== A1 – Chapter 21 =====
-werfen — to throw  (pl. wirft; hat geworfen, )
+werfen — to throw  (wirft, hat geworfen)
 verboten — forbidden
 erlaubt — allowed
 der Helm — helmet  (pl. die Helme)
 gefährlich — dangerous
-nutzen — to use  (pl. nutzt; hat genutzt, )
+nutzen — to use  (nutzt, hat genutzt)
 der Fahrer — driver  (pl. die Fahrer)
-grillen — to barbecue / to grill  (pl. grillt; hat gegrillt, )
-stören — to disturb  (pl. stört; hat gestört, )
+grillen — to barbecue / to grill  (grillt, hat gegrillt)
+stören — to disturb  (stört, hat gestört)
 der Nachbar — neighbour  (pl. die Nachbarn)
 die Region — region  (pl. die Regionen)
 unglaublich — unbelievable
@@ -3054,33 +3150,33 @@ das Grillfleisch — barbecue meat
 der Bekannte — acquaintance  (pl. die Bekannten)
 schwierig — difficult
 nämlich — namely / you see (because)
-dürfen — may / to be allowed to  (pl. darf; hat gedurft, )
+dürfen — may / to be allowed to  (darf, hat gedurft)
 der Mieter — tenant  (pl. die Mieter)
-müssen — must / to have to  (pl. muss; hat gemusst, )
+müssen — must / to have to  (muss, hat gemusst)
 die Hausordnung — house rules  (pl. die Hausordnungen)
 darin — in it
-meinen — to mean / to think  (pl. meint; hat gemeint, )
+meinen — to mean / to think  (meint, hat gemeint)
 der Rauch — smoke
 gemeinsam — together / shared
 die Umwelt — environment
 das Gemüse — vegetables  (pl. die Gemüse)
 der Tofu — tofu
-tragen — to wear; to carry  (pl. trägt; hat getragen, )
-zelten — to camp (in a tent)  (pl. zeltet; hat gezeltet, )
-baden — to bathe / to swim  (pl. badet; hat gebadet, )
-abladen — to unload  (pl. lädt ab; hat abgeladen, )
-parken — to park  (pl. parkt; hat geparkt, )
+tragen — to wear; to carry  (trägt, hat getragen)
+zelten — to camp (in a tent)  (zeltet, hat gezeltet)
+baden — to bathe / to swim  (badet, hat gebadet)
+abladen — to unload  (lädt ab, hat abgeladen)
+parken — to park  (parkt, hat geparkt)
 langsam — slow
 die Leine — leash / lead  (pl. die Leinen)
-schieben — to push  (pl. schiebt; hat geschoben, )
-stoßen — to push / to bump  (pl. stößt; hat gestoßen, )
+schieben — to push  (schiebt, hat geschoben)
+stoßen — to push / to bump  (stößt, hat gestoßen)
 die Wiese — meadow / lawn  (pl. die Wiesen)
-wegwerfen — to throw away  (pl. wirft weg; hat weggeworfen, )
+wegwerfen — to throw away  (wirft weg, hat weggeworfen)
 das Lokal — restaurant / bar  (pl. die Lokale)
-mitnehmen — to take along  (pl. nimmt mit; hat mitgenommen, )
+mitnehmen — to take along  (nimmt mit, hat mitgenommen)
 das Verbot — ban / prohibition  (pl. die Verbote)
 die Grundschule — primary school  (pl. die Grundschulen)
-mitbringen — to bring along  (pl. bringt mit; hat mitgebracht, )
+mitbringen — to bring along  (bringt mit, hat mitgebracht)
 angenehm — pleasant
 mega — mega / super (slang)
 ===== A1 – Chapter 22 =====
@@ -3091,11 +3187,11 @@ die Jeans — jeans  (pl. die Jeans)
 das Kleidungsstück — item of clothing  (pl. die Kleidungsstücke)
 circa — about / approximately
 pro — per
-anziehen — to put on (clothes)  (pl. zieht an; hat angezogen, )
+anziehen — to put on (clothes)  (zieht an, hat angezogen)
 zweimal — twice
 der Wahnsinn — madness
 die Billigkleidung — cheap clothing
-anhaben — to have on / to wear  (pl. hat an; hat angehabt, )
+anhaben — to have on / to wear  (hat an, hat angehabt)
 der Pullover — pullover / sweater  (pl. die Pullover)
 das Hemd — shirt  (pl. die Hemden)
 die Hose — trousers / pants  (pl. die Hosen)
@@ -3111,17 +3207,17 @@ der Schuh — shoe  (pl. die Schuhe)
 der Stiefel — boot  (pl. die Stiefel)
 der Strumpf — stocking  (pl. die Strümpfe)
 die Qualität — quality  (pl. die Qualitäten)
-tauschen — to swap / to exchange  (pl. tauscht; hat getauscht, )
+tauschen — to swap / to exchange  (tauscht, hat getauscht)
 der Billigladen — discount shop  (pl. die Billigläden)
 die Möglichkeit — possibility  (pl. die Möglichkeiten)
-sich halten — to last  (pl. hält sich; hat sich gehalten, )
+sich halten — to last  (hält sich, hat sich gehalten)
 die Sachen — things / stuff  (pl. die Sachen)
 die Klamotten — clothes (colloquial)  (pl. die Klamotten)
-nähen — to sew  (pl. näht; hat genäht, )
+nähen — to sew  (näht, hat genäht)
 am liebsten — most of all (preferably)
 meistens — mostly / usually
 verschieden — different / various
-zusammenpassen — to go together / to match  (pl. passt zusammen; hat zusammengepasst, )
+zusammenpassen — to go together / to match  (passt zusammen, hat zusammengepasst)
 am meisten — the most
 der Roman — novel  (pl. die Romane)
 hoch — high
@@ -3156,7 +3252,7 @@ das Meer — sea  (pl. die Meere)
 stark — strong
 wohl — probably; well
 los — go! / going on
-scheinen — to shine; to seem  (pl. scheint; hat geschienen, )
+scheinen — to shine; to seem  (scheint, hat geschienen)
 der Himmel — sky  (pl. die Himmel)
 irgendwie — somehow
 der Schneemann — snowman  (pl. die Schneemänner)
@@ -3177,11 +3273,11 @@ das Kamel — camel  (pl. die Kamele)
 ===== A1 – Chapter 24 =====
 Ostern — Easter
 eigentlich — actually
-schaffen — to manage / to make it  (pl. schafft; hat geschafft, )
+schaffen — to manage / to make it  (schafft, hat geschafft)
 die Liebe — love
 der Blick — look / glance; view  (pl. die Blicke)
 die Katze — cat  (pl. die Katzen)
-sterben — to die  (pl. stirbt; ist gestorben, )
+sterben — to die  (stirbt, ist gestorben)
 das Paar — couple / pair  (pl. die Paare)
 das Datum — date  (pl. die Daten)
 das Ereignis — event  (pl. die Ereignisse)
@@ -3189,35 +3285,35 @@ Neujahr — New Year's Day
 der Karneval — carnival  (pl. die Karnevale)
 der Feiertag — public holiday  (pl. die Feiertage)
 die Hochzeit — wedding  (pl. die Hochzeiten)
-bestehen — to pass (an exam)  (pl. besteht; hat bestanden, )
+bestehen — to pass (an exam)  (besteht, hat bestanden)
 die Prüfung — exam  (pl. die Prüfungen)
 der Glückwunsch — congratulations  (pl. die Glückwünsche)
-gratulieren — to congratulate  (pl. gratuliert; hat gratuliert, )
+gratulieren — to congratulate  (gratuliert, hat gratuliert)
 die Aktion — campaign / action  (pl. die Aktionen)
 die Lösung — solution  (pl. die Lösungen)
-beachten — to observe / to pay attention to  (pl. beachtet; hat beachtet, )
+beachten — to observe / to pay attention to  (beachtet, hat beachtet)
 der Mitmensch — fellow human being  (pl. die Mitmenschen)
 weltweit — worldwide
-stattfinden — to take place  (pl. findet statt; hat stattgefunden, )
+stattfinden — to take place  (findet statt, hat stattgefunden)
 die Freude — joy  (pl. die Freuden)
 es geht um — it's about
 die Sympathie — liking / sympathy  (pl. die Sympathien)
-zusammengehören — to belong together  (pl. gehört zusammen; hat zusammengehört, )
+zusammengehören — to belong together  (gehört zusammen, hat zusammengehört)
 das Haustier — pet  (pl. die Haustiere)
 das Insekt — insect  (pl. die Insekten)
-mitmachen — to join in / to take part  (pl. macht mit; hat mitgemacht, )
+mitmachen — to join in / to take part  (macht mit, hat mitgemacht)
 die Generation — generation  (pl. die Generationen)
 die Veranstaltung — event  (pl. die Veranstaltungen)
 im Freien — outdoors
-nachsehen — to check / to look up  (pl. sieht nach; hat nachgesehen, )
+nachsehen — to check / to look up  (sieht nach, hat nachgesehen)
 der Kommentar — comment  (pl. die Kommentare)
 wunderbar — wonderful
-umarmen — to hug  (pl. umarmt; hat umarmt, )
+umarmen — to hug  (umarmt, hat umarmt)
 niemals — never
 doof — stupid / dumb (colloquial)
-fasten — to fast  (pl. fastet; hat gefastet, )
+fasten — to fast  (fastet, hat gefastet)
 das Kompliment — compliment  (pl. die Komplimente)
-faulenzen — to laze around  (pl. faulenzt; hat gefaulenzt, )
+faulenzen — to laze around  (faulenzt, hat gefaulenzt)
 die Gesundheit — health`;
 
     const rawA2Text = `
