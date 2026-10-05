@@ -545,6 +545,13 @@
     .notice .n-ic svg { width: 30px; height: 30px; }
     .notice h3 { font-size: 1.25rem; margin-bottom: 8px; }
     .notice p { color: var(--text-2); font-size: .95rem; line-height: 1.5; margin: 0 auto 16px; max-width: 400px; }
+    .notice-sec { text-align: left; padding: 14px; border-radius: var(--r-md); background: var(--surface); margin-bottom: 10px; }
+    .notice-sec .k { font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); margin-bottom: 4px; }
+    .notice-sec b.who { display: block; font-size: 1.05rem; margin-bottom: 4px; }
+    .notice-sec p { text-align: left; margin: 0 0 12px; max-width: none; font-size: .9rem; }
+    .notice-sec .wa, .notice-sec .site { margin-bottom: 0; }
+    .notice .site { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px; border-radius: 14px; background: var(--accent); color: var(--accent-ink); font-weight: 800; text-decoration: none; }
+    .notice .site small { font-weight: 650; opacity: .75; }
     .notice .wa { display: inline-flex; align-items: center; gap: 8px; height: 46px; padding: 0 18px; border-radius: 14px; background: #25D366; color: #06200f; font-weight: 800; text-decoration: none; margin-bottom: 16px; }
     .hold-btn { position: relative; overflow: hidden; width: 100%; height: 54px; border-radius: 16px; background: var(--surface-2); border: 1.5px solid var(--line-strong); font-weight: 800; font-size: 1rem; user-select: none; -webkit-user-select: none; touch-action: none; -webkit-touch-callout: none; }
     .hold-btn i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--accent); }
@@ -591,17 +598,18 @@
         <p style="color:var(--text-2);max-width:420px;margin:0 auto">You’re seeing a file preview (like the iPhone Files or OneDrive preview), which doesn’t run the app’s code — so the words don’t load. Open this page in <b>Safari</b> or <b>Chrome</b> from a web link instead.</p>
       </div>
     </section>
-    <footer class="foot"><button data-action="notice">ⓘ English translations were made by AI · report a mistake</button></footer>
+    <footer class="foot"><button data-action="notice">ⓘ Words by Dr. Omar Alduais · English by AI · report a mistake</button></footer>
   </div>
   <div id="overlay"></div>
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 22;
+    const APP_VERSION = 23;
 
     /* ================= Icons ================= */
     const ICONS = {
       info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>',
+      ext: '<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/>',
       chat: '<path d="M4 20l1.4-4.2A8 8 0 1 1 8.5 19z"/>',
       phoneDl: '<rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M12 7v6M9.5 10.5 12 13l2.5-2.5M11 18.5h2"/>',
       share: '<path d="M12 3v12M8 7l4-4 4 4"/><path d="M7 10H6a1.5 1.5 0 0 0-1.5 1.5v8A1.5 1.5 0 0 0 6 21h12a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 18 10h-1"/>',
@@ -814,7 +822,7 @@
         $('#settings-btn').innerHTML = icon('gear');
         this.renderInstallBtn();
         this.loadSession();
-        if (!Store.d.seenNotice) setTimeout(() => this.openNotice(true), 300);
+        if ((Store.d.seenNotice === true ? 1 : Store.d.seenNotice || 0) < 2) setTimeout(() => this.openNotice(true), 300);
         document.addEventListener('click', e => this.onClick(e));
         document.addEventListener('keydown', e => this.onKey(e));
         this.render();
@@ -1133,9 +1141,19 @@
           ${first ? '' : `<div class="sheet-head"><h3></h3><button class="icon-btn" data-action="close-sheet" aria-label="Close">${icon('x')}</button></div>`}
           <div class="sheet-body"><div class="notice">
             <div class="n-ic">${icon('info')}</div>
-            <h3>About the translations</h3>
-            <p>The English translations were made by AI. If you find any mistakes, send me a message on WhatsApp:</p>
-            <a class="wa" href="https://wa.me/962799061563" target="_blank" rel="noopener">${icon('chat')} +962 79 906 1563</a>
+            <h3>About this app</h3>
+            <div class="notice-sec">
+              <div class="k">Word lists</div>
+              <b class="who">Dr. Omar Alduais</b>
+              <p>All the German words in this app come from Dr. Omar Alduais. Full credit and thanks to him for putting the vocabulary together. His website is the original, with Arabic meanings:</p>
+              <a class="site" href="https://o-alduais-momente.pages.dev/" target="_blank" rel="noopener">${icon('ext')} Original website <small>o-alduais-momente.pages.dev</small></a>
+            </div>
+            <div class="notice-sec">
+              <div class="k">English translations</div>
+              <p>The English translations were made by AI. If you find any mistakes, send me a message on WhatsApp:</p>
+              <a class="wa" href="https://wa.me/962799061563" target="_blank" rel="noopener">${icon('chat')} +962 79 906 1563</a>
+            </div>
+            <div style="height:6px"></div>
             ${first
               ? `<button class="hold-btn" id="hold-btn" aria-label="Press and hold to close"><i></i><span>Hold to close</span></button>`
               : `<button class="btn btn-lg" style="width:100%" data-action="close-sheet">Got it</button>`}
@@ -1147,7 +1165,7 @@
         const start = e => {
           e.preventDefault();
           btn.classList.add('holding'); label.textContent = 'Keep holding…';
-          timer = setTimeout(() => { Store.d.seenNotice = true; Store.save(); this.closeSheet(); }, 1500);
+          timer = setTimeout(() => { Store.d.seenNotice = 2; Store.save(); this.closeSheet(); }, 1500);
         };
         const stop = () => {
           if (!timer) return;
@@ -1252,7 +1270,7 @@
               <button class="btn btn-sm ${this.isStandalone() ? '' : 'btn-primary'}" data-action="install">${this.isStandalone() ? 'Open guide' : 'Show me how'}</button></div>
             <div class="set-row"><div class="lbl"><b>Appearance</b><span>${document.documentElement.dataset.theme === 'light' ? 'Light' : 'Dark'} mode</span></div>
               <button class="btn btn-sm" data-action="theme">${icon(document.documentElement.dataset.theme === 'light' ? 'moon' : 'sun')} Switch to ${document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'}</button></div>
-            <div class="set-row"><div class="lbl"><b>About the translations</b><span>English was made by AI — report mistakes</span></div>
+            <div class="set-row"><div class="lbl"><b>About this app</b><span>Words by Dr. Omar Alduais · English by AI</span></div>
               <button class="btn btn-sm" data-action="notice">Open</button></div>
             <div class="set-row"><div class="lbl"><b>Speak German automatically</b><span>Read each German word aloud on flashcards${Speech.ok ? '' : ' (not supported on this device)'}</span></div>
               <button class="toggle ${st.autoSpeak ? 'on' : ''}" data-action="set-toggle" data-key="autoSpeak" aria-label="Auto speak"></button></div>
