@@ -538,8 +538,10 @@
     .next-part span { font-size: .85rem; color: var(--text-2); }
     /* Translation notice */
     .foot { text-align: center; margin-top: 18px; }
-    .foot button { font-size: .8rem; color: var(--text-3); font-weight: 650; padding: 8px 12px; border-radius: 10px; display: inline-flex; align-items: center; gap: 6px; }
-    .foot button:hover { color: var(--text); background: var(--surface); }
+    .foot button { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 18px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line-strong); color: var(--text); }
+    .foot button b { font-size: .9rem; font-weight: 800; }
+    .foot button span { font-size: .75rem; color: var(--text-3); font-weight: 650; }
+    .foot button:hover { background: var(--surface-2); }
     .notice { text-align: center; padding: 6px 4px 4px; }
     .notice .n-ic { width: 60px; height: 60px; margin: 0 auto 14px; border-radius: 18px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
     .notice .n-ic svg { width: 30px; height: 30px; }
@@ -598,13 +600,13 @@
         <p style="color:var(--text-2);max-width:420px;margin:0 auto">You’re seeing a file preview (like the iPhone Files or OneDrive preview), which doesn’t run the app’s code — so the words don’t load. Open this page in <b>Safari</b> or <b>Chrome</b> from a web link instead.</p>
       </div>
     </section>
-    <footer class="foot"><button data-action="notice">ⓘ Words by Dr. Omar Alduais · English by AI · report a mistake</button></footer>
+    <footer class="foot"><button data-action="notice"><b>ⓘ About this app</b><span>Words by Dr. Omar Alduais · English by AI</span></button></footer>
   </div>
   <div id="overlay"></div>
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 23;
+    const APP_VERSION = 24;
 
     /* ================= Icons ================= */
     const ICONS = {
