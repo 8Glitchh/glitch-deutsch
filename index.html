@@ -108,7 +108,9 @@
 
     /* ---------- Header ---------- */
     .top { display: flex; align-items: center; gap: 10px; padding: 6px 0 18px; }
-    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand { display: flex; align-items: center; gap: 10px; text-align: left; border-radius: 12px; padding: 2px; margin: -2px; transition: transform .1s; }
+    .brand:active { transform: scale(.96); }
+    .wrap { overflow-x: hidden; overflow-x: clip; }
     .brand .mark { width: 36px; height: 36px; flex: none; border-radius: 10px; box-shadow: 0 4px 14px rgba(255,200,61,.25); }
     .brand .wm { font-size: 1.22rem; font-weight: 850; letter-spacing: -0.03em; line-height: 1; }
     .brand .wm span { font-weight: 550; color: var(--text-2); }
@@ -570,6 +572,8 @@
     .notice .n-ic svg { width: 30px; height: 30px; }
     .notice h3 { font-size: 1.25rem; margin-bottom: 8px; }
     .notice p { color: var(--text-2); font-size: .95rem; line-height: 1.5; margin: 0 auto 16px; max-width: 400px; }
+    .notice-tip { font-size: .8rem !important; color: var(--text-3) !important; margin: 4px auto 12px !important; }
+    .notice-tip b { color: var(--text-2); }
     .notice-sec { text-align: left; padding: 14px; border-radius: var(--r-md); background: var(--surface); margin-bottom: 10px; }
     .notice-sec .k { font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); margin-bottom: 4px; }
     .notice-sec b.who { display: block; font-size: 1.05rem; margin-bottom: 4px; }
@@ -600,7 +604,7 @@
 <body>
   <div class="wrap">
     <header class="top">
-      <div class="brand">
+      <button class="brand" data-action="notice" aria-label="About this app" title="About this app">
         <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
           <rect width="40" height="40" rx="11" fill="#FFC83D"/>
           <rect x="11.5" y="7" width="6" height="6" rx="1.5" fill="#14110a"/>
@@ -608,7 +612,7 @@
           <path d="M14.2 19.2c1.4-1.3 3.4-2 5.9-2 4.6 0 6.9 2.3 6.9 6.6V33h-4.4v-1.6c-1 1.3-2.6 1.9-4.6 1.9-3.2 0-5.3-1.8-5.3-4.5 0-2.9 2.2-4.4 6.3-4.4h3.4c-.1-1.8-1.2-2.7-3.3-2.7-1.5 0-3 .5-4 1.3zm8.2 7.2h-2.9c-1.9 0-2.7.6-2.7 1.7 0 1 .9 1.7 2.3 1.7 1.6 0 2.9-.8 3.3-2.1z" fill="#14110a"/>
         </svg>
         <span class="wm"><span>glitch</span>deutsch</span>
-      </div>
+      </button>
       <div class="spacer"></div>
       <div class="chip streak" id="streak" title="Daily streak"></div>
       <button class="icon-btn" data-action="install" aria-label="Add to Home Screen" id="install-btn" title="Add to Home Screen"></button>
@@ -632,7 +636,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 29;
+    const APP_VERSION = 30;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -1185,7 +1189,7 @@
               <a class="mail" href="mailto:glitchdeutschmomente@gmail.com?subject=Translation%20mistake">${icon('mail')} Send an email</a>
               <div class="dom" style="user-select:all">glitchdeutschmomente@gmail.com</div>
             </div>
-            <div style="height:6px"></div>
+            <p class="notice-tip">Tip: tap the <b>logo</b> at the top (or ⓘ) to open this again.</p>
             ${first
               ? `<button class="hold-btn" id="hold-btn" aria-label="Press and hold to close"><i></i><span>Hold to close</span></button>`
               : `<button class="btn btn-lg" style="width:100%" data-action="close-sheet">Got it</button>`}
@@ -1514,6 +1518,7 @@
           <div class="kbd-hint"><kbd>Space</kbd> flip · <kbd>←</kbd> still learning · <kbd>→</kbd> got it · <kbd>S</kbd> speak · or swipe the card</div>`;
 
         this.attachSwipe($('#fcard'));
+        this.flyIn();
         if (Store.d.settings.autoSpeak && (dir === 'de-en' ? !s.flipped : s.flipped)) Speech.say(w.de);
       },
 
@@ -1527,11 +1532,41 @@
 
       rateCard(r) {
         const s = this.s, w = s.deck[s.i];
-        if (!w) return;
+        if (!w || this.animating) return;
         Store.setStatus(w.de, r);
         if (r === 'learned') s.got++; else { s.again++; s.againList.push(w); }
-        s.i++; s.flipped = false;
-        this.refreshStats(); this.renderCards($('#panel'));
+        // "Got it" leaves to the right, "Still learning" to the left; the next card comes in from the other side.
+        this.flyOut(r === 'learned' ? 1 : -1, () => { s.i++; s.flipped = false; this.refreshStats(); this.renderCards($('#panel')); });
+      },
+
+      flyOut(dir, then) {
+        const s = this.s, el = $('#fcard');
+        if (!el) return then();
+        this.animating = true;
+        el.classList.remove('dragging');
+        el.style.transition = 'transform .28s cubic-bezier(.4,0,1,1), opacity .28s ease-in';
+        el.style.transform = `translateX(${dir * 135}%) rotate(${dir * 18}deg)${s.flipped ? ' rotateY(180deg)' : ''}`;
+        el.style.opacity = '0';
+        setTimeout(() => {
+          this.animating = false;
+          if (this.s !== s || this.mode !== 'cards') return;  // left flashcards meanwhile
+          this.enterFrom = -dir;
+          then();
+        }, 250);
+      },
+
+      flyIn() {
+        const el = $('#fcard'), from = this.enterFrom;
+        this.enterFrom = 0;
+        if (!el || !from) return;
+        el.style.transition = 'none';
+        el.style.transform = `translateX(${from * 115}%) rotate(${from * 8}deg)`;
+        el.style.opacity = '0';
+        el.offsetWidth; // start from off-screen
+        el.style.transition = 'transform .4s cubic-bezier(.2,.9,.25,1.05), opacity .25s ease-out';
+        el.style.transform = '';
+        el.style.opacity = '';
+        setTimeout(() => { if (el.isConnected) el.style.transition = ''; }, 420);
       },
 
       attachSwipe(el) {
@@ -1565,7 +1600,11 @@
         const s = this.s;
         if (a === 'c-flip') { if (el.dataset.swiped) return; return this.flipCard(); }
         if (a === 'c-rate') return this.rateCard(el.dataset.r);
-        if (a === 'c-step') { s.i = Math.max(0, s.i + +el.dataset.d); s.flipped = false; return this.renderCards($('#panel')); }
+        if (a === 'c-step') {
+          const d = +el.dataset.d;
+          if ((d < 0 && s.i === 0) || this.animating) return;
+          return this.flyOut(d > 0 ? -1 : 1, () => { s.i = Math.max(0, s.i + d); s.flipped = false; this.renderCards($('#panel')); });
+        }
         if (a === 'c-filter') {
           const f = el.dataset.f;
           if (f === s.filter) return;
