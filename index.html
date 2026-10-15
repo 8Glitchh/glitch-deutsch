@@ -668,7 +668,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 36;
+    const APP_VERSION = 37;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -859,6 +859,12 @@
         load();
         // Some browsers (Safari) fill the list late and don't always announce it.
         [300, 1000, 2500, 5000].forEach(t => setTimeout(load, t));
+        // iOS pauses speech and audio when the app goes to the background: wake them on return.
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState !== 'visible') return;
+          try { if (speechSynthesis.paused) speechSynthesis.resume(); } catch (e) {}
+          try { if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume(); } catch (e) {}
+        });
         setTimeout(() => {
           if (this.ready) return;
           this.ready = true;
@@ -880,6 +886,7 @@
       score(v) {
         let n = 0;
         if (/^de[-_]DE/i.test(v.lang)) n += 2;
+        if (v.localService && /iphone|ipad|ipod|Macintosh/i.test(navigator.userAgent)) n += 6;   // Apple: on-device voices are reliable
         if (/natural|online|neural/i.test(v.name)) n += 5;   // Edge
         if (/google/i.test(v.name)) n += 4;                  // Chrome
         if (/enhanced|premium|erweitert/i.test(v.name)) n += 3;
@@ -892,12 +899,42 @@
       },
       get canSpeak() { return this.ok && (!!this.voice || !!this.blind); },
       changed() { if (typeof app !== 'undefined' && app.updateSpeakButtons) app.updateSpeakButtons(); },
+      // iPhone Home Screen apps can "speak" without any sound until the app's audio is switched on.
+      // Must run inside a tap: mark the app as a playback app and play a tiny silent sound.
+      unlockAudio() {
+        try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
+        try {
+          const C = window.AudioContext || window.webkitAudioContext;
+          if (!C) return;
+          if (!this.ctx) this.ctx = new C();
+          if (this.ctx.state === 'suspended' && this.ctx.resume) this.ctx.resume();
+          const buf = this.ctx.createBuffer(1, 1, 22050), src = this.ctx.createBufferSource();
+          src.buffer = buf; src.connect(this.ctx.destination); src.start(0);
+        } catch (e) {}
+        try {
+          if (!this.silentEl) {
+            // 0.1 s of silence as a WAV, played through an <audio> element (switches iOS to the media channel)
+            const sr = 8000, n = 800, b = new ArrayBuffer(44 + n), v = new DataView(b);
+            const w = (o, t) => { for (let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
+            w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true);
+            v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, sr, true); v.setUint32(28, sr, true);
+            v.setUint16(32, 1, true); v.setUint16(34, 8, true); w(36, 'data'); v.setUint32(40, n, true);
+            for (let i = 0; i < n; i++) v.setUint8(44 + i, 128);
+            this.silentEl = new Audio(URL.createObjectURL(new Blob([b], { type: 'audio/wav' })));
+            this.silentEl.setAttribute('playsinline', '');
+          }
+          const p = this.silentEl.play(); if (p && p.catch) p.catch(() => {});
+        } catch (e) {}
+      },
+
       say(text) {
         if (!text || !this.canSpeak) return false;
+        this.unlockAudio();
         const synth = speechSynthesis;
         // Safari: cancelling when nothing is playing can swallow the next word, and speech
         // can stay "paused" after the app was in the background - so only cancel when needed, and resume.
-        if (synth.speaking || synth.pending) synth.cancel();
+        const busy = synth.speaking || synth.pending;
+        if (busy) synth.cancel();
         if (synth.paused) synth.resume();
         const u = new SpeechSynthesisUtterance(text.replace(/\s*\/\s*/g, ', '));
         if (this.voice) { u.voice = this.voice; u.lang = this.voice.lang; } else u.lang = 'de-DE';
@@ -909,7 +946,8 @@
           if (e.error === 'interrupted' || e.error === 'canceled') return;
           if (typeof app !== 'undefined') app.toast('Could not play audio (' + (e.error || 'error') + ')');
         };
-        synth.speak(u);
+        // iOS turns "cancel and speak in the same moment" into silence: wait a beat after cancelling.
+        if (busy) setTimeout(() => synth.speak(u), 120); else synth.speak(u);
         // Nothing started within 2.5 s: tell the user the most likely reason instead of failing silently.
         setTimeout(() => {
           if (started || synth.speaking) return;
