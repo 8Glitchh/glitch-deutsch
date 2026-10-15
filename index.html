@@ -324,7 +324,7 @@
     /* ---------- Flashcards ---------- */
     .deck-bar { height: 4px; background: var(--surface-3); border-radius: 4px; overflow: hidden; margin-bottom: 18px; }
     .deck-bar i { display: block; height: 100%; background: var(--accent); transition: width .3s var(--ease); }
-    .card-stage { perspective: 1400px; margin-bottom: 16px; touch-action: pan-y; -webkit-user-select: none; user-select: none; }
+    .card-stage { position: relative; perspective: 1400px; margin-bottom: 16px; touch-action: pan-y; -webkit-user-select: none; user-select: none; }
     .fcard { touch-action: pan-y; -webkit-user-select: none; -webkit-touch-callout: none; }
     .fcard {
       position: relative; min-height: 300px; -webkit-transform-style: preserve-3d; transform-style: preserve-3d;
@@ -352,7 +352,7 @@
     .gtag { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 99px; background: var(--g-soft); color: var(--g); font-size: .72rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
     .speak { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: var(--text-2); background: var(--surface-3); }
     .speak:hover { color: var(--text); }
-    .swipe-tag { position: absolute; top: 18px; padding: 6px 12px; border-radius: 10px; font-weight: 850; font-size: .85rem; letter-spacing: .06em; opacity: 0; pointer-events: none; z-index: 2; }
+    .swipe-tag { position: absolute; top: 18px; padding: 6px 12px; border-radius: 10px; font-weight: 850; font-size: .85rem; letter-spacing: .06em; opacity: 0; pointer-events: none; z-index: 5; }
     .swipe-tag.l { left: 18px; background: var(--bad); color: #fff; transform: rotate(-8deg); }
     .swipe-tag.r { right: 18px; background: var(--ok); color: #04150e; transform: rotate(8deg); }
     .rate { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -669,7 +669,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 39;
+    const APP_VERSION = 40;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -1777,8 +1777,8 @@
         p.innerHTML = head + `
           <div class="deck-bar"><i style="width:${s.i / s.deck.length * 100}%"></i></div>
           <div class="card-stage">
+            <span class="swipe-tag l">STILL LEARNING</span><span class="swipe-tag r">GOT IT</span>
             <div class="fcard ${s.flipped ? 'flipped' : ''} ${gClass(w)}" id="fcard" data-action="c-flip">
-              <span class="swipe-tag l">STILL LEARNING</span><span class="swipe-tag r">GOT IT</span>
               <div class="fface ${dir === 'de-en' && w.article ? 'g' : ''}">
                 <div class="fface-top"><span>${fl}</span><span class="ft-r">${dir === 'de-en' ? this.speakBtn(w.de) : `<span>${status === 'hard' ? '⚠ still learning' : status === 'learned' ? '✓ mastered' : ''}</span>`}${this.starBtn(w)}</span></div>
                 ${front}
@@ -1864,7 +1864,7 @@
         // Follow the finger via window listeners (no pointer capture): on Android a capture could
         // linger after the swipe and swallow the next tap on a button.
         let x0 = 0, y0 = 0, dx = 0, moved = false, pid = null;
-        const tagL = el.querySelector('.swipe-tag.l'), tagR = el.querySelector('.swipe-tag.r');
+        const stage = el.parentElement, tagL = stage.querySelector('.swipe-tag.l'), tagR = stage.querySelector('.swipe-tag.r');
         const stop = () => {
           window.removeEventListener('pointermove', move);
           window.removeEventListener('pointerup', end);
