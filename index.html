@@ -352,9 +352,23 @@
     .gtag { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 99px; background: var(--g-soft); color: var(--g); font-size: .72rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
     .speak { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: var(--text-2); background: var(--surface-3); }
     .speak:hover { color: var(--text); }
-    .swipe-tag { position: absolute; top: 18px; padding: 6px 12px; border-radius: 10px; font-weight: 850; font-size: .85rem; letter-spacing: .06em; opacity: 0; pointer-events: none; z-index: 5; }
-    .swipe-tag.l { left: 18px; background: var(--bad); color: #fff; transform: rotate(-8deg); }
-    .swipe-tag.r { right: 18px; background: var(--ok); color: #04150e; transform: rotate(8deg); }
+    /* Swipe feedback: the card fills with green/red and a badge grows in, the farther you drag */
+    .fface::after {
+      content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; border-radius: inherit; pointer-events: none;
+      background: var(--sw-col, transparent); box-shadow: inset 0 0 0 3px var(--sw-col, transparent);
+      opacity: calc(var(--sw-a, 0) * .34); transition: opacity .3s ease;
+    }
+    .fcard.dragging .fface::after { transition: none; }
+    .swipe-tag {
+      position: absolute; top: 16px; z-index: 5; pointer-events: none; opacity: 0;
+      display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px;
+      font-weight: 900; font-size: .85rem; letter-spacing: .05em; box-shadow: 0 8px 24px rgba(0,0,0,.35);
+      transform: scale(var(--tag-s, .7)) rotate(var(--tag-r, 0deg)); transition: opacity .25s ease, transform .3s cubic-bezier(.2,.9,.3,1.2);
+    }
+    .swipe-tag svg { width: 1.1em; height: 1.1em; stroke-width: 3; }
+    .swipe-tag.l { left: 14px; background: var(--bad); color: #fff; --tag-r: -6deg; transform-origin: left center; }
+    .swipe-tag.r { right: 14px; background: var(--ok); color: #04150e; --tag-r: 6deg; transform-origin: right center; }
+    .card-stage.dragging .swipe-tag { transition: none; }
     .rate { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .rate .btn { white-space: nowrap; padding: 0 10px; }
     @media (max-width: 420px) { .rate .btn { font-size: .92rem; gap: 6px; padding: 0 8px; } .rate .btn svg { width: 1em; height: 1em; } }
@@ -669,7 +683,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 40;
+    const APP_VERSION = 41;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -1777,7 +1791,7 @@
         p.innerHTML = head + `
           <div class="deck-bar"><i style="width:${s.i / s.deck.length * 100}%"></i></div>
           <div class="card-stage">
-            <span class="swipe-tag l">STILL LEARNING</span><span class="swipe-tag r">GOT IT</span>
+            <span class="swipe-tag l">${icon('x')} STILL LEARNING</span><span class="swipe-tag r">${icon('check')} GOT IT</span>
             <div class="fcard ${s.flipped ? 'flipped' : ''} ${gClass(w)}" id="fcard" data-action="c-flip">
               <div class="fface ${dir === 'de-en' && w.article ? 'g' : ''}">
                 <div class="fface-top"><span>${fl}</span><span class="ft-r">${dir === 'de-en' ? this.speakBtn(w.de) : `<span>${status === 'hard' ? '⚠ still learning' : status === 'learned' ? '✓ mastered' : ''}</span>`}${this.starBtn(w)}</span></div>
@@ -1825,14 +1839,27 @@
         Store.setStatus(w.de, r);
         if (r === 'learned') s.got++; else { s.again++; s.againList.push(w); }
         // "Got it" leaves to the right, "Still learning" to the left; the next card comes in from the other side.
-        this.flyOut(r === 'learned' ? 1 : -1, () => { s.i++; s.flipped = false; this.refreshStats(); this.renderCards($('#panel')); });
+        this.flyOut(r === 'learned' ? 1 : -1, () => { s.i++; s.flipped = false; this.refreshStats(); this.renderCards($('#panel')); }, true);
       },
 
-      flyOut(dir, then) {
+      // Colour wash + badge for a drag of dx pixels (0 = none). Full strength at ~110 px.
+      swipeFx(el, tagL, tagR, dx) {
+        const p = Math.min(1, Math.abs(dx) / 110);
+        el.style.setProperty('--sw-col', dx >= 0 ? 'var(--ok)' : 'var(--bad)');
+        el.style.setProperty('--sw-a', p);
+        const show = (tag, on) => { if (!tag) return; tag.style.opacity = on ? Math.min(1, p * 1.4) : 0; tag.style.setProperty('--tag-s', on ? .7 + .35 * p : .7); };
+        show(tagR, dx > 0); show(tagL, dx < 0);
+      },
+
+      flyOut(dir, then, fx) {
         const s = this.s, el = $('#fcard');
         if (!el) return then();
         this.animating = true;
         el.classList.remove('dragging');
+        if (fx) {
+          const stage = el.parentElement;
+          this.swipeFx(el, stage.querySelector('.swipe-tag.l'), stage.querySelector('.swipe-tag.r'), dir * 120);
+        }
         el.style.transition = 'transform .28s cubic-bezier(.4,0,1,1), opacity .28s ease-in';
         el.style.transform = `translateX(${dir * 135}%) rotate(${dir * 18}deg)${s.flipped ? ' rotateY(180deg)' : ''}`;
         el.style.opacity = '0';
@@ -1874,11 +1901,11 @@
         const move = e => {
           if (e.pointerId !== pid) return;
           dx = e.clientX - x0;
-          if (!moved && Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(e.clientY - y0)) { moved = true; el.classList.add('dragging'); }
+          if (!moved && Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(e.clientY - y0)) { moved = true; el.classList.add('dragging'); stage.classList.add('dragging'); }
           if (moved) {
             const flip = this.s.flipped ? ' rotateY(180deg)' : '';
             el.style.transform = `translateX(${dx}px) rotate(${dx / 25}deg)${flip}`;
-            tagL.style.opacity = Math.max(0, -dx / 100); tagR.style.opacity = Math.max(0, dx / 100);
+            this.swipeFx(el, tagL, tagR, dx);
           }
         };
         const end = e => {
@@ -1886,10 +1913,10 @@
           stop();
           if (!moved) return;
           try { const sel = window.getSelection && window.getSelection(); if (sel && sel.rangeCount) sel.removeAllRanges(); } catch (_) {}
-          el.classList.remove('dragging');
+          el.classList.remove('dragging'); stage.classList.remove('dragging');
           el.dataset.swiped = '1'; setTimeout(() => delete el.dataset.swiped, 50);
           if (e.type !== 'pointercancel' && Math.abs(dx) > 90) return this.rateCard(dx > 0 ? 'learned' : 'hard');
-          el.style.transform = ''; tagL.style.opacity = tagR.style.opacity = 0;
+          el.style.transform = ''; this.swipeFx(el, tagL, tagR, 0);   // glide back, colour fades out
         };
         el.addEventListener('pointerdown', e => {
           if (e.target.closest('.speak, .star') || pid !== null) return;
