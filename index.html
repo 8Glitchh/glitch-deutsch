@@ -669,7 +669,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 38;
+    const APP_VERSION = 39;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -984,6 +984,24 @@
         this.loadSession();
         if ((Store.d.seenNotice === true ? 1 : Store.d.seenNotice || 0) < 2) setTimeout(() => this.openNotice(true), 300);
         document.addEventListener('click', e => this.onClick(e));
+        // Touch: act when the finger lifts off a button. After dragging a card, Android could drop
+        // the next "click", so the first tap did nothing. The click that follows is then ignored.
+        let tap = null;
+        document.addEventListener('pointerdown', e => {
+          if (e.pointerType !== 'touch') return;
+          const btn = e.target.closest('#panel button[data-action], #partbar button[data-action]');
+          tap = btn ? { btn, x: e.clientX, y: e.clientY, t: Date.now() } : null;
+        }, true);
+        document.addEventListener('pointercancel', () => { tap = null; }, true);
+        document.addEventListener('pointerup', e => {
+          if (!tap || e.pointerType !== 'touch') return;
+          const { btn, x, y, t } = tap; tap = null;
+          const over = document.elementFromPoint(e.clientX, e.clientY);
+          if (btn.disabled || !btn.isConnected || !over || !btn.contains(over)) return;
+          if (Math.hypot(e.clientX - x, e.clientY - y) > 12 || Date.now() - t > 800) return;
+          this.tapDone = { x: e.clientX, y: e.clientY, t: Date.now() };
+          this.onClick({ target: btn, stopPropagation() {}, preventDefault() {} });
+        }, true);
         document.addEventListener('keydown', e => this.onKey(e));
         this.render();
       },
@@ -1291,6 +1309,8 @@
       /* ---------- Events ---------- */
       onClick(e) {
         const el = e.target.closest('[data-action]');
+        const td = this.tapDone;
+        if (e.type === 'click' && td && Date.now() - td.t < 800 && Math.abs(e.clientX - td.x) < 6 && Math.abs(e.clientY - td.y) < 6) { this.tapDone = null; return; }  // same touch, already handled on finger lift
         if (!el || el.disabled) return;
         const a = el.dataset.action, ds = el.dataset;
         switch (a) {
@@ -1841,32 +1861,43 @@
       },
 
       attachSwipe(el) {
-        let x0 = null, y0 = null, dx = 0, moved = false;
+        // Follow the finger via window listeners (no pointer capture): on Android a capture could
+        // linger after the swipe and swallow the next tap on a button.
+        let x0 = 0, y0 = 0, dx = 0, moved = false, pid = null;
         const tagL = el.querySelector('.swipe-tag.l'), tagR = el.querySelector('.swipe-tag.r');
-        el.addEventListener('pointerdown', e => { if (e.target.closest('.speak, .star')) return; x0 = e.clientX; y0 = e.clientY; dx = 0; moved = false; });
-        el.addEventListener('pointermove', e => {
-          if (x0 == null) return;
+        const stop = () => {
+          window.removeEventListener('pointermove', move);
+          window.removeEventListener('pointerup', end);
+          window.removeEventListener('pointercancel', end);
+          pid = null;
+        };
+        const move = e => {
+          if (e.pointerId !== pid) return;
           dx = e.clientX - x0;
-          if (!moved && Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(e.clientY - y0)) { moved = true; el.classList.add('dragging'); try { el.setPointerCapture(e.pointerId); } catch (_) {} }
+          if (!moved && Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(e.clientY - y0)) { moved = true; el.classList.add('dragging'); }
           if (moved) {
             const flip = this.s.flipped ? ' rotateY(180deg)' : '';
             el.style.transform = `translateX(${dx}px) rotate(${dx / 25}deg)${flip}`;
             tagL.style.opacity = Math.max(0, -dx / 100); tagR.style.opacity = Math.max(0, dx / 100);
           }
-        });
+        };
         const end = e => {
-          if (x0 == null) return;
-          x0 = null;
+          if (e.pointerId !== pid) return;
+          stop();
           if (!moved) return;
-          try { if (e && el.hasPointerCapture && el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId); } catch (_) {}
           try { const sel = window.getSelection && window.getSelection(); if (sel && sel.rangeCount) sel.removeAllRanges(); } catch (_) {}
           el.classList.remove('dragging');
           el.dataset.swiped = '1'; setTimeout(() => delete el.dataset.swiped, 50);
-          if (Math.abs(dx) > 90) return this.rateCard(dx > 0 ? 'learned' : 'hard');
+          if (e.type !== 'pointercancel' && Math.abs(dx) > 90) return this.rateCard(dx > 0 ? 'learned' : 'hard');
           el.style.transform = ''; tagL.style.opacity = tagR.style.opacity = 0;
         };
-        el.addEventListener('pointerup', end);
-        el.addEventListener('pointercancel', end);
+        el.addEventListener('pointerdown', e => {
+          if (e.target.closest('.speak, .star') || pid !== null) return;
+          pid = e.pointerId; x0 = e.clientX; y0 = e.clientY; dx = 0; moved = false;
+          window.addEventListener('pointermove', move);
+          window.addEventListener('pointerup', end);
+          window.addEventListener('pointercancel', end);
+        });
       },
 
       on_cards(a, el) {
