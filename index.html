@@ -324,7 +324,8 @@
     /* ---------- Flashcards ---------- */
     .deck-bar { height: 4px; background: var(--surface-3); border-radius: 4px; overflow: hidden; margin-bottom: 18px; }
     .deck-bar i { display: block; height: 100%; background: var(--accent); transition: width .3s var(--ease); }
-    .card-stage { perspective: 1400px; margin-bottom: 16px; touch-action: pan-y; }
+    .card-stage { perspective: 1400px; margin-bottom: 16px; touch-action: pan-y; -webkit-user-select: none; user-select: none; }
+    .fcard { touch-action: pan-y; -webkit-user-select: none; -webkit-touch-callout: none; }
     .fcard {
       position: relative; min-height: 300px; -webkit-transform-style: preserve-3d; transform-style: preserve-3d;
       transition: transform .55s var(--ease); cursor: pointer; user-select: none;
@@ -668,7 +669,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 37;
+    const APP_VERSION = 38;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -1799,7 +1800,8 @@
 
       rateCard(r) {
         const s = this.s, w = s.deck[s.i];
-        if (!w || this.animating) return;
+        if (!w) return;
+        if (this.animating) { this.queued = () => this.rateCard(r); return; }
         Store.setStatus(w.de, r);
         if (r === 'learned') s.got++; else { s.again++; s.againList.push(w); }
         // "Got it" leaves to the right, "Still learning" to the left; the next card comes in from the other side.
@@ -1816,10 +1818,12 @@
         el.style.opacity = '0';
         setTimeout(() => {
           this.animating = false;
+          const queued = this.queued; this.queued = null;
           if (this.s !== s || this.mode !== 'cards') return;  // left flashcards meanwhile
           this.enterFrom = -dir;
           then();
-        }, 250);
+          if (queued) queued();
+        }, 230);
       },
 
       flyIn() {
@@ -1850,10 +1854,12 @@
             tagL.style.opacity = Math.max(0, -dx / 100); tagR.style.opacity = Math.max(0, dx / 100);
           }
         });
-        const end = () => {
+        const end = e => {
           if (x0 == null) return;
           x0 = null;
           if (!moved) return;
+          try { if (e && el.hasPointerCapture && el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId); } catch (_) {}
+          try { const sel = window.getSelection && window.getSelection(); if (sel && sel.rangeCount) sel.removeAllRanges(); } catch (_) {}
           el.classList.remove('dragging');
           el.dataset.swiped = '1'; setTimeout(() => delete el.dataset.swiped, 50);
           if (Math.abs(dx) > 90) return this.rateCard(dx > 0 ? 'learned' : 'hard');
@@ -1869,7 +1875,8 @@
         if (a === 'c-rate') return this.rateCard(el.dataset.r);
         if (a === 'c-step') {
           const d = +el.dataset.d;
-          if ((d < 0 && s.i === 0) || this.animating) return;
+          if (this.animating) { this.queued = () => this.on_cards(a, el); return; }
+          if (d < 0 && s.i === 0) return;
           return this.flyOut(d > 0 ? -1 : 1, () => { s.i = Math.max(0, s.i + d); s.flipped = false; this.renderCards($('#panel')); });
         }
         if (a === 'c-filter') {
