@@ -661,7 +661,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 31;
+    const APP_VERSION = 32;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -1249,7 +1249,7 @@
 
       onKey(e) {
         if ($('#overlay').firstChild) { if (e.key === 'Escape' && !this.sheetLocked) this.closeSheet(); return; }
-        const typing = e.target.matches('input, textarea');
+        const typing = !!(e.target.matches && e.target.matches('input, textarea'));
         if (e.metaKey || e.ctrlKey || e.altKey) return;
         const h = this[`key_${this.mode}`];
         if (h) h.call(this, e, typing);
@@ -1494,6 +1494,12 @@
       },
       speakBtn(text) { return Speech.ok ? `<button class="speak" data-action="speak" data-text="${esc(text)}" aria-label="Listen">${icon('speaker')}</button>` : ''; },
       emptyState(msg) { return `<div class="empty">${msg}</div>`; },
+      // In My Words the wrong answers come from each word's own chapter, so far fewer saved words are enough.
+      minWords(n) { return this.level === 'MY' ? (n >= 4 ? 1 : 2) : n; },
+      needMsg(n, what) {
+        const m = this.minWords(n);
+        return this.level === 'MY' ? `Save at least ${m} words to use ${what}.` : `This part needs at least ${m} words for ${what}.`;
+      },
       distractors(w, n, field, pool) {
         pool = (pool || (this.level === 'MY' && w.L ? this.words(w.L, w.ch) : this.words())).filter(x => x[field] !== w[field]);
         const same = pool.filter(x => !!x.article === !!w.article);
@@ -1733,7 +1739,7 @@
       /* ================= 2. Quiz (multiple choice) ================= */
       renderQuiz(p) {
         const s = this.s, list = this.pool();
-        if (list.length < 4) return p.innerHTML = this.emptyState('This part needs at least 4 words for a quiz.');
+        if (list.length < this.minWords(4)) return p.innerHTML = this.emptyState(this.needMsg(4, 'a quiz'));
         if (!s.qs) {
           const src = s.retry || pick(list, Math.min(10, list.length));
           s.qs = src.map(w => {
@@ -1946,7 +1952,7 @@
       /* ================= 5. Match ================= */
       renderMatch(p) {
         const s = this.s, list = this.pool();
-        if (list.length < 3) return p.innerHTML = this.emptyState('This part needs at least 3 words for matching.');
+        if (list.length < this.minWords(3)) return p.innerHTML = this.emptyState(this.needMsg(3, 'matching'));
         if (!s.pairs) {
           const pairs = pick(list, Math.min(6, list.length));
           Object.assign(s, { pairs, left: shuffle(pairs.map((w, i) => ({ i, text: w.de }))), right: shuffle(pairs.map((w, i) => ({ i, text: w.en }))), sel: null, hits: new Set(), errors: 0, t0: null, time: 0 });
@@ -1996,7 +2002,7 @@
       SPRINT_TIME: 60,
       renderSprint(p) {
         const s = this.s, list = this.pool();
-        if (list.length < 4) return p.innerHTML = this.emptyState('This part needs at least 4 words for Sprint.');
+        if (list.length < this.minWords(4)) return p.innerHTML = this.emptyState(this.needMsg(4, 'Sprint'));
         if (!s.phase) s.phase = 'intro';
         const best = this.getBest('sprint');
         if (s.phase === 'intro') {
