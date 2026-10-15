@@ -668,7 +668,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 35;
+    const APP_VERSION = 36;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -894,11 +894,27 @@
       changed() { if (typeof app !== 'undefined' && app.updateSpeakButtons) app.updateSpeakButtons(); },
       say(text) {
         if (!text || !this.canSpeak) return false;
-        speechSynthesis.cancel();
+        const synth = speechSynthesis;
+        // Safari: cancelling when nothing is playing can swallow the next word, and speech
+        // can stay "paused" after the app was in the background - so only cancel when needed, and resume.
+        if (synth.speaking || synth.pending) synth.cancel();
+        if (synth.paused) synth.resume();
         const u = new SpeechSynthesisUtterance(text.replace(/\s*\/\s*/g, ', '));
         if (this.voice) { u.voice = this.voice; u.lang = this.voice.lang; } else u.lang = 'de-DE';
         u.rate = 0.92;
-        speechSynthesis.speak(u);
+        u.volume = 1;
+        let started = false;
+        u.onstart = () => { started = true; };
+        u.onerror = e => {
+          if (e.error === 'interrupted' || e.error === 'canceled') return;
+          if (typeof app !== 'undefined') app.toast('Could not play audio (' + (e.error || 'error') + ')');
+        };
+        synth.speak(u);
+        // Nothing started within 2.5 s: tell the user the most likely reason instead of failing silently.
+        setTimeout(() => {
+          if (started || synth.speaking) return;
+          if (typeof app !== 'undefined') app.toast(/iphone|ipad|ipod/i.test(navigator.userAgent) ? 'No sound? Check the silent switch is off' : 'Could not play audio');
+        }, 2500);
         return true;
       },
     };
