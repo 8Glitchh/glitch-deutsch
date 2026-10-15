@@ -668,7 +668,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 34;
+    const APP_VERSION = 35;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -859,11 +859,17 @@
         load();
         // Some browsers (Safari) fill the list late and don't always announce it.
         [300, 1000, 2500, 5000].forEach(t => setTimeout(load, t));
-        setTimeout(() => { if (!this.ready) { this.ready = true; this.changed(); } }, 5200);
+        setTimeout(() => {
+          if (this.ready) return;
+          this.ready = true;
+          this.blind = true;   // no voice list at all: speak by language instead
+          this.changed();
+        }, 5200);
       },
       load() {
         const all = speechSynthesis.getVoices();
         if (!all.length) return;
+        this.blind = false;
         const before = this.voice && this.voice.voiceURI;
         this.voices = all.filter(v => /^de([-_]|$)/i.test(v.lang));
         this.voice = this.pick();
@@ -884,12 +890,14 @@
         const pref = Store.d && Store.d.settings.voice;
         return this.voices.find(v => v.voiceURI === pref) || [...this.voices].sort((x, y) => this.score(y) - this.score(x))[0] || null;
       },
+      get canSpeak() { return this.ok && (!!this.voice || !!this.blind); },
       changed() { if (typeof app !== 'undefined' && app.updateSpeakButtons) app.updateSpeakButtons(); },
       say(text) {
-        if (!this.voice || !text) return false;
+        if (!text || !this.canSpeak) return false;
         speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(text.replace(/\s*\/\s*/g, ', '));
-        u.voice = this.voice; u.lang = this.voice.lang; u.rate = 0.92;
+        if (this.voice) { u.voice = this.voice; u.lang = this.voice.lang; } else u.lang = 'de-DE';
+        u.rate = 0.92;
         speechSynthesis.speak(u);
         return true;
       },
@@ -1445,10 +1453,11 @@
               <button class="btn btn-sm" data-action="theme">${icon(document.documentElement.dataset.theme === 'light' ? 'moon' : 'sun')} Switch to ${document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'}</button></div>
             <div class="set-row"><div class="lbl"><b>About this app</b><span>Words by Dr. Omar Alduais · English by AI</span></div>
               <button class="btn btn-sm" data-action="notice">Open</button></div>
-            <div class="set-row"><div class="lbl"><b>German voice</b><span id="voice-status">${Speech.voice ? 'Using ' + esc(Speech.voice.name) : Speech.ready ? 'No German voice on this device' : 'Checking…'}</span>
+            <div class="set-row"><div class="lbl"><b>German voice</b><span id="voice-status">${Speech.voice ? 'Using ' + esc(Speech.voice.name) : Speech.blind ? "Using the phone's German voice" : Speech.ready ? 'No German voice on this device' : 'Checking…'}</span>
               ${Speech.voices.length > 1 ? `<select id="voice-select" class="voice-select" aria-label="German voice">${Speech.voices.map(v => `<option value="${esc(v.voiceURI)}" ${Speech.voice && v.voiceURI === Speech.voice.voiceURI ? 'selected' : ''}>${esc(v.name)}</option>`).join('')}</select>` : ''}</div>
-              ${Speech.voice ? '<button class="btn btn-sm" data-action="voice-test">' + icon('speaker') + ' Test</button>' : '<button class="btn btn-sm btn-primary" data-action="voice-help">How to add</button>'}</div>
-            <div class="set-row"><div class="lbl"><b>Speak German automatically</b><span>Read each German word aloud on flashcards${Speech.voice ? '' : ' (needs a German voice)'}</span></div>
+              ${Speech.canSpeak ? '<button class="btn btn-sm" data-action="voice-test">' + icon('speaker') + ' Test</button>' : '<button class="btn btn-sm btn-primary" data-action="voice-help">How to add</button>'}</div>
+            <div class="set-row"><div class="lbl"><b>Voice check</b><span style="font-size:.75rem">${Speech.ok ? speechSynthesis.getVoices().length + ' voices · ' + Speech.voices.length + ' German' : 'no speech support'} · ${this.isStandalone() ? 'Home Screen app' : 'browser'} · v${APP_VERSION}</span></div></div>
+            <div class="set-row"><div class="lbl"><b>Speak German automatically</b><span>Read each German word aloud on flashcards${Speech.canSpeak ? '' : ' (needs a German voice)'}</span></div>
               <button class="toggle ${st.autoSpeak ? 'on' : ''}" data-action="set-toggle" data-key="autoSpeak" aria-label="Auto speak"></button></div>
             <div class="set-row"><div class="lbl"><b>App version ${APP_VERSION}</b><span id="update-status">Updates install automatically when you're online</span></div>
               <button class="btn btn-sm" data-action="check-update">Check for updates</button></div>
@@ -1546,11 +1555,11 @@
         return w.article ? `<span class="art">${w.article}</span> ${esc(w.noun)}` : esc(w.de);
       },
       speakBtn(text) {
-        const off = Speech.ready && !Speech.voice;
+        const off = Speech.ready && !Speech.canSpeak;
         return `<button class="speak ${off ? 'off' : ''}" data-action="speak" data-text="${esc(text)}" aria-label="${off ? 'German voice not available - how to add it' : 'Listen'}" title="${off ? 'No German voice on this device - tap to see how to add one' : 'Listen'}">${icon('speaker')}</button>`;
       },
       updateSpeakButtons() {
-        const off = Speech.ready && !Speech.voice;
+        const off = Speech.ready && !Speech.canSpeak;
         document.querySelectorAll('.speak').forEach(b => {
           b.classList.toggle('off', off);
           b.title = off ? 'No German voice on this device - tap to see how to add one' : 'Listen';
