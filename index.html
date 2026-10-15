@@ -363,12 +363,13 @@
       position: absolute; top: 16px; z-index: 5; pointer-events: none; opacity: 0;
       display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px;
       font-weight: 900; font-size: .85rem; letter-spacing: .05em; box-shadow: 0 8px 24px rgba(0,0,0,.35);
-      transform: scale(var(--tag-s, .7)) rotate(var(--tag-r, 0deg)); transition: opacity .25s ease, transform .3s cubic-bezier(.2,.9,.3,1.2);
+      transform: translateX(var(--tag-x, 0px)) scale(var(--tag-s, .75)) rotate(var(--tag-r, 0deg));
+      transition: opacity .22s ease, transform .28s cubic-bezier(.2,.9,.3,1.15);
     }
     .swipe-tag svg { width: 1.1em; height: 1.1em; stroke-width: 3; }
     .swipe-tag.l { left: 14px; background: var(--bad); color: #fff; --tag-r: -6deg; transform-origin: left center; }
     .swipe-tag.r { right: 14px; background: var(--ok); color: #04150e; --tag-r: 6deg; transform-origin: right center; }
-    .card-stage.dragging .swipe-tag { transition: none; }
+    .card-stage.dragging .swipe-tag { transition: opacity .12s linear, transform .16s ease-out; }
     .rate { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .rate .btn { white-space: nowrap; padding: 0 10px; }
     @media (max-width: 420px) { .rate .btn { font-size: .92rem; gap: 6px; padding: 0 8px; } .rate .btn svg { width: 1em; height: 1em; } }
@@ -683,7 +684,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 42;
+    const APP_VERSION = 43;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -1851,8 +1852,14 @@
           ? `linear-gradient(to left, var(--ok) 0%, transparent ${20 + 45 * p}%)`
           : `linear-gradient(to right, var(--bad) 0%, transparent ${20 + 45 * p}%)`);
         el.style.setProperty('--sw-a', p);
-        const show = (tag, on) => { if (!tag) return; tag.style.opacity = on ? Math.min(1, p * 1.4) : 0; tag.style.setProperty('--tag-s', on ? .7 + .35 * p : .7); };
-        show(tagR, dx > 0); show(tagL, dx < 0);
+        const show = (tag, on, side) => {
+          if (!tag) return;
+          const q = on ? p : 0;
+          tag.style.opacity = Math.min(1, q * 1.25);
+          tag.style.setProperty('--tag-s', .75 + .3 * q);
+          tag.style.setProperty('--tag-x', (side * (1 - q) * 14) + 'px');   // glides in from its own edge
+        };
+        show(tagR, dx > 0, 1); show(tagL, dx < 0, -1);
       },
 
       flyOut(dir, then, fx) {
@@ -1862,7 +1869,9 @@
         el.classList.remove('dragging');
         if (fx) {
           const stage = el.parentElement;
-          this.swipeFx(el, stage.querySelector('.swipe-tag.l'), stage.querySelector('.swipe-tag.r'), dir * 120);
+          const tl = stage.querySelector('.swipe-tag.l'), tr = stage.querySelector('.swipe-tag.r');
+          this.swipeFx(el, tl, tr, dir * 120);
+          setTimeout(() => { [tl, tr].forEach(t => { if (t) { t.style.opacity = 0; t.style.setProperty('--tag-s', .9); } }); }, 90);
         }
         el.style.transition = 'transform .28s cubic-bezier(.4,0,1,1), opacity .28s ease-in';
         el.style.transform = `translateX(${dir * 135}%) rotate(${dir * 18}deg)${s.flipped ? ' rotateY(180deg)' : ''}`;
