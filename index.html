@@ -613,6 +613,9 @@
     .my-title b { display: block; font-size: 1.35rem; letter-spacing: -0.01em; }
     .my-title span { font-size: .82rem; color: var(--text-2); }
     .my-card .tip { font-size: .8rem; color: var(--text-3); margin-top: 12px; }
+    .speak.off { opacity: .4; position: relative; }
+    .speak.off::after { content: ""; position: absolute; left: 25%; right: 25%; top: 50%; height: 2px; background: currentColor; transform: rotate(-40deg); border-radius: 2px; }
+    .voice-select { margin-top: 8px; max-width: 220px; width: 100%; height: 36px; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--surface-2); color: var(--text); padding: 0 8px; font-size: 14px; }
     .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 20px); transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: .88rem; z-index: 60; animation: up .25s var(--ease); box-shadow: var(--shadow); }
 
     @media (max-width: 520px) {
@@ -661,7 +664,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 32;
+    const APP_VERSION = 33;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -837,25 +840,54 @@
     }
 
     /* ================= Speech ================= */
+    // Reads German aloud with a German voice from the device/browser - never with an English one.
+    // If the device has no German voice, speaker buttons are greyed out and explain how to add one.
     const Speech = {
-      voice: null,
       ok: 'speechSynthesis' in window,
+      voices: [],      // German voices on this device
+      voice: null,     // the one we use
+      ready: false,    // voice list has been checked
       init() {
-        if (!this.ok) return;
-        const pickVoice = () => {
-          const vs = speechSynthesis.getVoices().filter(v => /^de(-|_|$)/i.test(v.lang));
-          this.voice = vs.find(v => /de-DE/i.test(v.lang) && v.localService) || vs.find(v => /de-DE/i.test(v.lang)) || vs[0] || null;
-        };
-        pickVoice();
-        speechSynthesis.onvoiceschanged = pickVoice;
+        if (!this.ok) { this.ready = true; return; }
+        const load = () => this.load();
+        if (speechSynthesis.addEventListener) speechSynthesis.addEventListener('voiceschanged', load);
+        else speechSynthesis.onvoiceschanged = load;
+        load();
+        // Some browsers (Safari) fill the list late and don't always announce it.
+        [300, 1000, 2500, 5000].forEach(t => setTimeout(load, t));
+        setTimeout(() => { if (!this.ready) { this.ready = true; this.changed(); } }, 5200);
       },
+      load() {
+        const all = speechSynthesis.getVoices();
+        if (!all.length) return;
+        const before = this.voice && this.voice.voiceURI;
+        this.voices = all.filter(v => /^de([-_]|$)/i.test(v.lang));
+        this.voice = this.pick();
+        const changed = !this.ready || (this.voice && this.voice.voiceURI) !== before;
+        this.ready = true;
+        if (changed) this.changed();
+      },
+      score(v) {
+        let n = 0;
+        if (/^de[-_]DE/i.test(v.lang)) n += 2;
+        if (/natural|online|neural/i.test(v.name)) n += 5;   // Edge
+        if (/google/i.test(v.name)) n += 4;                  // Chrome
+        if (/enhanced|premium|erweitert/i.test(v.name)) n += 3;
+        if (/anna|helena|martin|katja|conrad|amala|seraphina|hedda|stefan/i.test(v.name)) n += 1;
+        return n;
+      },
+      pick() {
+        const pref = Store.d && Store.d.settings.voice;
+        return this.voices.find(v => v.voiceURI === pref) || [...this.voices].sort((x, y) => this.score(y) - this.score(x))[0] || null;
+      },
+      changed() { if (typeof app !== 'undefined' && app.updateSpeakButtons) app.updateSpeakButtons(); },
       say(text) {
-        if (!this.ok || !text) return;
+        if (!this.voice || !text) return false;
         speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(text.replace(/\s*\/\s*/g, ', '));
-        u.lang = 'de-DE'; u.rate = 0.92;
-        if (this.voice) u.voice = this.voice;
+        u.voice = this.voice; u.lang = this.voice.lang; u.rate = 0.92;
         speechSynthesis.speak(u);
+        return true;
       },
     };
 
@@ -1241,7 +1273,15 @@
             Object.assign(Store.d, { completedChapters: {}, learnedWords: {}, difficultWords: {}, streak: { day: null, count: 0 }, best: {} });
             Store.save(); this.closeSheet(); this.forgetSessions(); this.s = {}; this.render(); return this.toast('Progress reset');
           }
-          case 'speak': e.stopPropagation(); return Speech.say(ds.text);
+          case 'speak': {
+            e.stopPropagation();
+            if (Speech.ok && !Speech.ready) Speech.load();
+            if (Speech.say(ds.text)) return;
+            return this.openVoiceHelp();
+          }
+          case 'voice-os': return this.openVoiceHelp(ds.os);
+          case 'voice-help': return this.openVoiceHelp();
+          case 'voice-test': return Speech.say('Hallo! Das ist meine deutsche Stimme.') || this.openVoiceHelp();
         }
         const h = this[`on_${this.mode}`];
         if (h) h.call(this, a, el, e);
@@ -1401,7 +1441,10 @@
               <button class="btn btn-sm" data-action="theme">${icon(document.documentElement.dataset.theme === 'light' ? 'moon' : 'sun')} Switch to ${document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'}</button></div>
             <div class="set-row"><div class="lbl"><b>About this app</b><span>Words by Dr. Omar Alduais · English by AI</span></div>
               <button class="btn btn-sm" data-action="notice">Open</button></div>
-            <div class="set-row"><div class="lbl"><b>Speak German automatically</b><span>Read each German word aloud on flashcards${Speech.ok ? '' : ' (not supported on this device)'}</span></div>
+            <div class="set-row"><div class="lbl"><b>German voice</b><span id="voice-status">${Speech.voice ? 'Using ' + esc(Speech.voice.name) : Speech.ready ? 'No German voice on this device' : 'Checking…'}</span>
+              ${Speech.voices.length > 1 ? `<select id="voice-select" class="voice-select" aria-label="German voice">${Speech.voices.map(v => `<option value="${esc(v.voiceURI)}" ${Speech.voice && v.voiceURI === Speech.voice.voiceURI ? 'selected' : ''}>${esc(v.name)}</option>`).join('')}</select>` : ''}</div>
+              ${Speech.voice ? '<button class="btn btn-sm" data-action="voice-test">' + icon('speaker') + ' Test</button>' : '<button class="btn btn-sm btn-primary" data-action="voice-help">How to add</button>'}</div>
+            <div class="set-row"><div class="lbl"><b>Speak German automatically</b><span>Read each German word aloud on flashcards${Speech.voice ? '' : ' (needs a German voice)'}</span></div>
               <button class="toggle ${st.autoSpeak ? 'on' : ''}" data-action="set-toggle" data-key="autoSpeak" aria-label="Auto speak"></button></div>
             <div class="set-row"><div class="lbl"><b>App version ${APP_VERSION}</b><span id="update-status">Updates install automatically when you're online</span></div>
               <button class="btn btn-sm" data-action="check-update">Check for updates</button></div>
@@ -1414,6 +1457,12 @@
             <input type="file" id="import-file" accept="application/json,.json" hidden>
           </div>`);
         $('#import-file').addEventListener('change', e => this.importProgress(e.target.files[0]));
+        const vs = $('#voice-select');
+        if (vs) vs.addEventListener('change', () => {
+          Store.d.settings.voice = vs.value; Store.save();
+          Speech.voice = Speech.pick(); Speech.say('Hallo!');
+          $('#voice-status').textContent = 'Using ' + Speech.voice.name;
+        });
         this.checkOffline();
       },
 
@@ -1492,7 +1541,59 @@
       deHtml(w) {
         return w.article ? `<span class="art">${w.article}</span> ${esc(w.noun)}` : esc(w.de);
       },
-      speakBtn(text) { return Speech.ok ? `<button class="speak" data-action="speak" data-text="${esc(text)}" aria-label="Listen">${icon('speaker')}</button>` : ''; },
+      speakBtn(text) {
+        const off = Speech.ready && !Speech.voice;
+        return `<button class="speak ${off ? 'off' : ''}" data-action="speak" data-text="${esc(text)}" aria-label="${off ? 'German voice not available - how to add it' : 'Listen'}" title="${off ? 'No German voice on this device - tap to see how to add one' : 'Listen'}">${icon('speaker')}</button>`;
+      },
+      updateSpeakButtons() {
+        const off = Speech.ready && !Speech.voice;
+        document.querySelectorAll('.speak').forEach(b => {
+          b.classList.toggle('off', off);
+          b.title = off ? 'No German voice on this device - tap to see how to add one' : 'Listen';
+          b.setAttribute('aria-label', off ? 'German voice not available - how to add it' : 'Listen');
+        });
+        const st = $('#voice-status'); if (st) this.openSettings();
+      },
+
+      // How to add a German voice, for the device in hand (other devices one tap away).
+      openVoiceHelp(os) {
+        const ua = navigator.userAgent;
+        const detected = /iphone|ipad|ipod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) ? 'ios'
+          : /android/i.test(ua) ? 'android' : /Windows/i.test(ua) ? 'windows' : /Macintosh/.test(ua) ? 'mac' : 'windows';
+        os = os || detected;
+        const isFirefox = /firefox/i.test(ua);
+        const li = (n, html) => `<li><span class="num">${n}</span><span>${html}</span></li>`;
+        const steps = {
+          ios: `<ol class="inst-list">
+              ${li(1, 'Open <b>Settings</b> → <b>Accessibility</b> → <b>Spoken Content</b> → <b>Voices</b>.')}
+              ${li(2, 'Tap <b>German</b> and pick a voice, e.g. <b>Anna</b>. Choose the normal one, not <b>Enhanced</b> or <b>Premium</b>, which are much bigger downloads.')}
+              ${li(3, 'Wait for it to download, then fully close the app and open it again.')}
+            </ol>`,
+          android: `<ol class="inst-list">
+              ${li(1, 'Open <b>Settings</b> and search for <b>Text-to-speech</b>.')}
+              ${li(2, 'Set the engine to <b>Speech Services by Google</b>, then tap its ⚙ → <b>Install voice data</b>.')}
+              ${li(3, 'Pick <b>German (Germany)</b> and download it, then close and reopen the app.')}
+            </ol>`,
+          windows: `${isFirefox && detected === 'windows' ? `<div class="inst-note" style="margin:0 0 10px">Easiest: open this app in <b>Chrome</b> or <b>Edge</b>. They have German voices built in, so it works straight away.</div>` : ''}
+            <ol class="inst-list">
+              ${li(1, 'Open <b>Settings</b> → <b>Time &amp; language</b> → <b>Speech</b>.')}
+              ${li(2, 'Under <b>Manage voices</b>, tap <b>Add voices</b>, pick <b>German (Germany)</b> and add it.')}
+              ${li(3, 'Close the browser completely and open the app again.')}
+            </ol>`,
+          mac: `<ol class="inst-list">
+              ${li(1, 'Open <b>System Settings</b> → <b>Accessibility</b> → <b>Spoken Content</b>.')}
+              ${li(2, 'Next to <b>System voice</b>, open <b>Manage Voices</b>, find <b>German</b> and download a voice.')}
+              ${li(3, 'Close the browser completely and open the app again. (Chrome also has a German voice built in.)')}
+            </ol>`,
+        };
+        const tab = (id, label) => `<button class="${os === id ? 'on' : ''}" data-action="voice-os" data-os="${id}">${label}</button>`;
+        this.openSheet(`
+          <div class="sheet-head"><h3>Add a German voice</h3><button class="icon-btn" data-action="close-sheet" aria-label="Close">${icon('x')}</button></div>
+          <div class="sheet-body">
+            <p class="inst-intro">${Speech.ok ? "This device doesn't have a German voice yet, so words can't be read aloud. Adding one is free, takes a minute, and then works offline." : "This browser can't read text aloud. Try Chrome, Edge or Safari."}</p>
+            ${Speech.ok ? `<div class="inst-tabs"><div class="seg">${tab('ios', 'iPhone')}${tab('android', 'Android')}${tab('windows', 'Windows')}${tab('mac', 'Mac')}</div></div>${steps[os]}` : ''}
+          </div>`);
+      },
       emptyState(msg) { return `<div class="empty">${msg}</div>`; },
       // In My Words the wrong answers come from each word's own chapter, so far fewer saved words are enough.
       minWords(n) { return this.level === 'MY' ? (n >= 4 ? 1 : 2) : n; },
