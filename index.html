@@ -589,6 +589,30 @@
     .hold-btn span { position: relative; }
     .hold-btn.holding span { color: var(--accent-ink); }
     .hold-btn.holding i { width: 100%; transition: width 1.5s linear; }
+    /* My Words */
+    .star { width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; color: var(--text-3); background: var(--surface-3); flex: none; transition: color .15s, background .15s, transform .15s; }
+    .star:hover { color: var(--text); }
+    .star:active { transform: scale(.88); }
+    .star.on { color: var(--accent); background: var(--accent-soft); }
+    .star.on svg { fill: currentColor; }
+    .wrow .star { width: 40px; height: 40px; background: transparent; }
+    .star svg { width: 22px; height: 22px; }
+    .fface-top { min-height: 44px; }
+    .wrow .star.on { background: var(--accent-soft); }
+    .ft-r { display: flex; gap: 6px; align-items: center; }
+    .my-entry { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; margin: 0 0 14px; padding: 12px 14px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); transition: background .15s; }
+    .my-entry:hover { background: var(--surface-2); }
+    .my-ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); flex: none; }
+    .my-ic svg { fill: currentColor; width: 20px; height: 20px; }
+    .my-entry .t { flex: 1; min-width: 0; }
+    .my-entry .t b { display: block; font-size: .98rem; }
+    .my-entry .t span { display: block; font-size: .78rem; color: var(--text-2); }
+    .my-entry .go { color: var(--accent); font-weight: 800; font-size: .85rem; display: inline-flex; align-items: center; white-space: nowrap; }
+    .my-card { padding: 12px 18px 18px; }
+    .my-title { display: flex; align-items: center; gap: 12px; margin: 10px 0 14px; }
+    .my-title b { display: block; font-size: 1.35rem; letter-spacing: -0.01em; }
+    .my-title span { font-size: .82rem; color: var(--text-2); }
+    .my-card .tip { font-size: .8rem; color: var(--text-3); margin-top: 12px; }
     .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 20px); transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: .88rem; z-index: 60; animation: up .25s var(--ease); box-shadow: var(--shadow); }
 
     @media (max-width: 520px) {
@@ -621,6 +645,7 @@
     </header>
 
     <section class="course" id="chapter-card"></section>
+    <div id="myentry"></div>
     <nav class="modes" id="modes" aria-label="Practice modes"></nav>
     <div class="partbar" id="partbar"></div>
     <section class="panel" id="panel">
@@ -636,10 +661,11 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 30;
+    const APP_VERSION = 31;
 
     /* ================= Icons ================= */
     const ICONS = {
+      star: '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>',
       info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>',
       mail: '<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/>',
       ext: '<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/>',
@@ -846,8 +872,9 @@
         const nojs = document.getElementById('nojs'); if (nojs) nojs.remove();
         this.data.A2 = buildData(rawA2Text);
         this.data.B1 = buildData(rawB1Text);
+        for (const L of ['A1', 'A2', 'B1']) for (const ch in this.data[L]) for (const w of this.data[L][ch]) { w.L = L; w.ch = +ch; }
         const d = Store.load();
-        this.level = d.lastLevel in this.data ? d.lastLevel : 'A1';
+        this.level = d.lastLevel in this.data || d.lastLevel === 'MY' ? d.lastLevel : 'A1';
         this.chapter = Math.min(24, Math.max(1, +d.lastChapter || 1));
         this.mode = MODES.some(m => m.id === d.lastMode) ? d.lastMode : 'cards';
         this.applyTheme();
@@ -862,11 +889,63 @@
         this.render();
       },
 
-      words(level = this.level, ch = this.chapter) { return this.data[level][ch] || []; },
-      title(level = this.level, ch = this.chapter) { return CHAPTER_TITLES[level][ch - 1] || `Chapter ${ch}`; },
+      words(level = this.level, ch = this.chapter) { return level === 'MY' ? this.myWords() : (this.data[level][ch] || []); },
+      title(level = this.level, ch = this.chapter) { return level === 'MY' ? 'My Words' : CHAPTER_TITLES[level][ch - 1] || `Chapter ${ch}`; },
+
+      /* ---------- My Words (saved words from any chapter) ---------- */
+      myWords() {
+        const out = [];
+        for (const [key, at] of Object.entries(Store.d.starred || {})) {
+          const w = ((this.data[at.L] || {})[at.ch] || []).find(x => x.de === key);
+          if (w) out.push(w);
+        }
+        return out;
+      },
+      isStarred(key) { return !!(Store.d.starred || {})[key]; },
+      starBtn(w) {
+        const on = this.isStarred(w.de);
+        return `<button class="star ${on ? 'on' : ''}" data-action="star" data-key="${esc(w.de)}" data-l="${w.L}" data-ch="${w.ch}" aria-label="${on ? 'Remove from' : 'Add to'} My Words" title="${on ? 'Remove from' : 'Add to'} My Words">${icon('star')}</button>`;
+      },
+      toggleStar(key, L, ch) {
+        Store.d.starred = Store.d.starred || {};
+        const on = !Store.d.starred[key];
+        if (on) Store.d.starred[key] = { L, ch: +ch }; else delete Store.d.starred[key];
+        Store.save();
+        document.querySelectorAll('.star[data-action="star"]').forEach(b => {
+          if (b.dataset.key !== key) return;
+          b.classList.toggle('on', on);
+          b.title = (on ? 'Remove from' : 'Add to') + ' My Words'; b.setAttribute('aria-label', b.title);
+        });
+        this.toast(on ? '⭐ Added to My Words' : 'Removed from My Words');
+        if (this.level === 'MY') this.renderChapterCard(); else this.renderMyEntry();
+      },
+      renderMyEntry() {
+        const box = $('#myentry');
+        if (this.level === 'MY') return box.innerHTML = '';
+        const n = Object.keys(Store.d.starred || {}).length;
+        box.innerHTML = `<button class="my-entry" data-action="open-my">
+            <span class="my-ic">${icon('star')}</span>
+            <span class="t"><b>My Words</b><span>${n ? n + ' saved word' + (n === 1 ? '' : 's') + ' to practise' : 'Tap ☆ on a card to save words you keep forgetting'}</span></span>
+            <span class="go">Open ${icon('right')}</span>
+          </button>`;
+      },
+      renderMyCard() {
+        const c = this.countList(this.words());
+        $('#chapter-card').innerHTML = `
+          <div class="my-card">
+            <button class="btn btn-sm btn-ghost" data-action="leave-my" style="margin-left:-8px">${icon('left')} Chapters</button>
+            <div class="my-title"><span class="my-ic">${icon('star')}</span><div><b>My Words</b><span>${c.total} saved word${c.total === 1 ? '' : 's'} from all chapters</span></div></div>
+            <div class="cur-stats">
+              <span><i class="dot" style="background:var(--ok)"></i><b>${c.learned}</b> mastered</span>
+              <span><i class="dot" style="background:var(--bad)"></i><b>${c.hard}</b> still learning</span>
+              <span><i class="dot" style="background:var(--surface-3)"></i><b>${c.fresh}</b> new</span>
+            </div>
+            <div class="tip">Tap ⭐ on a card or in the word list to remove a word from here.</div>
+          </div>`;
+      },
       chKey() { return `${this.level}_${this.chapter}`; },
 
-      persist() { Store.d.levelChapter = Object.assign({}, Store.d.levelChapter, { [this.level]: this.chapter }); Object.assign(Store.d, { lastLevel: this.level, lastChapter: this.chapter, lastMode: this.mode }); Store.save(); },
+      persist() { if (this.level !== 'MY') Store.d.lastNormalLevel = this.level; Store.d.levelChapter = Object.assign({}, Store.d.levelChapter, { [this.level]: this.chapter }); Object.assign(Store.d, { lastLevel: this.level, lastChapter: this.chapter, lastMode: this.mode }); Store.save(); },
 
       clearTimers() { this.timers.forEach(t => clearInterval(t)); this.timers = []; },
 
@@ -880,6 +959,8 @@
       },
 
       renderPartBar() {
+        $('#partbar').style.display = this.level === 'MY' ? 'none' : '';
+        if (this.level === 'MY') return;
         const lists = this.partLists(), cur = this.part, n = lists.length;
         const pills = lists.map((l, i) => {
           const c = this.countList(l), full = c.total && c.learned === c.total;
@@ -909,11 +990,13 @@
 
       // Chapters are studied in parts: 3 parts under 50 words, 4 parts from 50 up.
       partLists(level = this.level, ch = this.chapter) {
+        if (level === 'MY') return [this.words(level, ch)];
         const list = this.words(level, ch), n = list.length, k = n >= 50 ? 4 : 3, out = [];
         for (let i = 0; i < k; i++) out.push(list.slice(Math.round(i * n / k), Math.round((i + 1) * n / k)));
         return out;
       },
       get part() {
+        if (this.level === 'MY') return 0;
         const p = (Store.d.chapterPart || {})[this.chKey()];
         return p == null ? 1 : p;
       },
@@ -987,6 +1070,8 @@
       },
 
       renderChapterCard() {
+        this.renderMyEntry();
+        if (this.level === 'MY') return this.renderMyCard();
         const done = !!Store.d.completedChapters[this.chKey()];
         const tab = (lv, name) => `<button class="lv-tab ${this.level === lv ? 'on' : ''}" data-action="set-level" data-level="${lv}"><b>${lv}<em>${this.levelPct(lv)}%</em></b><small>${name}</small></button>`;
         const cards = Array.from({ length: 24 }, (_, i) => i + 1).map(ch => {
@@ -1076,6 +1161,11 @@
         this.clearTimers();
         const p = $('#panel');
         p.style.animation = 'none'; p.offsetHeight; p.style.animation = '';
+        if (this.level === 'MY' && !this.words().length) {
+          return p.innerHTML = `<div class="hero"><div class="hero-icon">${icon('star')}</div><h2>No saved words yet</h2>
+            <p>Open any chapter and tap <b>☆</b> on a flashcard (or in the word list) to save words you keep forgetting. They'll all be here to practise together.</p>
+            <button class="btn btn-primary" data-action="leave-my">${icon('left')} Back to chapters</button></div>`;
+        }
         const fn = { cards: 'renderCards', quiz: 'renderQuiz', type: 'renderType', articles: 'renderArticles', match: 'renderMatch', sprint: 'renderSprint', sentences: 'renderSentences', words: 'renderWords' }[this.mode];
         this[fn](p);
       },
@@ -1106,7 +1196,10 @@
         const a = el.dataset.action, ds = el.dataset;
         switch (a) {
           case 'mode': return this.setMode(ds.mode);
-          case 'chapters': return this.openChapters(this.level);
+          case 'chapters': return this.openChapters(this.level === 'MY' ? (Store.d.lastNormalLevel || 'A1') : this.level);
+          case 'star': e.stopPropagation(); return this.toggleStar(ds.key, ds.l, ds.ch);
+          case 'open-my': return this.setChapter('MY', 1);
+          case 'leave-my': { const L = Store.d.lastNormalLevel || 'A1'; return this.setChapter(L, (Store.d.levelChapter || {})[L] || 1); }
           case 'sheet-level': return this.openChapters(ds.level);
           case 'set-level': if (ds.level === this.level) return; this.toast(ds.level + ' selected'); return this.setChapter(ds.level, (Store.d.levelChapter || {})[ds.level] || 1);
           case 'pick-ch': { const fromSheet = !!$('#overlay').firstChild; this.closeSheet(); if (!fromSheet && +ds.ch === this.chapter && ds.level === this.level) return; return this.setChapter(ds.level, +ds.ch, !fromSheet); }
@@ -1402,7 +1495,7 @@
       speakBtn(text) { return Speech.ok ? `<button class="speak" data-action="speak" data-text="${esc(text)}" aria-label="Listen">${icon('speaker')}</button>` : ''; },
       emptyState(msg) { return `<div class="empty">${msg}</div>`; },
       distractors(w, n, field, pool) {
-        pool = (pool || this.words()).filter(x => x[field] !== w[field]);
+        pool = (pool || (this.level === 'MY' && w.L ? this.words(w.L, w.ch) : this.words())).filter(x => x[field] !== w[field]);
         const same = pool.filter(x => !!x.article === !!w.article);
         const out = pick(same.length >= n ? same : pool, n).map(x => x[field]);
         return [...new Set(out)];
@@ -1492,12 +1585,12 @@
             <div class="fcard ${s.flipped ? 'flipped' : ''} ${gClass(w)}" id="fcard" data-action="c-flip">
               <span class="swipe-tag l">STILL LEARNING</span><span class="swipe-tag r">GOT IT</span>
               <div class="fface ${dir === 'de-en' && w.article ? 'g' : ''}">
-                <div class="fface-top"><span>${fl}</span>${dir === 'de-en' ? this.speakBtn(w.de) : `<span>${status === 'hard' ? '⚠ still learning' : status === 'learned' ? '✓ mastered' : ''}</span>`}</div>
+                <div class="fface-top"><span>${fl}</span><span class="ft-r">${dir === 'de-en' ? this.speakBtn(w.de) : `<span>${status === 'hard' ? '⚠ still learning' : status === 'learned' ? '✓ mastered' : ''}</span>`}${this.starBtn(w)}</span></div>
                 ${front}
                 <div class="fhint">Tap to reveal</div>
               </div>
               <div class="fface back ${dir === 'en-de' && w.article ? 'g' : ''}">
-                <div class="fface-top"><span>${bl}</span>${dir === 'en-de' ? this.speakBtn(w.de) : ''}</div>
+                <div class="fface-top"><span>${bl}</span><span class="ft-r">${dir === 'en-de' ? this.speakBtn(w.de) : ''}${this.starBtn(w)}</span></div>
                 ${back}
                 <div class="fhint">Did you know it?</div>
               </div>
@@ -1515,7 +1608,7 @@
             </span>
             <button class="btn btn-sm btn-ghost" data-action="c-step" data-d="1">Skip ${icon('right')}</button>
           </div>
-          <div class="kbd-hint"><kbd>Space</kbd> flip · <kbd>←</kbd> still learning · <kbd>→</kbd> got it · <kbd>S</kbd> speak · or swipe the card</div>`;
+          <div class="kbd-hint"><kbd>Space</kbd> flip · <kbd>←</kbd> still learning · <kbd>→</kbd> got it · <kbd>S</kbd> speak · <kbd>F</kbd> save · or swipe the card</div>`;
 
         this.attachSwipe($('#fcard'));
         this.flyIn();
@@ -1572,7 +1665,7 @@
       attachSwipe(el) {
         let x0 = null, y0 = null, dx = 0, moved = false;
         const tagL = el.querySelector('.swipe-tag.l'), tagR = el.querySelector('.swipe-tag.r');
-        el.addEventListener('pointerdown', e => { if (e.target.closest('.speak')) return; x0 = e.clientX; y0 = e.clientY; dx = 0; moved = false; });
+        el.addEventListener('pointerdown', e => { if (e.target.closest('.speak, .star')) return; x0 = e.clientX; y0 = e.clientY; dx = 0; moved = false; });
         el.addEventListener('pointermove', e => {
           if (x0 == null) return;
           dx = e.clientX - x0;
@@ -1634,6 +1727,7 @@
         else if (e.key === 'ArrowLeft' || e.key === '1') this.rateCard('hard');
         else if (e.key === 'ArrowRight' || e.key === '2') this.rateCard('learned');
         else if (e.key.toLowerCase() === 's') Speech.say(this.s.deck[this.s.i].de);
+        else if (e.key.toLowerCase() === 'f') { const w = this.s.deck[this.s.i]; this.toggleStar(w.de, w.L, w.ch); }
       },
 
       /* ================= 2. Quiz (multiple choice) ================= */
@@ -2065,7 +2159,7 @@
               <div class="en">${esc(w.en)}</div>
               ${extra || lv ? `<div class="extra">${extra}${extra && lv ? ' · ' : ''}${lv ? `${lv} · Ch ${ch}` : ''}</div>` : ''}
             </div>
-            <div class="acts">${this.speakBtn(w.de)}<button class="pill ${st}" data-action="w-cycle" data-key="${esc(w.de)}" title="Tap to change">${LABEL[st]}</button></div>
+            <div class="acts">${this.starBtn(w)}${this.speakBtn(w.de)}<button class="pill ${st}" data-action="w-cycle" data-key="${esc(w.de)}" title="Tap to change">${LABEL[st]}</button></div>
           </div>`;
         }).join('') + (rows.length > 300 ? `<div class="empty small">Showing 300 of ${rows.length} — refine your search.</div>` : '')
           : this.emptyState(s.q ? 'No words match your search.' : 'Nothing here yet.');
