@@ -337,6 +337,10 @@
       background: var(--surface-2); border: 1px solid var(--line-strong);
     }
     .fface.back { transform: rotateY(180deg); }
+    /* iPhone Safari keeps the hidden side of a flip card on top for taps: only the visible side may receive them */
+    .fcard:not(.flipped) .fface.back, .fcard.flipped .fface:not(.back) { pointer-events: none; }
+    .fface:not(.back) { transform: translateZ(1px); }
+    .fface.back { transform: rotateY(180deg) translateZ(1px); }
     .fface.g { background: linear-gradient(160deg, var(--g-soft), var(--surface-2) 70%); border-color: var(--g); border-color: color-mix(in srgb, var(--g) 45%, transparent); }
     .fface-top { display: flex; justify-content: space-between; align-items: center; font-size: .75rem; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
     .fface-mid { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px; padding: 10px 0; }
@@ -664,7 +668,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 33;
+    const APP_VERSION = 34;
 
     /* ================= Icons ================= */
     const ICONS = {
