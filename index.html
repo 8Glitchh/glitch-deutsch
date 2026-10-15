@@ -355,8 +355,8 @@
     /* Swipe feedback: the card fills with green/red and a badge grows in, the farther you drag */
     .fface::after {
       content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; border-radius: inherit; pointer-events: none;
-      background: var(--sw-col, transparent); box-shadow: inset 0 0 0 3px var(--sw-col, transparent);
-      opacity: calc(var(--sw-a, 0) * .34); transition: opacity .3s ease;
+      background: var(--sw-bg, none);
+      opacity: calc(var(--sw-a, 0) * .7); transition: opacity .3s ease;
     }
     .fcard.dragging .fface::after { transition: none; }
     .swipe-tag {
@@ -683,7 +683,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 41;
+    const APP_VERSION = 42;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -1845,7 +1845,11 @@
       // Colour wash + badge for a drag of dx pixels (0 = none). Full strength at ~110 px.
       swipeFx(el, tagL, tagR, dx) {
         const p = Math.min(1, Math.abs(dx) / 110);
-        el.style.setProperty('--sw-col', dx >= 0 ? 'var(--ok)' : 'var(--bad)');
+        // Glow from the side you swipe towards: green from the right, red from the left. It gets
+        // stronger and spreads further into the card the farther you drag.
+        if (dx) el.style.setProperty('--sw-bg', dx > 0
+          ? `linear-gradient(to left, var(--ok) 0%, transparent ${20 + 45 * p}%)`
+          : `linear-gradient(to right, var(--bad) 0%, transparent ${20 + 45 * p}%)`);
         el.style.setProperty('--sw-a', p);
         const show = (tag, on) => { if (!tag) return; tag.style.opacity = on ? Math.min(1, p * 1.4) : 0; tag.style.setProperty('--tag-s', on ? .7 + .35 * p : .7); };
         show(tagR, dx > 0); show(tagL, dx < 0);
