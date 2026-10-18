@@ -678,13 +678,13 @@
         <p style="color:var(--text-2);max-width:420px;margin:0 auto">You’re seeing a file preview (like the iPhone Files or OneDrive preview), which doesn’t run the app’s code — so the words don’t load. Open this page in <b>Safari</b> or <b>Chrome</b> from a web link instead.</p>
       </div>
     </section>
-    <footer class="foot"><button data-action="notice"><b>ⓘ About this app</b><span>Words by Dr. Omar Alduais · English by AI</span></button></footer>
+    <footer class="foot"><button data-action="notice"><b>ⓘ About this app</b><span>Words by Dr. Omar Alduais · A1–A2 English by AI · B1 from GJU eLearning</span></button></footer>
   </div>
   <div id="overlay"></div>
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 44;
+    const APP_VERSION = 45;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -1424,7 +1424,7 @@
             </div>
             <div class="notice-sec">
               <div class="k">English translations</div>
-              <p>The English translations were made by AI. If you find any mistakes, send me an email:</p>
+              <p>The English translations for <b>A1 and A2</b> were made by AI. <b>B1</b> is taken from the <b>GJU eLearning flashcards</b> (German IV), word for word. If you find any mistakes, send me an email:</p>
               <a class="mail" href="mailto:glitchdeutschmomente@gmail.com?subject=Translation%20mistake">${icon('mail')} Send an email</a>
               <div class="dom" style="user-select:all">glitchdeutschmomente@gmail.com</div>
             </div>
@@ -1545,7 +1545,7 @@
               <button class="btn btn-sm ${this.isStandalone() ? '' : 'btn-primary'}" data-action="install">${this.isStandalone() ? 'Open guide' : 'Show me how'}</button></div>
             <div class="set-row"><div class="lbl"><b>Appearance</b><span>${document.documentElement.dataset.theme === 'light' ? 'Light' : 'Dark'} mode</span></div>
               <button class="btn btn-sm" data-action="theme">${icon(document.documentElement.dataset.theme === 'light' ? 'moon' : 'sun')} Switch to ${document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'}</button></div>
-            <div class="set-row"><div class="lbl"><b>About this app</b><span>Words by Dr. Omar Alduais · English by AI</span></div>
+            <div class="set-row"><div class="lbl"><b>About this app</b><span>Words by Dr. Omar Alduais · A1–A2 English by AI · B1 from GJU eLearning</span></div>
               <button class="btn btn-sm" data-action="notice">Open</button></div>
             <div class="set-row"><div class="lbl"><b>German voice</b><span id="voice-status">${Speech.voice ? 'Using ' + esc(Speech.voice.name) : Speech.blind ? "Using the phone's German voice" : Speech.ready ? 'No German voice on this device' : 'Checking…'}</span>
               ${Speech.voices.length > 1 ? `<select id="voice-select" class="voice-select" aria-label="German voice">${Speech.voices.map(v => `<option value="${esc(v.voiceURI)}" ${Speech.voice && v.voiceURI === Speech.voice.voiceURI ? 'selected' : ''}>${esc(v.name)}</option>`).join('')}</select>` : ''}</div>
