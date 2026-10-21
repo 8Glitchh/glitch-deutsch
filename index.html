@@ -585,6 +585,7 @@
     .foot { text-align: center; margin-top: 18px; }
     .foot button { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 18px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line-strong); color: var(--text); }
     .foot button b { font-size: .9rem; font-weight: 800; }
+    .made-by { margin-top: 10px; font-size: .7rem; color: var(--text-3); opacity: .8; letter-spacing: .02em; }
     .foot button span { font-size: .75rem; color: var(--text-3); font-weight: 650; }
     .foot button:hover { background: var(--surface-2); }
     .notice { text-align: center; padding: 6px 4px 4px; }
@@ -678,13 +679,13 @@
         <p style="color:var(--text-2);max-width:420px;margin:0 auto">You’re seeing a file preview (like the iPhone Files or OneDrive preview), which doesn’t run the app’s code — so the words don’t load. Open this page in <b>Safari</b> or <b>Chrome</b> from a web link instead.</p>
       </div>
     </section>
-    <footer class="foot"><button data-action="notice"><b>ⓘ About this app</b><span>Words by Dr. Omar Alduais · A1–A2 English by AI · B1 from GJU eLearning</span></button></footer>
+    <footer class="foot"><button data-action="notice"><b>ⓘ About this app</b><span>Words by Dr. Omar Alduais · A1–A2 English by AI · B1 from GJU eLearning</span></button><div class="made-by">Made by Ahmed Hashash</div></footer>
   </div>
   <div id="overlay"></div>
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 45;
+    const APP_VERSION = 46;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -1428,7 +1429,8 @@
               <a class="mail" href="mailto:glitchdeutschmomente@gmail.com?subject=Translation%20mistake">${icon('mail')} Send an email</a>
               <div class="dom" style="user-select:all">glitchdeutschmomente@gmail.com</div>
             </div>
-            <p class="notice-tip">Tip: tap the <b>logo</b> at the top (or ⓘ) to open this again.</p>
+            <p class="notice-tip" style="margin-bottom:4px !important">Tip: tap the <b>logo</b> at the top (or ⓘ) to open this again.</p>
+            <p class="notice-tip" style="margin-top:0 !important">Made by Ahmed Hashash</p>
             ${first
               ? `<button class="hold-btn" id="hold-btn" aria-label="Press and hold to close"><i></i><span>Hold to close</span></button>`
               : `<button class="btn btn-lg" style="width:100%" data-action="close-sheet">Got it</button>`}
