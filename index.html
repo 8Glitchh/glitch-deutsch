@@ -679,13 +679,13 @@
         <p style="color:var(--text-2);max-width:420px;margin:0 auto">You’re seeing a file preview (like the iPhone Files or OneDrive preview), which doesn’t run the app’s code — so the words don’t load. Open this page in <b>Safari</b> or <b>Chrome</b> from a web link instead.</p>
       </div>
     </section>
-    <footer class="foot"><button data-action="notice"><b>ⓘ About this app</b><span>Words by Dr. Omar Alduais · A1–A2 English by AI · B1 from GJU eLearning</span></button><div class="made-by">Made by Ahmed Hashash</div></footer>
+    <footer class="foot"><button data-action="notice"><b>ⓘ About this app</b><span>Words by Dr. Omar Alduais · A1 ch. 1–15 English by AI · the rest from GJU eLearning</span></button><div class="made-by">Made by Ahmed Hashash</div></footer>
   </div>
   <div id="overlay"></div>
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 47;
+    const APP_VERSION = 48;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -859,7 +859,7 @@
         if (!line) continue;
         const head = line.match(/^=====.*Chapter\s+(\d+)/);
         if (head) { ch = +head[1]; chapters[ch] = []; continue; }
-        if (ch && line.includes('—')) { const w = parseVocabLine(line, verbatim); if (w) chapters[ch].push(w); }
+        if (ch && line.includes('—')) { const w = parseVocabLine(line, typeof verbatim === 'function' ? verbatim(ch) : verbatim); if (w) chapters[ch].push(w); }
       }
       return chapters;
     }
@@ -978,6 +978,11 @@
       },
     };
 
+    // Words whose German changed when the GJU flashcards came in (old -> new): marks and stars carry over.
+    const WORD_LINKS = {"Oje, du Arme!":"Oje, du Arme/r!","das Körperteil":"der Körperteil","es geht um":"es geht um ...","sich vorstellen":"vorstellen","das Eishockey":"Eishockey","Walken":"walken","Rudern":"rudern","Tauchen":"tauchen","der Imbissstand":"der Imbisssstand","Mathematik":"die Mathematik","passen (zu)":"passen","der Freiwillige":"Freiwillige","sich überlegen":"überlegen","sich verabschieden":"verabschieden","sich aussuchen":"aussuchen","streiten":"sich streiten","verstehen":"sich verstehen","der Mord":"Mord","nerven":"sich nerven","genervt":"genervt sein","gut gelaunt":"gut gelaunt sein","schlecht gelaunt":"schlecht gelaunt sein","unsicher":"unsicher sein","sich interessieren":"interessieren","tolerant sein":"tolerant","sich kümmern":"kümmern","sich einigen":"einigen","verteilen":"vertielen","entdecken":"entdekcen","einen Tanzkurs machen":"einen Tanzkursmachen","Griechenland":"Griechenlad","irgend-":"irgend...","sich anfühlen":"anfühlen","der Umweltschutz":"Umweltschutz","das Netzwerk":"das Neztwerk","mehrere":"mehrer...","das Juweliergeschäft":"das Juewliergeschäft","sich hinsetzen":"hinsetzen","wach":"wach sein","sich ergänzen":"ergänzen","sich ausruhen":"ausruhen","fest angestellt sein":"fest angstellt sein","zuständig sein":"zuständig","sich wohlfühlen":"wohlfühlen","allerdings":"allerdingt","sich verstecken":"verstekcen","empfindlich":"empflindlich","das Hühnchen":"das Hünchen","hungrig sein":"hungrig","sich nähern":"nähern","weder ... noch":"weder noch","sowohl ... als auch":"sowohl als auch","sich bewerben":"bewerben","sich einbringen":"einbringen","sich beschäftigen":"beschäftigen","sich duschen":"duschen","sich bemühen":"bemühen","sich umarmen":"umarmen","sich küssen":"küssen","sich lieb haben":"lieb haben","je ... umso":"je umso","entweder ... oder":"entweder oder","je ... desto":"je desto","sich melden":"melden","sich erkundigen":"erkundigen","erkältet sein":"erkältet","die Tropfen":"der Tropfen","sich entschließen":"entschließen","sich verschlechtern":"verschlechtern","verwechseln":"verwechslen","sich schminken":"schminken","sich rasieren":"rasieren","die Geographie":"Geografie","die Geschichte":"Geschichte","die Sozialkunde":"Sozialkunde","die Physik":"Physik","die Chemie":"Chemie","die Philosophie":"Philosophie","die Handarbeit":"Handarbeit","das Werken":"Werken","einerseits ... andererseits":"einerseits andererseits","gesamt-":"gesamt","inner-":"inner","sich erholen":"erholen","sich ereignen":"ereignen","sich vornehmen":"vornehmen","sich hetzen":"hetzen","sich verspäten":"verspäten","sich amüsieren":"amüsieren","sich ablenken":"ablenken","sich langweilen":"langweilen"};
+    // Words no longer on any card: stay usable in My Words for anyone who starred them.
+    const RETIRED_WORDS = {"Sehr geehrte":"Sehr geehrte — Dear (formal letter)","Geld verdienen":"Geld verdienen — to earn money","eigen":"eigen — own","die Erkältung":"die Erkältung — cold (illness)  (pl. die Erkältungen)","welches":"welches — which (neut.)","Es regnet":"Es regnet — It's raining","Es schneit":"Es schneit — It's snowing","Es donnert und blitzt":"Es donnert und blitzt — There's thunder and lightning","Es hagelt":"Es hagelt — It's hailing","Es ist bewölkt":"Es ist bewölkt — It's cloudy","Es ist windig":"Es ist windig — It's windy","Es ist neblig":"Es ist neblig — It's foggy","los":"los — go! / going on","drinnen":"drinnen — inside / indoors","feste Arbeitszeiten":"feste Arbeitszeiten — fixed working hours","flexible Arbeitszeiten":"flexible Arbeitszeiten — flexible working hours","Judo":"Judo — judo","Badminton":"Badminton — badminton","Golf":"Golf — golf","Tischtennis":"Tischtennis — table tennis","Pingpong":"Pingpong — ping-pong","Aquafitness":"Aquafitness — aqua fitness","Stand-Up-Paddeln":"Stand-Up-Paddeln — stand-up paddling","die Karte":"die Karte — card; ticket; menu  (pl. die Karten)","hängen":"hängen — to hang  (hängt, hat gehangen)","legen":"legen — to lay / to put (flat)  (legt, hat gelegt)","liegen":"liegen — to lie (be lying flat)  (liegt, hat gelegen)","stehen":"stehen — to stand  (steht, hat gestanden)","stellen":"stellen — to put / to place (upright)  (stellt, hat gestellt)","der Polster":"der Polster — cushion (sofa) (Austrian)  (pl. die Polster)","der Block":"der Block — notepad  (pl. die Blöcke)","zählen":"zählen — to count  (zählt, hat gezählt)","die Stufe":"die Stufe — step; level / stage  (pl. die Stufen)","dafür":"dafür — for it / for that; in return","Bundes-":"Bundes- — federal ...","die Berge":"die Berge — the mountains  (pl. die Berge)","anschauen":"anschauen — to look at / to watch  (schaut an, hat angeschaut)","herunter / runter":"herunter / runter — down (downwards)","der Krimi":"der Krimi — crime film / crime novel  (pl. die Krimis)","vorbei an":"vorbei an — past (going by)","Vorträge über ... halten":"Vorträge über ... halten — to give talks about ...","fliegen":"fliegen — to fly","Lastenfahrrad":"Lastenfahrrad — cargo bike","international":"international — international","der Schulabschluss":"der Schulabschluss — school leaving qualification  (pl. die Schulabschlüsse)","der Gemüse- und Obststand":"der Gemüse- und Obststand — fruit and vegetable stall  (pl. die Gemüse- und Obststände)","der Coiffeur":"der Coiffeur — hairdresser (Swiss)  (pl. die Coiffeure)","wie wenn":"wie wenn — as if / as when","der Kreis":"der Kreis — circle  (pl. die Kreise)","als Freelancer arbeiten":"als Freelancer arbeiten — to work as a freelancer","gescheit":"gescheit — clever / smart","das Bewerbungsschreiben":"das Bewerbungsschreiben — letter of application  (pl. die Bewerbungsschreiben)","der tabellarische Lebenslauf":"der tabellarische Lebenslauf — CV in table form  (pl. die tabellarischen Lebensläufe)","sich in jemanden verlieben":"sich in jemanden verlieben — to fall in love with someone","jemanden glücklich machen":"jemanden glücklich machen — to make someone happy","die Banknote":"die Banknote — banknote  (pl. die Banknoten)","die Banküberweisung":"die Banküberweisung — bank transfer  (pl. die Banküberweisungen)","das Süßgebäck":"das Süßgebäck — sweet pastries  (pl. die Süßgebäcke)","die Angehörigen":"die Angehörigen — relatives / next of kin  (pl. die Angehörigen)","die Arztpraxis":"die Arztpraxis — doctor's practice  (pl. die Arztpraxen)","vermuten":"vermuten — to suspect / to presume  (vermutet, hat vermutet)","sich einsetzen für":"sich einsetzen für — to stand up for / to campaign for","breit":"breit — wide / broad","sich etwas leisten":"sich etwas leisten — to afford something","West-":"West- — West(ern) ...","Bescheid geben":"Bescheid geben — to let (someone) know","Passt!":"Passt! — Fine! / Works for me!","eilig haben":"eilig haben — to be in a hurry","Quatsch machen":"Quatsch machen — to fool around"};
+
     /* ================= App ================= */
     const app = {
       data: { A1: {}, A2: {}, B1: {} },
@@ -987,12 +992,13 @@
       timers: [],
 
       init() {
-        this.data.A1 = buildData(rawA1Text);
+        this.data.A1 = buildData(rawA1Text, ch => ch >= 16);   // chapters 16-24: GJU flashcards, word for word
         const nojs = document.getElementById('nojs'); if (nojs) nojs.remove();
-        this.data.A2 = buildData(rawA2Text);
+        this.data.A2 = buildData(rawA2Text, true);             // GJU flashcards, word for word
         this.data.B1 = buildData(rawB1Text, true);   // GJU flashcards, English kept word for word
         for (const L of ['A1', 'A2', 'B1']) for (const ch in this.data[L]) for (const w of this.data[L][ch]) { w.L = L; w.ch = +ch; }
         const d = Store.load();
+        this.migrateWords();
         this.level = d.lastLevel in this.data || d.lastLevel === 'MY' ? d.lastLevel : 'A1';
         this.chapter = Math.min(24, Math.max(1, +d.lastChapter || 1));
         this.mode = MODES.some(m => m.id === d.lastMode) ? d.lastMode : 'cards';
@@ -1029,11 +1035,42 @@
       words(level = this.level, ch = this.chapter) { return level === 'MY' ? this.myWords() : (this.data[level][ch] || []); },
       title(level = this.level, ch = this.chapter) { return level === 'MY' ? 'My Words' : CHAPTER_TITLES[level][ch - 1] || `Chapter ${ch}`; },
 
+      // Runs once per device (and for imported backups). Marks and stars are copied, never removed.
+      migrateWords() {
+        const d = Store.d;
+        if (d.wordsMigrated >= 1) return;
+        try { if (!localStorage.getItem(Store.KEY + '_backup_before_gju')) localStorage.setItem(Store.KEY + '_backup_before_gju', JSON.stringify(d)); } catch (e) {}
+        d.starred = d.starred || {};
+        for (const [oldW, newW] of Object.entries(WORD_LINKS)) {
+          if (d.learnedWords[oldW] || d.difficultWords[oldW]) {
+            if (!d.learnedWords[newW] && !d.difficultWords[newW]) {
+              if (d.learnedWords[oldW]) d.learnedWords[newW] = true; else d.difficultWords[newW] = true;
+            }
+          }
+          if (d.starred[oldW] && !this.findWord(oldW) && !d.starred[newW]) {
+            const w = this.findWord(newW);
+            if (w) { d.starred[newW] = { L: w.L, ch: w.ch }; delete d.starred[oldW]; }
+          }
+        }
+        d.wordsMigrated = 1;
+        Store.save();
+      },
+      findWord(key, at) {
+        if (!this.wordIndex) {
+          this.wordIndex = new Map();
+          for (const L of ['A1', 'A2', 'B1']) for (const ch in this.data[L]) for (const w of this.data[L][ch]) if (!this.wordIndex.has(w.de)) this.wordIndex.set(w.de, w);
+        }
+        if (at) { const here = ((this.data[at.L] || {})[at.ch] || []).find(x => x.de === key); if (here) return here; }
+        return this.wordIndex.get(key) || null;
+      },
+
       /* ---------- My Words (saved words from any chapter) ---------- */
       myWords() {
         const out = [];
         for (const [key, at] of Object.entries(Store.d.starred || {})) {
-          const w = ((this.data[at.L] || {})[at.ch] || []).find(x => x.de === key);
+          let w = this.findWord(key, at);
+          // No longer on any card: keep it available here for whoever saved it.
+          if (!w && RETIRED_WORDS[key]) { const r = parseVocabLine(RETIRED_WORDS[key]); if (r) w = Object.assign(r, { L: at.L, ch: at.ch }); }
           if (w) out.push(w);
         }
         return out;
@@ -1135,7 +1172,8 @@
       get part() {
         if (this.level === 'MY') return 0;
         const p = (Store.d.chapterPart || {})[this.chKey()];
-        return p == null ? 1 : p;
+        if (p == null) return 1;
+        return Math.min(p, this.partLists().length);   // a chapter can have fewer parts after a word-list update
       },
       setPart(p) {
         if (p !== 1 && !Store.d.seenParts) Store.d.seenParts = true;
@@ -1178,6 +1216,13 @@
         const d = cs && cs.ch === this.chKey() && cs.parts[this.part];
         if (!d) return null;
         const byKey = new Map(this.pool().map(w => [w.de, w]));
+        const pool = this.pool();
+        // The part's words changed (word-list update): keep your place at the same word.
+        if ((d.filter || 'all') === 'all' && !d.shuffled && (d.deck.length !== pool.length || d.deck.some((k, n) => k !== pool[n].de))) {
+          const at = pool.findIndex(w => w.de === d.deck[d.i]);
+          return { filter: 'all', shuffled: false, deck: pool, i: at >= 0 ? at : Math.min(d.i || 0, pool.length), flipped: false,
+            got: d.got || 0, again: d.again || 0, againList: (d.againList || []).map(k => byKey.get(k)).filter(Boolean) };
+        }
         const deck = d.deck.map(k => byKey.get(k)).filter(Boolean);
         if (!deck.length) return null;
         return {
@@ -1425,7 +1470,7 @@
             </div>
             <div class="notice-sec">
               <div class="k">English translations</div>
-              <p>The English translations for <b>A1 and A2</b> were made by AI. <b>B1</b> is taken from the <b>GJU eLearning flashcards</b> (German IV), word for word. If you find any mistakes, send me an email:</p>
+              <p>The English for <b>A1 chapters 1–15</b> was made by AI. Everything else (<b>A1 chapters 16–24, A2 and B1</b>) is taken from the <b>GJU eLearning flashcards</b>, word for word. If you find any mistakes, send me an email:</p>
               <a class="mail" href="mailto:glitchdeutschmomente@gmail.com?subject=Translation%20mistake">${icon('mail')} Send an email</a>
               <div class="dom" style="user-select:all">glitchdeutschmomente@gmail.com</div>
             </div>
@@ -1547,7 +1592,7 @@
               <button class="btn btn-sm ${this.isStandalone() ? '' : 'btn-primary'}" data-action="install">${this.isStandalone() ? 'Open guide' : 'Show me how'}</button></div>
             <div class="set-row"><div class="lbl"><b>Appearance</b><span>${document.documentElement.dataset.theme === 'light' ? 'Light' : 'Dark'} mode</span></div>
               <button class="btn btn-sm" data-action="theme">${icon(document.documentElement.dataset.theme === 'light' ? 'moon' : 'sun')} Switch to ${document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'}</button></div>
-            <div class="set-row"><div class="lbl"><b>About this app</b><span>Words by Dr. Omar Alduais · A1–A2 English by AI · B1 from GJU eLearning</span></div>
+            <div class="set-row"><div class="lbl"><b>About this app</b><span>Words by Dr. Omar Alduais · A1 ch. 1–15 English by AI · the rest from GJU eLearning</span></div>
               <button class="btn btn-sm" data-action="notice">Open</button></div>
             <div class="set-row"><div class="lbl"><b>German voice</b><span id="voice-status">${Speech.voice ? 'Using ' + esc(Speech.voice.name) : Speech.blind ? "Using the phone's German voice" : Speech.ready ? 'No German voice on this device' : 'Checking…'}</span>
               ${Speech.voices.length > 1 ? `<select id="voice-select" class="voice-select" aria-label="German voice">${Speech.voices.map(v => `<option value="${esc(v.voiceURI)}" ${Speech.voice && v.voiceURI === Speech.voice.voiceURI ? 'selected' : ''}>${esc(v.name)}</option>`).join('')}</select>` : ''}</div>
@@ -1632,7 +1677,7 @@
             const d = JSON.parse(r.result);
             if (!d || typeof d.learnedWords !== 'object') throw 0;
             localStorage.setItem(Store.KEY, JSON.stringify(d));
-            Store.load(); this.closeSheet(); this.applyTheme(); this.forgetSessions(); this.s = {}; this.render();
+            Store.load(); this.migrateWords(); this.closeSheet(); this.applyTheme(); this.forgetSessions(); this.s = {}; this.render();
             this.toast('Progress imported');
           } catch (e) { alert('That file is not a Glitch Deutsch backup.'); }
         };
@@ -3342,1321 +3387,1482 @@ das Dachgeschoss — attic floor / top floor  (pl. die Dachgeschosse)
 die Treppe — stairs  (pl. die Treppen)
 der Keller — cellar / basement  (pl. die Keller)
 ===== A1 – Chapter 16 =====
-der Aufzug — lift / elevator  (pl. die Aufzüge)
-kennenlernen — to get to know  (lernt kennen, hat kennengelernt)
+der Aufzug — (die Aufzüge) the elevator
+der Lift — (die Lifte) the elevator
+kennenlernen — (hat...kennengelernt) to get to know
 nervös — nervous
-die Angst — fear  (pl. die Ängste)
-das Netz — network; net  (pl. die Netze)
-funktionieren — to work / to function  (funktioniert, hat funktioniert)
-los sein — to be going on / happening
-reparieren — to repair  (repariert, hat repariert)
-anbieten — to offer  (bietet an, hat angeboten)
-die Bitte — request  (pl. die Bitten)
-die Dusche — shower  (pl. die Duschen)
-der Kühlschrank — fridge  (pl. die Kühlschränke)
-der Fernseher — TV set  (pl. die Fernseher)
-die Heizung — heating  (pl. die Heizungen)
-das Licht — light  (pl. die Lichter)
-der Herd — stove / cooker  (pl. die Herde)
-die Klingel — doorbell  (pl. die Klingeln)
-die Steckdose — power socket  (pl. die Steckdosen)
-die Waschmaschine — washing machine  (pl. die Waschmaschinen)
-der Handwerker — tradesman / repairman  (pl. die Handwerker)
-selbst — oneself / myself
-erklären — to explain  (erklärt, hat erklärt)
-die Reparatur — repair  (pl. die Reparaturen)
-ausmachen — to turn off; to arrange  (macht aus, hat ausgemacht)
-vereinbaren — to arrange / to agree on  (vereinbart, hat vereinbart)
-pünktlich — punctual / on time
-vorschlagen — to suggest  (schlägt vor, hat vorgeschlagen)
-absagen — to cancel  (sagt ab, hat abgesagt)
-verschieben — to postpone  (verschiebt, hat verschoben)
-Sehr geehrte — Dear (formal letter)
-Mit freundlichen Grüßen — Yours sincerely / Kind regards
-bekommen — to get / to receive  (bekommt, hat bekommen)
-das Vorstellungsgespräch — job interview  (pl. die Vorstellungsgespräche)
+die Angst — (die Ängste) fear
+das Netz — the net, the network
+funktionieren — (hat...funktioniert) to function, to work
+los sein — going on
+reparieren — (hat...repariert) to repair, to fix
+anbieten — (du bietest an, er bietet an / hat...angeboten) to offer
+die Bitte — (die Bitten) the request
+die Dusche — (die Duschen) the shower
+der Kühlschrank — (die Kühlschränke) the refrigerator
+der Fernseher — (die Fernseher) the television
+die Heizung — (die Heizungen) the heating
+das Licht — (die Lichter) the light
+der Herd — (die Herde) the stove
+die Klingel — (die Klingeln) the doorbell
+die Steckdose — (die Steckdosen) the power socket
+die Waschmaschine — (die Waschmaschinen) the washing machine
+der Handwerker — (die Handwerker) the craftsman (male)
+die Handwerkerin — (die Handwerkerinnen) the craftsman (female)
+selbst — oneself, self
+erklären — (hat...erklärt) to explain
+die Reparatur — (die Reparaturen) the repair
+ausmachen — (hat...ausgemacht) to arrange, to agree on
+vereinbaren — (hat...vereinbart) to arrange, to agree on
+pünktlich — punctual, on time
+vorschlagen — (du schlägst vor, er schlägt vor / hat...vorgeschlagen) to suggest
+absagen — (hat...abgesagt) to cancel
+verschieben — (hat...verschoben) to postpone, to reschedule
+Sehr geehrte Frau — Dear Madam
+Sehr geehrter Herr — Dear Sir
+Sehr geehrte Damen und Herren, — Dear Sir or Madam
+Mit freundlichen Grüßen — Best regards
+in — in
+vor — before
+nach — after
+bekommen — (hat...bekommen) to receive, to get
+das Vorstellungsgespräch — (die Vorstellungsgespräche) the job interview
 nach Hause — (to) home
-erst — only / not until; first
-Oje, du Arme! — Oh dear, you poor thing!
-klappen — to work out  (klappt, hat geklappt)
-das Training — training  (pl. die Trainings)
-das Treffen — meeting  (pl. die Treffen)
+erst — only, first
+Oje, du Arme/r! — Oh dear, poor you!
+klappen — (hat...geklappt) to work out, to succeed
+das Training — (die Trainings) the training, practice
+das Treffen — (die Treffen) the meeting, gathering
+
 ===== A1 – Chapter 17 =====
-werden — to become  (wird, ist geworden)
-auf jeden Fall — definitely / in any case
-unbedingt — absolutely / definitely
-auf keinen Fall — no way / under no circumstances
-der Astronaut — astronaut  (pl. die Astronauten)
-der Polizist — police officer  (pl. die Polizisten)
-wollen — to want  (will, hat gewollt)
-der Plan — plan  (pl. die Pläne)
-gründen — to found / to set up  (gründet, hat gegründet)
-das Geld — money  (pl. die Gelder)
-Geld verdienen — to earn money
-der Profi — professional  (pl. die Profis)
-das Berufsleben — working life
+werden — (du wirst, er wird / ist...geworden) to become
+auf jeden Fall — for sure
+unbedingt — definitely / necessarily
+auf keinen Fall — under no circumstances / no way / definitely not
+der Astronaut — (die Astronauten) the astronaut (male)
+die Astronautin — (die Austronautinnen) the astronaut (female)
+der Polizist — (die Polizisten) the police officer (male)
+die Polizistin — (die Polizistinnen) the police officer (female)
+wollen — (du willst, er will) to want
+der Plan — (die Pläne) the plan
+gründen — (hat...gegründet) to found / to establish
+das Geld — the money
+der Profi — (die Profis) the professional
+das Berufsleben — professional life / working life
 jung — young
+alt — old
 das Marketing — marketing
-der Lifestyle — lifestyle  (pl. die Lifestyles)
-die Wirtschaft — economy  (pl. die Wirtschaften)
-die Halbtagsstelle — part-time job  (pl. die Halbtagsstellen)
+der Lifestyle — (die Lifestyles) lifestyle
+die Wirtschaft — the economy
+die Halbtagsstelle — (die Halbtagsstellen) the part-time job
 selbstständig — self-employed / independent
-eigen — own
-der Influencer — influencer  (pl. die Influencer)
-damit — so that
-der Abschluss — degree / qualification  (pl. die Abschlüsse)
-der Studienplatz — university place  (pl. die Studienplätze)
-die Note — grade / mark  (pl. die Noten)
-der Krankenpfleger — nurse (male)  (pl. die Krankenpfleger)
+eigene — own
+der Influencer — (die Influencer) the influencer (male)
+die Influencerin — (die Influencerinnen) the influencer (female)
+damit — with it
+der Abschluss — (die Abschlüsse) the degree / the graduation
+der Studienplatz — (die Studienplätze) the university place / study spot
+die Note — (die Noten) the grade / the mark
+der Krankenpfleger — (die Krankenpfleger) the nurse (male)
+die Krankenpflegerin — (die Krankenpflegerinnen) the nurse (female)
 ohne — without
-die Grenze — border / limit  (pl. die Grenzen)
-die Welt — world  (pl. die Welten)
-der Mensch — human / person  (pl. die Menschen)
+die Grenze — (die Grenzen) the border / the limit
+die Welt — the world
+der Mensch — (die Menschen) the human / the person
 wichtig — important
-die Freiheit — freedom  (pl. die Freiheiten)
+die Freiheit — freedom
 die Selbstständigkeit — independence / self-employment
-halbtags — part-time
-der Hund — dog  (pl. die Hunde)
+halbtags — part-time (adverb)
+der Hund — (die Hunde) the dog
 traurig — sad
-der Politiker — politician  (pl. die Politiker)
-die Fremdsprache — foreign language  (pl. die Fremdsprachen)
-der Chef — boss  (pl. die Chefs)
-heiraten — to marry  (heiratet, hat geheiratet)
-der Berg — mountain  (pl. die Berge)
+der Politiker — (die Politiker) the politician (male)
+die Politikerin — (die Politikerinnen) the politician (female)
+die Fremdsprache — (die Fremdsprachen) the foreign language
+der Chef — (die Chefs) the boss (male)
+die Chefin — (die Chefinnen) the boss (female)
+heiraten — (hat…geheiratet) to marry
+der Berg — (die Berge) the mountain
 Europa — Europe
-das Ausland — abroad
-das Motorrad — motorbike  (pl. die Motorräder)
-der Führerschein — driving licence  (pl. die Führerscheine)
-das Instrument — instrument  (pl. die Instrumente)
+das Ausland — foreign countries / abroad
+das Motorrad — (die Motorräder) the motorcycle
+der Führerschein — (die Führerscheine) the driver's license
+der Führerausweis — (die Führerausweise) the driver's license
+das Instrument — (die Instrumente) the instrument
 Norwegen — Norway
-der Koch — cook / chef  (pl. die Köche)
+der Koch — (die Köche) the cook / chef (male)
+die Köchin — (die Köchinnen) the cook / chef (female)
+
 ===== A1 – Chapter 18 =====
-die Übung — exercise  (pl. die Übungen)
-der Kopf — head  (pl. die Köpfe)
-der Schmerz — pain  (pl. die Schmerzen)
+die Übung — (die Übungen) the exercise
+der Kopf — (die Köpfe) the head
+der Schmerz — (die Schmerzen) the pain
 müde — tired
-schlimm — bad / serious
+schlimm — bad, serious
 gegen — against
-die Situation — situation  (pl. die Situationen)
-üblich — usual
-sitzen — to sit  (sitzt, hat gesessen)
-krank — sick / ill
+die Situation — (die Situationen) the situation
+üblich — usual, common
+sitzen — (du sitzt / hat...gesessen) to sit
+krank — sick, ill
 gesund — healthy
-die Bewegung — movement / exercise  (pl. die Bewegungen)
-ungefähr — approximately
+die Bewegung — (die Bewegungen) the movement, exercise
+ungefähr — approximately, about
 sogar — even
-bedeuten — to mean  (bedeutet, hat bedeutet)
+bedeuten — (du bedeutest, er bedeutet / hat...bedeutet) to mean, to signify
 das Übergewicht — overweight
-das Herz — heart  (pl. die Herzen)
-die Krankheit — illness / disease  (pl. die Krankheiten)
-dagegen — against it; on the other hand
-aufstehen — to get up / to stand up  (steht auf, ist aufgestanden)
-benutzen — to use  (benutzt, hat benutzt)
-der Ratschlag — piece of advice  (pl. die Ratschläge)
-schicken — to send  (schickt, hat geschickt)
-gewinnen — to win  (gewinnt, hat gewonnen)
-das Frisbee — frisbee  (pl. die Frisbees)
-der Roller — scooter  (pl. die Roller)
-der Körper — body  (pl. die Körper)
-das Körperteil — body part  (pl. die Körperteile)
-die Brust — chest  (pl. die Brüste)
-der Finger — finger  (pl. die Finger)
-der Hals — neck / throat  (pl. die Hälse)
-der Bauch — stomach / belly  (pl. die Bäuche)
-der Arm — arm  (pl. die Arme)
-die Hand — hand  (pl. die Hände)
-das Bein — leg  (pl. die Beine)
-das Knie — knee  (pl. die Knie)
-das Auge — eye  (pl. die Augen)
-der Mund — mouth  (pl. die Münder)
-die Nase — nose  (pl. die Nasen)
-das Ohr — ear  (pl. die Ohren)
-das Forum — forum  (pl. die Foren)
-der Schnupfen — runny nose / cold
-wehtun — to hurt  (tut weh, hat wehgetan)
+das Herz — (die Herzen) the heart
+die Krankheit — (die Krankheiten) the illness, disease
+dagegen — against it, opposed
+aufstehen — (ist...aufgestanden) to stand up, to get up
+benutzen — (du benutzt / hat...benutzt) to use
+der Ratschlag — (die Ratschläge) the advice
+schicken — (hat...geschickt) to send
+gewinnen — (hat...gewonnen) to win
+das Frisbee — (die Frisbees) the frisbee
+der Roller — (die Roller) the scooter
+der Körper — (die Körper) the body
+der Körperteil — (die Körperteile) the body part
+die Brust — the chest
+der Bauch — (die Bäuche) the stomach
+der Arm — (die Arme) the arm
+die Hand — (die Hände) the hand
+der Finger — (die Finger) the finger
+das Bein — (die Beine) the leg
+das Knie — (die Knie) the knee
+das Auge — (die Augen) the eye
+der Hals — (die Hälse) the neck, the throat
+der Mund — (die Münder) the mouth
+die Nase — (die Nasen) the nose
+das Ohr — (die Ohren) the ear
+das Forum — (die Foren) the forum
+der Schnupfen — the cold (runny nose)
+wehtun — (hat...wehgetan) to hurt
 genug — enough
-die Erkältung — cold (illness)  (pl. die Erkältungen)
-der Husten — cough
-der Honig — honey  (pl. die Honige)
-sollen — should / to be supposed to  (soll, hat gesollt)
-das Fieber — fever
-die Ruhe — rest / quiet
-die Tablette — tablet / pill  (pl. die Tabletten)
-das Medikament — medicine  (pl. die Medikamente)
-die Salbe — ointment  (pl. die Salben)
-der Hustensaft — cough syrup  (pl. die Hustensäfte)
-die Umfrage — survey  (pl. die Umfragen)
+die Erklärung — (die Erklärungen) the explanation
+der Husten — the cough
+der Honig — the honey
+sollen — (ich soll, du sollst, er soll) should, to be supposed to
+das Fieber — the fever
+die Ruhe — the rest, the calm
+die Tablette — (die Tabletten) the pill,
+das Medikament — (die Medikamente) the medicine
+die Salbe — (die Salben) the ointment
+der Hustensaft — (die Hustensäfte) the cough syrup
+die Umfrage — (die Umfragen) the survey
+
 ===== A1 – Chapter 19 =====
-aufmachen — to open  (macht auf, hat aufgemacht)
-zumachen — to close  (macht zu, hat zugemacht)
-der Abfall — waste / rubbish  (pl. die Abfälle)
-der Müll — rubbish / trash
-sauer — angry; sour
-der Haushalt — household / housework  (pl. die Haushalte)
-rausbringen — to take out (the rubbish)  (bringt raus, hat rausgebracht)
-die Spülmaschine — dishwasher  (pl. die Spülmaschinen)
-ausräumen — to empty / to unload  (räumt aus, hat ausgeräumt)
+aufmachen — (hat...aufgemacht) to open
+zumachen — (hat...zugemacht) to close
+der Abfall — (die Abfälle) the waste
+der Müll — the garbage
+sauer — sour, angry
+der Haushalt — (die Haushalte) the household
+rausbringen — (hat...rausgebracht) to take out
+die Spülmaschine — (die Spülmaschinen) the dishwasher
+ausräumen — (hat...ausgeräumt) to empty
 sauber — clean
-putzen — to clean  (putzt, hat geputzt)
-der Boden — floor  (pl. die Böden)
-wischen — to wipe / to mop  (wischt, hat gewischt)
-vergessen — to forget  (vergisst, hat vergessen)
-herkommen — to come here  (kommt her, ist hergekommen)
-lieb — kind / dear
-rauchen — to smoke  (raucht, hat geraucht)
+das Geschirr — the dishes
+putzen — (hat...geputzt) to clean
+der Boden — (die Böden) the floor
+wischen — (hat...gewischt) to mop
+vergessen — (hat...vergessen) to forget
+herkommen — (ist...hergekommen) to come here
+lieb — dear, sweet, likely
+rauchen — (hat...geraucht) to smoke
 heiß — hot
-die Luft — air  (pl. die Lüfte)
-anmachen — to turn on  (macht an, hat angemacht)
-ausmachen — to turn off  (macht aus, hat ausgemacht)
-zuhören — to listen  (hört zu, hat zugehört)
-das Lied — song  (pl. die Lieder)
-die Notiz — note  (pl. die Notizen)
+die Luft — the air
+anmachen — (hat...angemacht) to turn on
+ausmachen — (hat...ausgemacht) to turn off
+zuhören — (hat...zugehört) to listen
+das Lied — (die Lieder) the song
+die Notiz — (die Notizen) the note
 leise sein — to be quiet
-das Spiel — game  (pl. die Spiele)
-lachen — to laugh  (lacht, hat gelacht)
-die Tüte — bag (plastic/paper)  (pl. die Tüten)
+das Spiel — (die Spiele) the game
+lachen — (hat...gelacht) to laugh
+die Tüte — (die Tüten) the bag
+die Maschine — (die Maschinen) the machine
 schmutzig — dirty
-zurückrufen — to call back  (ruft zurück, hat zurückgerufen)
-der Grund — reason  (pl. die Gründe)
-in Ordnung — okay / all right
-Das geht so nicht. — That's not okay.
-böse — angry; evil
+zurückrufen — (hat...zurückgerufen) to call back
+die Pause — (die Pausen) the break
+der Grund — (die Gründe) the reason
+in Ordnung — in order, okay
+Das geht so nicht. — That won't work like this.
+recht haben — (hat...recht gehabt) to be right
+böse — angry
+
 ===== A1 – Chapter 20 =====
-die Website — website  (pl. die Websites)
-die Webseite — web page  (pl. die Webseiten)
-der Service — service  (pl. die Services)
-der Fehler — mistake / error  (pl. die Fehler)
-beraten — to advise  (berät, hat beraten)
-das Team — team  (pl. die Teams)
-der Berater — consultant / adviser  (pl. die Berater)
-der Experte — expert  (pl. die Experten)
-das Projekt — project  (pl. die Projekte)
-der Manager — manager  (pl. die Manager)
-der Psychologe — psychologist  (pl. die Psychologen)
-der Fachmann — specialist / expert  (pl. die Fachleute)
-die Medien — media  (pl. die Medien)
-die Kommunikation — communication  (pl. die Kommunikationen)
-die Szene — scene  (pl. die Szenen)
-irgendwann — sometime / at some point
+die Website — (die Websites) the website
+die Webseite — (die Webseiten) the webpage
+der Service — (die Services) the service
+der Fehler — (die Fehler) the mistake
+beraten — (hat...beraten) to advise
+das Team — (die Teams) the team
+der Berater — (die Berater) the consultant (male)
+die Beraterin — (die Beraterinnen) the consultant (female)
+der Experte — (die Experten) the expert (male)
+die Expertin — (die Expertinnen) the expert (female)
+das Projekt — (die Projekte) the project
+der Manager — (die Manager) the manager (male)
+die Managerin — (die Managerinnen) the manager (female)
+der Psychologe — (die Psychologen) the psychologist (male)
+die Psychologin — (die Psychologinnen) the psychologist (female)
+der Fachmann — (die Fachmänner / die Fachleute) the specialist (male)
+die Fachfrau — (die Fachfrauen) the specialist (female)
+die Medien — the media
+die Kommunikation — the communication
+die Szene — (die Szenen) the scene
+irgendwann — sometime
+probieren — (hat...probiert) to try
+der Schritt — (die Schritte) the step
+die Organisation — (die Organisationen) the organization
+organisieren — (hat...organisiert) to organize
+verbessern — (hat...verbessert) to improve
+die Technik — the technique
+das Werkzeug — (die Werkzeuge) the tool
+mehrere — several
+erfolgreich — successful
+mitarbeiten — (hat...mitgearbeitet) to collaborate
+der Spezialist — (die Spezialisten) the specialist (male)
+die Spezialistin — (die Spezialistinnen) the specialist (female)
+die Werbung — (die Werbungen) the advertisement
+transportieren — (hat...transportiert) to transport
 lange Haare — long hair
 glatte Haare — straight hair
 dunkle Haare — dark hair
-blonde Haare — blond hair
-der Bart — beard  (pl. die Bärte)
-die Locke — curl  (pl. die Locken)
-der Schritt — step  (pl. die Schritte)
-die Organisation — organisation  (pl. die Organisationen)
-verbessern — to improve  (verbessert, hat verbessert)
-die Technik — technology / technique  (pl. die Techniken)
-das Werkzeug — tool  (pl. die Werkzeuge)
-mehrere — several
-erfolgreich — successful
-mitarbeiten — to collaborate / to work on  (arbeitet mit, hat mitgearbeitet)
-der Spezialist — specialist  (pl. die Spezialisten)
-die Werbung — advertising  (pl. die Werbungen)
-sympathisch — likeable / nice
+blonde Haare — blonde hair
+der Bart — (die Bärte) the beard
+die Locke — (die Locken) the curl
+sympathisch — likable
 freundlich — friendly
-kräftig — strong / sturdy
+kräftig — strong
 schlank — slim
 fröhlich — cheerful
 kreativ — creative
-ruhig — calm / quiet
+ruhig — calm
 langweilig — boring
-die Agentur — agency  (pl. die Agenturen)
-zufrieden — satisfied / content
-verpassen — to miss  (verpasst, hat verpasst)
-verlieren — to lose  (verliert, hat verloren)
-das Päckchen — small parcel  (pl. die Päckchen)
+die Agentur — (die Agenturen) the agency
+zufrieden — satisfied
+aufstehen — (ist...aufgestanden) to get up
+verpassen — (hat...verpasst) to miss
+verlieren — (hat...verloren) to lose
+das Päckchen — (die Päckchen) the small package
 Echt? — Really?
 Puh! — Phew!
 lila — purple
+
 ===== A1 – Chapter 21 =====
-werfen — to throw  (wirft, hat geworfen)
+werfen — (hat...geworfen) to throw
 verboten — forbidden
 erlaubt — allowed
-der Helm — helmet  (pl. die Helme)
+der Helm — (die Helme) the helmet
 gefährlich — dangerous
-nutzen — to use  (nutzt, hat genutzt)
-der Fahrer — driver  (pl. die Fahrer)
-grillen — to barbecue / to grill  (grillt, hat gegrillt)
-stören — to disturb  (stört, hat gestört)
-der Nachbar — neighbour  (pl. die Nachbarn)
-die Region — region  (pl. die Regionen)
+nutzen — (hat...genutzt) to use
+der Fahrer — (die Fahrer) the driver (male)
+die Fahrerin — (die Fahrerinnen) the driver (female)
+grillen — (hat...gegrillt) to grill
+stören — (hat...gestört) to disturb
+der Nachbar — (die Nachbarn) the neighbor (male)
+die Nachbarin — (die Nachbarinnen) the neighbor (female)
+die Region — (die Regionen) the region
 unglaublich — unbelievable
 total — totally
-der Grill — grill / barbecue  (pl. die Grills)
-das Grillfest — barbecue party  (pl. die Grillfeste)
-die Terrasse — terrace / patio  (pl. die Terrassen)
-das Grillfleisch — barbecue meat
-der Bekannte — acquaintance  (pl. die Bekannten)
+der Grill — (die Grills) the grill
+das Grillfest — (die Grillfeste) the barbecue party
+die Terrasse — (die Terrassen) the terrace
+das Grillfleisch — the grilled meat
+der Bekannte — (die Bekannten) the acquaintance (male)
+die Bekannte — (die Bekannten) the acquaintance (female)
 schwierig — difficult
-nämlich — namely / you see (because)
-dürfen — may / to be allowed to  (darf, hat gedurft)
-der Mieter — tenant  (pl. die Mieter)
-müssen — must / to have to  (muss, hat gemusst)
-die Hausordnung — house rules  (pl. die Hausordnungen)
-darin — in it
-meinen — to mean / to think  (meint, hat gemeint)
-der Rauch — smoke
-gemeinsam — together / shared
-die Umwelt — environment
-das Gemüse — vegetables  (pl. die Gemüse)
-der Tofu — tofu
-tragen — to wear; to carry  (trägt, hat getragen)
-zelten — to camp (in a tent)  (zeltet, hat gezeltet)
-baden — to bathe / to swim  (badet, hat gebadet)
-abladen — to unload  (lädt ab, hat abgeladen)
-parken — to park  (parkt, hat geparkt)
+nämlich — namely
+dürfen — to be allowed
+der Mieter — (die Mieter) the tenant (male)
+die Mieterin — (die Mieterinnen) the tenant (female)
+müssen — to have to
+die Hausordnung — the house rules
+darin — inside
+drin — inside
+meinen — (hat...gemeint) to mean
+der Rauch — (der Rauch) the smoke
+gemeinsam — together
+die Umwelt — the environment
+das Gemüse — the vegetables
+der Tofu — the tofu
+tragen — (hat...getragen) to carry, to wear
+zelten — (hat...gezeltet) to camp
+baden — (hat...gebadet) to bathe
+abladen — (hat...abgeladen) to dump
+parken — (hat...geparkt) to park
 langsam — slow
-die Leine — leash / lead  (pl. die Leinen)
-schieben — to push  (schiebt, hat geschoben)
-stoßen — to push / to bump  (stößt, hat gestoßen)
-die Wiese — meadow / lawn  (pl. die Wiesen)
-wegwerfen — to throw away  (wirft weg, hat weggeworfen)
-das Lokal — restaurant / bar  (pl. die Lokale)
-mitnehmen — to take along  (nimmt mit, hat mitgenommen)
-das Verbot — ban / prohibition  (pl. die Verbote)
-die Grundschule — primary school  (pl. die Grundschulen)
-mitbringen — to bring along  (bringt mit, hat mitgebracht)
+die Leine — (die Leinen) the leash
+schieben — (hat...geschoben) to push
+die Wiese — (die Wiesen) the filed, the meadow
+wegwerfen — (hat...weggeworfen) to throw away
+das Lokal — (die Lokale) the restaurant, the cofe
+mitnehmen — (hat...mitgenommen) to take along, to take with you
+das Verbot — (die Verbote) the ban
+die Grundschule — (die Grundschulen) the elementary school
+mitbringen — (hat...mitgebracht) to bring along, to bring with you
 angenehm — pleasant
-mega — mega / super (slang)
+mega — mega
+
 ===== A1 – Chapter 22 =====
-die Kleidung — clothing
-der Platz — space / room  (pl. die Plätze)
-die Unordnung — mess / disorder
-die Jeans — jeans  (pl. die Jeans)
-das Kleidungsstück — item of clothing  (pl. die Kleidungsstücke)
-circa — about / approximately
+die Kleidung — the clothing
+der Platz — (die Plätze) the place
+die Unordnung — the mess
+die Jeans — (die Jeans) the jeans
+das Kleidungsstück — (die Kleidungsstücke) the piece of clothing
+circa — approximately
 pro — per
-anziehen — to put on (clothes)  (zieht an, hat angezogen)
+anziehen — (hat...angezogen) to put on
 zweimal — twice
-der Wahnsinn — madness
-die Billigkleidung — cheap clothing
-anhaben — to have on / to wear  (hat an, hat angehabt)
-der Pullover — pullover / sweater  (pl. die Pullover)
-das Hemd — shirt  (pl. die Hemden)
-die Hose — trousers / pants  (pl. die Hosen)
-der Mantel — coat  (pl. die Mäntel)
-die Bluse — blouse  (pl. die Blusen)
-der Hut — hat  (pl. die Hüte)
-die Mütze — cap / woolly hat  (pl. die Mützen)
-das Kleid — dress  (pl. die Kleider)
-der Rock — skirt  (pl. die Röcke)
-der Anzug — suit  (pl. die Anzüge)
-die Socke — sock  (pl. die Socken)
-der Schuh — shoe  (pl. die Schuhe)
-der Stiefel — boot  (pl. die Stiefel)
-der Strumpf — stocking  (pl. die Strümpfe)
-die Qualität — quality  (pl. die Qualitäten)
-tauschen — to swap / to exchange  (tauscht, hat getauscht)
-der Billigladen — discount shop  (pl. die Billigläden)
-die Möglichkeit — possibility  (pl. die Möglichkeiten)
-sich halten — to last  (hält sich, hat sich gehalten)
-die Sachen — things / stuff  (pl. die Sachen)
-die Klamotten — clothes (colloquial)  (pl. die Klamotten)
-nähen — to sew  (näht, hat genäht)
-am liebsten — most of all (preferably)
-meistens — mostly / usually
-verschieden — different / various
-zusammenpassen — to go together / to match  (passt zusammen, hat zusammengepasst)
-am meisten — the most
-der Roman — novel  (pl. die Romane)
+der Wahnsinn — madness, craziness
+die Billigkleidung — the cheap clothing
+anhaben — (hat...angehabt) to wear
+der Pullover — (die Pullover) the sweater
+das Hemd — (die Hemden) the shirt
+die Hose — (die Hosen) the pants
+der Mantel — (die Mäntel) the coat
+die Bluse — (die Blusen) the blouse
+der Hut — (die Hüte) the hat
+die Mütze — (die Mützen) the cap
+das Kleid — (die Kleider) the dress
+der Rock — (die Röcke) the skirt
+der Anzug — (die Anzüge) the suit
+die Socke — (die Socken) the sock
+der Schuh — (die Schuhe) the shoe
+der Stiefel — (die Stiefel) the boot
+der Strumpf — (die Strümpfe) the stocking
+die Qualität — the quality
+tauschen — (hat...getauscht) to exchange
+der Billigladen — (die Billigläden) the discount store
+die Möglichkeit — (die Möglichkeiten) the possibility
+sich halten — (hat...sich gehalten) to last
+die Sachen — (die Sachen) the things
+die Klamotten — (die Klamotten) the clothes
+nähen — (hat...genäht) to sew
+am liebsten — preferably
+meistens — mostly
+verschieden — different
+zusammenpassen — (hat...zusammengepasst) to match
+am meisten — most
+der Roman — (die Romane) the novel
 hoch — high
-welcher — which (masc.)
-welches — which (neut.)
-welche — which (fem./pl.)
-witzig — funny / witty
+welcher — which
+witzig — funny
+
 ===== A1 – Chapter 23 =====
 draußen — outside
 glücklich — happy
-die Heimat — home / homeland  (pl. die Heimaten)
+die Heimat — the homeland / home country
 sonnig — sunny
 kühl — cool
 kalt — cold
 warm — warm
-der Regen — rain
-Es regnet — It's raining
-der Schnee — snow
-Es schneit — It's snowing
-das Gewitter — thunderstorm  (pl. die Gewitter)
-Es donnert und blitzt — There's thunder and lightning
-der Hagel — hail
-Es hagelt — It's hailing
-die Wolke — cloud  (pl. die Wolken)
-Es ist bewölkt — It's cloudy
-der Wind — wind  (pl. die Winde)
-Es ist windig — It's windy
-der Nebel — fog  (pl. die Nebel)
-Es ist neblig — It's foggy
-das Grad — degree (temperature)  (pl. die Grad)
-das Meer — sea  (pl. die Meere)
+der Regen — the rain
+regnen — (hat...geregnet) to rain
+der Schnee — the snow
+schneien — (hat...geschneit) to snow
+das Gewitter — (die Gewitter) the thunderstorm
+donnern — (hat...gedonnert) to thunder
+blitzen — (hat...geblitzt) to flash / to lightning
+der Hagel — the hail
+hageln — (hat...gehagelt) to hail
+die Wolke — (die Wolken) the cloud
+bewölkt — cloudy
+der Wind — the wind
+windig — windy
+der Nebel — the fog
+neblig — foggy
+das Grad — the degree
+das Meer — (die Meere) the sea
 stark — strong
-wohl — probably; well
-los — go! / going on
-scheinen — to shine; to seem  (scheint, hat geschienen)
-der Himmel — sky  (pl. die Himmel)
+wohl — comfortable / to feel well
+-los — without (suffix)
+scheinen — (hat...geschienen) to shine
+der Himmel — (die Himmel) the sky
 irgendwie — somehow
-der Schneemann — snowman  (pl. die Schneemänner)
-der Hai — shark  (pl. die Haie)
+der Schneemann — the snowman
+der Hai — (die Haie) the shark
 einsam — lonely
 warum — why
-das Angebot — offer  (pl. die Angebote)
-der Strand — beach  (pl. die Strände)
-der Dschungel — jungle  (pl. die Dschungel)
-die Wüste — desert  (pl. die Wüsten)
-die Insel — island  (pl. die Inseln)
-der Mond — moon  (pl. die Monde)
+das Angebot — (die Angebote) the offer
+der Strand — (die Strände) the beach
+der Dschungel — the jungle
+die Wüste — the desert
+die Insel — (die Inseln) the island
+der Mond — the moon
 verfügbar — available
-das Reisebüro — travel agency  (pl. die Reisebüros)
-still — quiet / still
-das Zelt — tent  (pl. die Zelte)
-das Kamel — camel  (pl. die Kamele)
+das Reisebüro — (die Reisebüros) the travel agency
+still — quiet
+das Zelt — (die Zelte) the tent
+das Kamel — (die Kamele) the camel
+
 ===== A1 – Chapter 24 =====
 Ostern — Easter
 eigentlich — actually
-schaffen — to manage / to make it  (schafft, hat geschafft)
+schaffen — (hat...geschaffen) to create / achieve
 die Liebe — love
-der Blick — look / glance; view  (pl. die Blicke)
-die Katze — cat  (pl. die Katzen)
-sterben — to die  (stirbt, ist gestorben)
-das Paar — couple / pair  (pl. die Paare)
-das Datum — date  (pl. die Daten)
-das Ereignis — event  (pl. die Ereignisse)
-Neujahr — New Year's Day
-der Karneval — carnival  (pl. die Karnevale)
-der Feiertag — public holiday  (pl. die Feiertage)
-die Hochzeit — wedding  (pl. die Hochzeiten)
-bestehen — to pass (an exam)  (besteht, hat bestanden)
-die Prüfung — exam  (pl. die Prüfungen)
-der Glückwunsch — congratulations  (pl. die Glückwünsche)
-gratulieren — to congratulate  (gratuliert, hat gratuliert)
-die Aktion — campaign / action  (pl. die Aktionen)
-die Lösung — solution  (pl. die Lösungen)
-beachten — to observe / to pay attention to  (beachtet, hat beachtet)
-der Mitmensch — fellow human being  (pl. die Mitmenschen)
+der Blick — the look / glance / the view
+die Katze — (die Katzen) the cat
+der Unfall — (die Unfälle) the accident
+sterben — (ist...gestorben) to die
+das Paar — (die Paare) the couple
+das Datum — the date
+das Ereignis — (die Ereignisse) the event
+Neujahr — New Year
+der Karneval — (die Karnevale) the carnival
+der Fasching — the Fasching (Carnival)
+die Fastnacht — the Fastnacht (Carnival)
+der Feiertag — (die Feiertage) the holiday
+die Hochzeit — (die Hochzeiten) the wedding
+bestehen — (hat...bestanden) to pass (exam)
+die Prüfung — (die Prüfungen) the exam
+der Glückwunsch — (die Glückwünsche) the congratulations
+alles Gute — all the best
+gratulieren — (hat...gratuliert) to congratulate
+die Aktion — (die Aktionen) the action / the sale
+die Lösung — (die Lösung) the solution
+beachten — (hat...beachtet) to notice / pay attention
+der Mitmensch — (die Mitmenschen) fellow human being
 weltweit — worldwide
-stattfinden — to take place  (findet statt, hat stattgefunden)
-die Freude — joy  (pl. die Freuden)
-es geht um — it's about
-die Sympathie — liking / sympathy  (pl. die Sympathien)
-zusammengehören — to belong together  (gehört zusammen, hat zusammengehört)
-das Haustier — pet  (pl. die Haustiere)
-das Insekt — insect  (pl. die Insekten)
-mitmachen — to join in / to take part  (macht mit, hat mitgemacht)
-die Generation — generation  (pl. die Generationen)
-die Veranstaltung — event  (pl. die Veranstaltungen)
+stattfinden — (hat...stattgefunden) to take place
+die Freude — joy / happiness
+wünschen — (hat...gewünscht) to wish
+es geht um ... — it's about...
+die Sympathie — (die Sympathien) sympathy
+zusammengehören — (hat...zusammengehört) to belong together
+das Haustier — (die Haustiere) the pet
+das Insekt — (die Insekten) the insect
+mitmachen — (hat...mitgemacht) to participate
+die Generation — (die Generationen) the generation
+die Veranstaltung — (die Veranstaltungen) the event
 im Freien — outdoors
-nachsehen — to check / to look up  (sieht nach, hat nachgesehen)
-der Kommentar — comment  (pl. die Kommentare)
+nachsehen — (hat...nachgesehen) to check / look up
+der Kommentar — (die Kommentare) the comment
 wunderbar — wonderful
-umarmen — to hug  (umarmt, hat umarmt)
+umarmen — (hat...umarmt) to hug
 niemals — never
-doof — stupid / dumb (colloquial)
-fasten — to fast  (fastet, hat gefastet)
-das Kompliment — compliment  (pl. die Komplimente)
-faulenzen — to laze around  (faulenzt, hat gefaulenzt)
-die Gesundheit — health`;
+doof — stupid
+blöd — silly
+fasten — (hat...gefastet) to fast
+das Kompliment — (die Komplimente) the compliment
+faulenzen — (hat...gefaulenzt) to chill / relax
+die Gesundheit — health
+`;
 
     const rawA2Text = `
 ===== A2 – Chapter 1 =====
-das Jubiläum — anniversary / jubilee  (pl. die Jubiläen)
-die Europameisterschaft — European Championship  (pl. die Europameisterschaften)
-die EM — European Championship (abbr.)  (pl. die EMs)
-das Finale — final (match)  (pl. die Finale)
-der Neffe — nephew  (pl. die Neffen)
-die Nichte — niece  (pl. die Nichten)
-der Preis — prize; price  (pl. die Preise)
-probieren — to try / to taste  (probiert, hat probiert)
-verkaufen — to sell  (verkauft, hat verkauft)
-behalten — to keep  (behält, hat behalten)
-draußen übernachten — to sleep outside
-auf Bäume klettern — to climb trees
-Fußballbilder sammeln — to collect football stickers
-Skateboard fahren — to skateboard
-Comics lesen — to read comics
-Süßigkeiten essen — to eat sweets / candy
-Seil springen — to jump rope
-Tagebuch schreiben — to keep a diary
-Schneemänner bauen — to build snowmen
-früher — in the past / formerly
-die Kindheit — childhood  (pl. die Kindheiten)
-die Geschichte — story; history  (pl. die Geschichten)
-aufpassen — to pay attention / to look after  (passt auf, hat aufgepasst)
-das Mal — time (occasion)  (pl. die Male)
-die Sorte — kind / type / variety  (pl. die Sorten)
-sich vorstellen — to introduce oneself; to imagine  (stellt sich vor, hat sich vorgestellt)
-die Mensa — university cafeteria  (pl. die Mensen)
-die Universität — university  (pl. die Universitäten)
-die Uni — uni (university)  (pl. die Unis)
+das Jubiläum — (die Jubiläen) the anniversary
+die Europameisterschaft — (die Europmeisterschaften) the European Championship
+die EM — (die EMs) the Euro (European Championship)
+die Weltmeisterschaft — (die Weltmeisterschaften) the World Cup / World Championship
+die WM — (die WMs) the World Cup
+das Finale — (die Finalen / die Finale) the final
+der Neffe — (die Neffen) the nephew
+die Nichte — (die Nichten) the niece
+der Preis — (die Preise) the price
+probieren — (hat...probiert) to try
+verkaufen — (hat...verkauft) to sell
+behalten — (hat...behalten) to keep
+draußen übernachten — (hat...übernachtet) to sleep outside
+auf Bäume klettern — (ist...geklettert) to climb trees
+Fußballbilder sammeln — (hat...gesammelt) to collect football cards
+Skateboard fahren — (ist...gefahren) to ride a skateboard
+Comics lesen — (hat...gelesen) to read comics
+zeichnen — (hat...gezeichnet) to draw
+Süßigkeiten essen — (hat...gegessen) to eat sweets
+Seil springen — (ist...gesprungen) to jump rope
+basteln — (hat...gebastelt) to do crafts
+Tagebuch schreiben — (hat...geschrieben) to write in a diary
+Schneemänner bauen — (hat...gebaut) to build snowmen
+früher — earlier / in the past
+die Kindheit — the childhood
+die Geschichte — (die Geschichten) the story
+aufpassen — (hat...aufgepasst) to pay attention
+das Mal — the time (as in "einmal", once)
+die Sorte — (die Sorten) the kind / type
+jed- — every-
+letzt- — last-
+nächst- — next-
+vorstellen — (hat...vorgestellt) to introduce / to imagine
+die Mensa — (die Mensen) the cafeteria
+das Treppenhaus — (die Treppenhäuser) the stairwell
+die Universität — (die Universitäten) the university
+die Uni — (die Unis) the uni (university)
+die Post — the post / mail
+der Sport — (die Sportarten) the sport
+
 ===== A2 – Chapter 2 =====
-die Panne — breakdown (vehicle)  (pl. die Pannen)
-die Pannenhilfe — roadside assistance  (pl. die Pannenhilfen)
-der Wagen — car  (pl. die Wagen)
-die Werkstatt — workshop / garage  (pl. die Werkstätten)
-der Pannenhelfer — roadside assistance worker  (pl. die Pannenhelfer)
-die Messe — trade fair  (pl. die Messen)
-der Held — hero  (pl. die Helden)
-der Alltag — everyday life
+die Panne — (die Pannen) the breakdown / flat tire
+die Pannenhilfe — (die Pannenhilfen) the roadside assistance
+der Wagen — (die Wagen) the car
+die Werkstatt — (die Werkstätten) the workshop / garage
+der Pannenhelfer — (die Pannenhelfer) the breakdown assistant (male)
+die Pannenhelferin — (die Pannenhelferinnen) the breakdown assistant (female)
+die Messe — (die Messen) the fair / trade fair
+der Held — (die Helden) the hero (male)
+die Heldin — (die Heldinnen) the hero (female)
+der Alltag — the everyday life
 aufgeregt — excited / nervous
-ausmachen — to make up / to matter; to turn off  (macht aus, hat ausgemacht)
-die Batterie — battery  (pl. die Batterien)
-die Eile — hurry / rush
-der Erfolg — success  (pl. die Erfolge)
-erleben — to experience  (erlebt, hat erlebt)
-die Ferien — holidays / vacation (school)  (pl. die Ferien)
-die Freikarte — free ticket  (pl. die Freikarten)
-furchtbar — terrible / awful
+ausmachen — (hat...ausgemacht) to turn off
+die Batterie — (die Batterien) the battery
+die Eile — the hurry
+der Erfolg — (die Erfolge) the success
+erleben — (hat...erlebt) to experience
+die Ferien — the holidays / vacation
+die Freikarte — (die Freikarten) the free ticket
+furchtbar — terrible
 hart — hard / tough
-die Kälte — cold (coldness)
-leicht — easy; light
-die Oper — opera  (pl. die Opern)
-der Reifen — tyre  (pl. die Reifen)
-die Rolle — role  (pl. die Rollen)
+die Kälte — the cold
+leicht — easy / light
+die Oper — (die Opern) the opera
+der Reifen — (die Reifen) the tire
+die Rolle — (die Rollen) the role
 stressig — stressful
 verzweifelt — desperate
-der Vorteil — advantage  (pl. die Vorteile)
-der Nachteil — disadvantage  (pl. die Nachteile)
-wechseln — to change / to switch  (wechselt, hat gewechselt)
+der Vorteil — (die Vorteile) the advantage
+der Nachteil — (die Nachteile) the disadvantage
+wechseln — (hat...gewechselt) to change
 weil — because
-im Freien — outdoors
-drinnen — inside / indoors
-Schicht arbeiten — to work shifts
-Überstunden machen — to work overtime
-feste Arbeitszeiten — fixed working hours
-flexible Arbeitszeiten — flexible working hours
-der Mitbewohner — roommate / flatmate  (pl. die Mitbewohner)
-der Stress — stress
+im Freien arbeiten — (hat...gearbeitet) to work outdoors
+draußen arbeiten — (hat...gearbeitet) to work outside
+drinnen arbeiten — (hat...gearbeitet) to work inside
+Schicht arbeiten — (hat...geleistet) to work shifts
+Überstunden machen — (hat...gemacht) to work overtime
+verdienen — (hat...verdient) to earn
+feste Arbeitszeiten haben — to have fixed working hours
+flexible Arbeitszeiten haben — to have flexible working hours
+der Mitbewohner — (die Mitbewohner) the roommate (male)
+die Mitbewohnerin — (die Mitbewohnerinnen) the roommate (female)
+der Stress — the stress
+
 ===== A2 – Chapter 3 =====
-aufbauen — to set up / to build  (baut auf, hat aufgebaut)
-anstrengend — exhausting / strenuous
+aufbauen — (hat...aufgebaut) to build up / to set up
+anstrengend — exhausting / tiring
 aufregend — exciting
-ausziehen — to move out  (zieht aus, ist ausgezogen)
-spannend — exciting / gripping
-vermissen — to miss (someone/something)  (vermisst, hat vermisst)
-vorbeikommen — to drop by / to come by  (kommt vorbei, ist vorbeigekommen)
-das Ufer — shore / bank (of a river/lake)  (pl. die Ufer)
-die Landschaft — landscape  (pl. die Landschaften)
-das Dorf — village  (pl. die Dörfer)
-das Tal — valley  (pl. die Täler)
-die Alternative — alternative  (pl. die Alternativen)
-der Sand — sand
-der Fan — fan  (pl. die Fans)
-joggen — to jog  (joggt, ist gejoggt)
-das Bier — beer  (pl. die Biere)
-die Limonade — lemonade / soft drink  (pl. die Limonaden)
-das Mountainbike — mountain bike  (pl. die Mountainbikes)
-selten — rarely / seldom
+ausziehen — (ist...ausgezogen) to move out
+spannend — exciting / thrilling
+vermissen — (hat...vermisst) to miss (someone/something)
+vorbeikommen — (ist...vorbeigekommen) to stop by
+das Ufer — (die Ufer) the shore / bank
+die Landschaft — (die Landschaften) the landscape
+der Hügel — (die Hügel) the hill
+das Dorf — (die Dörfer) the village
+das Tal — (die Täler) the valley
+das Feld — (die Felder) the field
+die Alternative — (die Alternativen) the alternative
+beobachten — (hat...beobachtet) to observe
+der Sand — (der Sand) the sand
+der Fan — (die Fans) the fan
+joggen — (ist...gejoggt) to jog
+das Bier — the beer
+die Limonade — (die Limonaden) the soda / soft drink
+das Mountainbike — (die Mountainbikes) the mountain bike
+selten — rarely
 aktiv — active
-sportlich — sporty / athletic
+sportlich — athletic / sporty
 übrigens — by the way
-die Umgebung — surroundings / area  (pl. die Umgebungen)
-wunderschön — beautiful / gorgeous
-der Norden — north
-der Süden — south
-der Westen — west
-der Osten — east
-die Biene — bee  (pl. die Bienen)
-der Frosch — frog  (pl. die Frösche)
-die Kuh — cow  (pl. die Kühe)
-das Pferd — horse  (pl. die Pferde)
-das Schaf — sheep  (pl. die Schafe)
-der Unterschied — difference  (pl. die Unterschiede)
-der Hügel — hill  (pl. die Hügel)
-das Feld — field  (pl. die Felder)
-der Kanal — canal; channel  (pl. die Kanäle)
-die Nordsee — North Sea
-die Ostsee — Baltic Sea
-außerdem — besides / in addition
+die Umgebung — (die Umgebungen) the environment / surroundings
+wunderschön — beautiful
+der Norden — the north
+der Süden — the south
+der Westen — the west
+der Osten — the east
+die Biene — (die Bienen) the bee
+der Frosch — (die Frösche) the frog
+die Kuh — (die Kühe) the cow
+das Pferd — (die Pferde) the horse
+das Schaf — (die Schafe) the sheep
+der Unterschied — (die Unterschiede) the difference
+der Kanal — (die Kanäle) the cannel (water)
+die Nordsee — the North Sea
+die Ostsee — the Baltic Sea
+außerdem — besides / moreover
+auf keinen Fall — not at all / absolutely not
+
 ===== A2 – Chapter 4 =====
 freitags — on Fridays
-das Homeoffice — working from home
-das Seminar — seminar  (pl. die Seminare)
-das Meeting — meeting  (pl. die Meetings)
-die Präsentation — presentation  (pl. die Präsentationen)
+das Homeoffice — the home office
+das Seminar — (die Seminare) the seminar
+das Meeting — (die Meetings) the meeting
+die Präsentation — (die Präsentationen) the presentation
 gestresst — stressed
-ausschalten — to switch off  (schaltet aus, hat ausgeschaltet)
-das Mikrofon — microphone  (pl. die Mikrofone)
-teilnehmen — to take part / to participate  (nimmt teil, hat teilgenommen)
-der Werbespot — advert / commercial  (pl. die Werbespots)
-aufgehen — to rise (sun); to open  (geht auf, ist aufgegangen)
-mittags — at midday / at lunchtime
-die Besprechung — meeting / discussion  (pl. die Besprechungen)
-der Vertrag — contract  (pl. die Verträge)
-die Einladung — invitation  (pl. die Einladungen)
-die Rechnung — bill / invoice  (pl. die Rechnungen)
-die Geschäftsreise — business trip  (pl. die Geschäftsreisen)
-kontaktieren — to contact  (kontaktiert, hat kontaktiert)
-unterschreiben — to sign  (unterschreibt, hat unterschrieben)
-verschicken — to send (out)  (verschickt, hat verschickt)
-vorbereiten — to prepare  (bereitet vor, hat vorbereitet)
+ausschalten — (hat...ausgeschaltet) to turn off
+das Mikrofon — (die Mikrofone) the microphone
+das Mikro — (die Mikros) the mic
+teilnehmen — (hat...teilgenommen) to participate
+der Werbespot — (die Werbespots) the commercial / ad
+aufgehen — (ist...aufgegangen) to go on / to open up
+mittags — at noon / at lunchtime
+die Besprechung — (die Besprechungen) the meeting
+die Sitzung — (die Sitzungen) the session / meeting
+der Vertrag — (die Verträge) the contract
+die Einladung — (die Einladungen) the invitation
+die Rechnung — (die Rechnungen) the bill / invoice
+die Geschäftsreise — (die Geschäftsreisen) the business trip
+kontaktieren — (hat...kontaktiert) to contact
+unterschreiben — (hat...unterschrieben) to sign
+verschicken — (hat...verschickt) to send
+vorbereiten — (hat...vorbereitet) to prepare
 deshalb — therefore / that's why
-reden — to talk  (redet, hat geredet)
-die Bäckerei — bakery  (pl. die Bäckereien)
+reden — (hat...geredet) to talk
+die Bäckerei — (die Bäckereien) the bakery
 möglich — possible
 dringend — urgent
-der Auftrag — order / assignment / task  (pl. die Aufträge)
-erteilen — to give / to place (an order)  (erteilt, hat erteilt)
+der Auftrag — (die Aufträge) the order / assignment
+erteilen — (hat...erteilt) to give (an order)
 negativ — negative
 positiv — positive
-übernehmen — to take over / to take on  (übernimmt, hat übernommen)
-erledigen — to get done / to take care of  (erledigt, hat erledigt)
-buchen — to book  (bucht, hat gebucht)
-informieren — to inform  (informiert, hat informiert)
-reservieren — to reserve  (reserviert, hat reserviert)
+übernehmen — (hat...übernommen) to take over
+erledigen — (hat...erledigt) to do / finish
+buchen — (hat...gebucht) to book
+informieren — (hat...informiert) to inform
+reservieren — (hat...reserviert) to reserve
+
 ===== A2 – Chapter 5 =====
-das Eishockey — ice hockey
-das Stadion — stadium  (pl. die Stadien)
-wählen — to choose; to vote; to dial  (wählt, hat gewählt)
-die Überraschung — surprise  (pl. die Überraschungen)
-überraschen — to surprise  (überrascht, hat überrascht)
-das Ticket — ticket  (pl. die Tickets)
+Eishockey — ice hockey
+das Stadion — (die Stadions / die Stadien) the stadium
+wählen — (hat...gewählt) to choose
+die Überraschung — (die Überraschungen) the surprise
+überraschen — (hat...überrascht) to surprise
+das Ticket — (die Tickets) the ticket
 enttäuscht — disappointed
 begeistert — enthusiastic / thrilled
-das Theaterstück — play (theatre)  (pl. die Theaterstücke)
-die Ausstellung — exhibition  (pl. die Ausstellungen)
-das Krimidinner — murder mystery dinner  (pl. die Krimidinner)
-schenken — to give (as a gift)  (schenkt, hat geschenkt)
-die Story — story  (pl. die Storys)
+das Theaterstück — (die Theaterstücke) the play
+das Konzert — (die Konzerte) the concert
+die Oper — (die Opern) the opera
+das Ballett — (die Ballette) the ballet
+die Ausstellung — (die Ausstellungen) the exhibition
+das Festival — (die Festivals) the festival
+die Lesung — (die Lesungen) the reading
+das Musical — (die Musicals) the musical
+das Krimidinner — (die Krimidinner) the murder mystery dinner
+das Basketballspiel — (die Basketballspiele) the basketball game
+die Zaubershow — (die Zaubershows) the magic show
+das Kabarett — (die Kabaretts) the cabaret
+schenken — (hat...geschenkt) to give (as a gift)
+die Story — (die Stories / die Storys) the story
 fantastisch — fantastic
-das Konzert — concert  (pl. die Konzerte)
-die Oper — opera  (pl. die Opern)
-das Ballett — ballet  (pl. die Ballette)
-das Festival — festival  (pl. die Festivals)
-die Lesung — (book) reading  (pl. die Lesungen)
-das Musical — musical  (pl. die Musicals)
-das Basketballspiel — basketball game  (pl. die Basketballspiele)
-die Zaubershow — magic show  (pl. die Zaubershows)
-das Kabarett — cabaret (satirical comedy)  (pl. die Kabaretts)
-die Ahnung — idea / clue / hunch  (pl. die Ahnungen)
-der Star — star (celebrity)  (pl. die Stars)
-das Autogramm — autograph  (pl. die Autogramme)
-der Künstler — artist  (pl. die Künstler)
-warten — to wait  (wartet, hat gewartet)
-das Ende — end  (pl. die Enden)
-die Dauer — duration
+die Ahnung — the hunch / feeling
+der Star — (die Stars) the star
+das Autogramm — (die Autogramme) the autograph
+der Künstler — (die Künstler) the artist (male)
+die Künstlerin — (die Künstlerinnen) the artist (female)
+warten — (hat...gewartet) to wait
+das Ende — (die Enden) the end
+die Dauer — the duration
 neugierig — curious
-klingen — to sound  (klingt, hat geklungen)
-die Tournee — tour (concert tour)  (pl. die Tourneen)
-der Clown — clown  (pl. die Clowns)
-einverstanden — agreed / in agreement
-halten — to hold; to give (a speech)  (hält, hat gehalten)
-mitkommen — to come along  (kommt mit, ist mitgekommen)
-zustimmen — to agree  (stimmt zu, hat zugestimmt)
+klingen — (hat...geklungen) to sound
+die Tournee — (die Tourneen) the tour
+der Clown — (die Clowns) the clown
+einverstanden — agree / okay
+halten — (hat...gehalten) to hold / to keep
+mitkommen — (ist...mitgekommen) to come along
+zustimmen — (hat...zugestimmt) to agree
 etwas höflich ablehnen — to politely decline something
-das Klavier — piano  (pl. die Klaviere)
-der Autor — author  (pl. die Autoren)
-jemand — someone / somebody
-überreden — to persuade / to talk into  (überredet, hat überredet)
-überzeugen — to convince  (überzeugt, hat überzeugt)
-zögernd — hesitant / hesitantly
-bestimmt — certainly / definitely
+das Klavier — (die Klaviere) the piano
+der Autor — (die Autoren) the author (male)
+die Autorin — (die Autorinnen) the author (female)
+jemand — someone
+überreden — (hat...überredet) to persuade
+überzeugen — (hat...überzeugt) to convince
+zögernd — hesitant
+bestimmt — definitely
+
 ===== A2 – Chapter 6 =====
-das Programm — programme / program  (pl. die Programme)
+das Programm — (die Programme) the program
 bereit — ready
-losgehen — to start; to set off  (geht los, ist losgegangen)
-trainieren — to train / to work out  (trainiert, hat trainiert)
-abends — in the evening(s)
-die Einheit — unit; (training) session  (pl. die Einheiten)
-verdoppeln — to double  (verdoppelt, hat verdoppelt)
-niemand — nobody / no one
-häufig — often / frequent
-das Kilogramm — kilogram  (pl. die Kilogramm)
-wiegen — to weigh  (wiegt, hat gewogen)
-die Sportart — type of sport  (pl. die Sportarten)
-Judo — judo
-Badminton — badminton
-Golf — golf
-Tischtennis — table tennis
-Pingpong — ping-pong
-Walken — (Nordic) walking
-Aquafitness — aqua fitness
-der Mitarbeiter — employee / staff member  (pl. die Mitarbeiter)
-die Halle — hall  (pl. die Hallen)
-die Platte — (table tennis) table; plate  (pl. die Platten)
-der Wettkampf — competition  (pl. die Wettkämpfe)
-die Daten — data  (pl. die Daten)
-das Leben — life  (pl. die Leben)
-ausgehen — to go out  (geht aus, ist ausgegangen)
-die Mannschaft — team  (pl. die Mannschaften)
-ausprobieren — to try out  (probiert aus, hat ausprobiert)
-Rudern — rowing
-Stand-Up-Paddeln — stand-up paddling
-Tauchen — diving
+losgehen — (ist...losgegangen) to start off / get going
+trainieren — (hat...trainiert) to train
+abends — in the evening
+die Einheit — (die Einheiten) the unit / session
+verdoppeln — (hat...verdoppelt) to double
+an deiner Stelle — in your place
+niemand — no one
+häufig — frequent / often
+das Kilogramm — (hat...die Kilogramme) the kilogram
+wiegen — (hat...gewogen) to weigh
+die Sportart — (die Sportarten) the sport
+Judo machen — (hat...gemacht) to do judo
+Badminton spielen — (hat...gespielt) to play badminton
+Golf spielen — (hat...gespielt) to play golf
+Tischtennis spielen — (hat...gespielt) to play table tennis
+walken — (ist...gewalkt) to walk fast / power walk
+Aquafitness machen — (hat...gemacht) to do aqua fitness
+rudern — (ist...gerudert) to row
+mit dem SUP fahren — (ist...gefahren) to paddleboard
+tauchen — (ist...getaucht) to dive / to snorkel
 unterschiedlich — different / varied
-die Meinung — opinion  (pl. die Meinungen)
-morgens — in the morning(s)
-direkt — directly / direct
-die Entspannung — relaxation  (pl. die Entspannungen)
-kostenlos — free (of charge)
-der Verein — club / association  (pl. die Vereine)
-die Unterstützung — support
+die Meinung — (die Meinungen) the opinion
+morgens — in the morning
+direkt — directly / right away
+die Entspannung — the relaxation
+kostenlos — free of charge
+der Verein — (die Vereine) the club
+die Unterstützung — the support
+der Mitarbeiter — (die Mitarbeiter) the employee (male)
+die Miarbeiterin — (die Mitarbeiterinnen) the employee (female)
+die Halle — (die Hallen) the hall
+die Platte — (die Platten) the table - Tischtennisplatte
+vor allem — above all / especially
+der Wettkampf — (die Wettkämpfe) the competition
+Das ist nichts für mich! — That’s not for me!
+die Daten — (die Daten) the data
+das Leben — the life
+ausgehen — (ist...ausgegangen) to go out (socially)
+die Mannschaft — (die Mannschaften) the team
+ausprobieren — (hat...ausprobiert) to try out
+
 ===== A2 – Chapter 7 =====
-der Alkohol — alcohol  (pl. die Alkohole)
-genießen — to enjoy  (genießt, hat genossen)
-miteinander — with each other / together
-der Humor — humour
+der Alkohol — the alcohol
+genießen — (hat...genossen) to enjoy
+miteinander — with each other
+der Humor — the humor
 kritisch — critical
-hoffen — to hope  (hofft, hat gehofft)
-fürchten — to fear  (fürchtet, hat gefürchtet)
-das Mineralwasser — mineral water  (pl. die Mineralwässer)
-die Cola — cola  (pl. die Colas)
-der Wein — wine  (pl. die Weine)
-die Saftschorle — juice spritzer (juice + sparkling water)  (pl. die Saftschorlen)
-der Kakao — cocoa / hot chocolate  (pl. die Kakaos)
-die Pizza — pizza  (pl. die Pizzen)
-das Sandwich — sandwich  (pl. die Sandwiches)
-die Bratwurst — grilled sausage  (pl. die Bratwürste)
-die Erdbeertorte — strawberry tart  (pl. die Erdbeertorten)
-der Birnenkuchen — pear cake  (pl. die Birnenkuchen)
-der Marmorkuchen — marble cake  (pl. die Marmorkuchen)
-die Sahne — cream
-die Birne — pear  (pl. die Birnen)
-die Banane — banana  (pl. die Bananen)
-der Imbissstand — snack stand / food stall  (pl. die Imbissstände)
-die Angestellte — employee (female)  (pl. die Angestellten)
-sonst — otherwise; else
-zahlen — to pay  (zahlt, hat gezahlt)
+hoffen — (hat...gehofft) to hope
+fürchten — (hat...gefürchtet) to fear
+das Mineralwasser — the mineral water
+die Cola — (die Colas) the cola
+der Wein — (die Weine) the wine
+die Saftschorle — (die Saftschorlen) the juice spritzer
+der Kakao — (die Kakao) the cocoa
+die Pizza — (die Pizzen) the pizza
+das Sandwich — (die Sandwiches) the sandwich
+die Bratwurst — (die Bratwürste) the sausage
+die Erdbeertorte — (die Erdbeertorten) the strawberry cake
+der Birnenkuchen — (die Birnenkuchen) the pear cake
+der Marmorkuchen — (die Marmorkuchen) the marble cake
+die Sahne — the cream
+die Schlagsahne — the whipped cream
+die Birne — (die Birnen) the pear
+die Banane — (die Bananen) the banana
+der Imbisssstand — (die Imbissstände) the snack stand
+der Angstellte — (die Angestellten) the employee (male)
+die Angestellte — (die Angestellten) the employee (female)
+sonst — otherwise
+zahlen — (hat...gezahlt) to pay
 getrennt — separately
-bar — (in) cash
-die Karte — card; ticket; menu  (pl. die Karten)
-aufnehmen — to take (an order); to record  (nimmt auf, hat aufgenommen)
-der Augenblick — moment  (pl. die Augenblicke)
+bar — cash
+die EC-Karte — (die EC-Karten) the debit card
+aufnehmen — (hat...aufgenommen) to record / take in
+der Augenblick — (die Augenblicke) the moment
 kompliziert — complicated
-die Kasse — checkout / till  (pl. die Kassen)
-der Supermarkt — supermarket  (pl. die Supermärkte)
-liefern — to deliver  (liefert, hat geliefert)
-der Lieferservice — delivery service  (pl. die Lieferservices)
+die Kasse — (die Kassen) the cash register / checkout
+der Supermarkt — (die Supermärkte) the supermarket
+liefern — (hat...geliefert) to deliver
+der Lieferservice — the delivery service
 regelmäßig — regularly
-das Rezept — recipe; prescription  (pl. die Rezepte)
-der Pfannkuchen — pancake  (pl. die Pfannkuchen)
+das Rezept — (die Rezepte) the recipe
+der Pfannkuchen — (die Pfannkuchen) the pancake
+
 ===== A2 – Chapter 8 =====
 peinlich — embarrassing
-der Raum — room / space  (pl. die Räume)
-der Personalchef — HR manager  (pl. die Personalchefs)
-der Azubi — apprentice / trainee  (pl. die Azubis)
-die Produktion — production  (pl. die Produktionen)
-die IT-Abteilung — IT department  (pl. die IT-Abteilungen)
-die Personalabteilung — HR department  (pl. die Personalabteilungen)
-das Lager — warehouse / storage  (pl. die Lager)
-die Kantine — canteen  (pl. die Kantinen)
-der Konferenzraum — conference room  (pl. die Konferenzräume)
-das Personal — staff / personnel
-entfernen — to remove  (entfernt, hat entfernt)
-die Wirtschaft — economy  (pl. die Wirtschaften)
-regional — regional / local
-dorthin — (to) there
-das Unternehmen — company / enterprise  (pl. die Unternehmen)
-einrichten — to furnish / to set up  (richtet ein, hat eingerichtet)
-die Untersuchung — investigation / examination / study  (pl. die Untersuchungen)
-der Arbeitnehmer — employee  (pl. die Arbeitnehmer)
-der Arbeitgeber — employer  (pl. die Arbeitgeber)
-der Betrieb — company / business / plant  (pl. die Betriebe)
-das Klima — climate; atmosphere  (pl. die Klimate)
-der Artikel — article  (pl. die Artikel)
-besprechen — to discuss  (bespricht, hat besprochen)
-untersuchen — to examine / to investigate  (untersucht, hat untersucht)
+der Raum — (die Räume) the room
+der Personalchef — (die Personalchefs) the HR manager (male)
+die Personalchefin — (die Personalchefinnen) the HR manager (female)
+der Azubi — (die Azubis) the apprentice / intern (male)
+die Azubi — (die Azubis) the apprentice / intern (female)
+die Produktion — (die Produktionen) the production
+die IT-Abteilung — (die IT-Abteilungen) the IT department
+die Personalabteilung — (die Personalabteilungen) the HR department
+das Lager — (die Lager) the warehouse
+die Kantine — (die Kantinen) the cafeteria
+der Konferenzraum — (die Konferenzräume) the conference room
+das Personal — the staff
+entfernen — (hat...entfernt) to remove
+die Wirtschaft — the economy
+regional — regional
+dorthin — there
+das Unternehmen — (die Unternehmen) the company
+einrichten — (hat...eingerichtet) to set up
+die Untersuchung — (die Untersuchungen) the investigation
+der Arbeitnehmer — (die Arbeitnehmer) the employee (male)
+die Arbeitnehmerin — (die Arbeitnehmerinnen) the employee (female)
+der Arbeitgeber — (die Arbeitgeber) the employer (male)
+die Arbeitgeberin — (die Arbeitgeberinnen) the employer (female)
+der Betrieb — (die Betriebe) the business / operation
+das Klima — the climate
+der Artikel — (die Artikel) the article
+besprechen — (hat...besprochen) to discuss
+untersuchen — (hat...untersucht) to examine
 seltsam — strange / odd
 Es wundert mich — It surprises me
 mindestens — at least
+
 ===== A2 – Chapter 9 =====
-an die Wand hängen — to hang on the wall
-hinter den Schrank stellen — to put behind the cupboard
-unter das Bett legen — to put under the bed
-hängen — to hang  (hängt, hat gehangen)
-legen — to lay / to put (flat)  (legt, hat gelegt)
-liegen — to lie (be lying flat)  (liegt, hat gelegen)
-stehen — to stand  (steht, hat gestanden)
-stellen — to put / to place (upright)  (stellt, hat gestellt)
-das Kissen — pillow / cushion  (pl. die Kissen)
-der Polster — cushion (sofa) (Austrian)  (pl. die Polster)
-die Wand — wall  (pl. die Wände)
-die Garderobe — coat rack / cloakroom  (pl. die Garderoben)
-das Heft — notebook / exercise book  (pl. die Hefte)
-der Lautsprecher — loudspeaker  (pl. die Lautsprecher)
-die Pflanze — plant  (pl. die Pflanzen)
-das Plakat — poster / placard  (pl. die Plakate)
-das Poster — poster  (pl. die Poster)
-der Radiergummi — eraser / rubber  (pl. die Radiergummis)
-die Schachtel — box  (pl. die Schachteln)
-der Block — notepad  (pl. die Blöcke)
-der Zettel — note / slip of paper  (pl. die Zettel)
-der Ordner — folder / binder  (pl. die Ordner)
-die Schere — scissors  (pl. die Scheren)
-innen — inside
-abschneiden — to cut off  (schneidet ab, hat abgeschnitten)
-komplett — complete / completely
-verlassen — to leave  (verlässt, hat verlassen)
-kontrollieren — to check / to control  (kontrolliert, hat kontrolliert)
-schneiden — to cut  (schneidet, hat geschnitten)
-die Briefmarke — stamp (postage)  (pl. die Briefmarken)
-aussuchen — to pick out / to choose  (sucht aus, hat ausgesucht)
-ähnlich — similar
-süß — sweet; cute
-ungewöhnlich — unusual
-der Beitrag — contribution; post  (pl. die Beiträge)
-die Gewohnheit — habit  (pl. die Gewohnheiten)
-veröffentlichen — to publish  (veröffentlicht, hat veröffentlicht)
-zählen — to count  (zählt, hat gezählt)
-die Stufe — step; level / stage  (pl. die Stufen)
-Mathematik — mathematics
-gespannt — eager / curious (to see)
-die Buchhandlung — bookshop  (pl. die Buchhandlungen)
-riechen — to smell  (riecht, hat gerochen)
-der Händler — dealer / trader  (pl. die Händler)
+wählen — (hat...gewählt) to choose
+an die Wand hängen — (hat...gehängt) to hang on the wall
+an der Wand hängen — (hat...gehangen) hanging on the wall
+hinter den Schrank stellen — (hat...gestellt) to put behind the cupboard
+hinter dem Schrank stehen — (hat...gestanden) to be behind the cupboard
+unter das Bett legen — (hat...gelegt) to put under the bed
+und dem Bett liegen — (hat...gelegen) to be under the bed
+das Kissen — (die Kissen) the pillow
+die Wand — (die Wände) the wall
+die Garderobe — (die Garderoben) the coat rack
+das Heft — (die Hefte) the notebook
+der Lautsprecher — (die Lautsprecher) the speaker
+die Pflanze — (die Pflanzen) the plant
+das Plakat — (die Plakate) the poster
+das Poster — (die Poster) the poster
+der Radiergummi — (die Radiergummis) the eraser
+die Schachtel — (die Schachteln) the box
+der Schreibblock — (die Schreibblöcke) the notepad
+der Zettel — (die Zettel) the note / slip
+der Ordner — (die Ordner) the folder
+die Schere — (die Scheren) the scissors
+der Beitrag — (die Beiträge) the contribution / article
+die Gewohnheit — (die Gewohnheiten) the habit
+veröffentlichen — (hat...veröffentlicht) to publish
+zählen die Stufe — (hat...gezählt) to count the step
+runter — down
+die Mathematik — the mathematics
+gespannt — excited / curious
+die Buchhandlung — (die Buchhandlungen) the bookstore
+riechen — (hat...gerochen) to smell
+gucken — (hat...geguckt) to look / watch
+schauen — (hat...geschaut) to look / watch
+der Händler — (die Händler) the seller (male)
+die Händlerin — (die Händlerinnen) the seller (female)
 außen — outside
+innen — inside
+abschneiden — (hat...abgeschnitten) to cut off
+komplett — completely
+verlassen — (hat...verlassen) to leave
+kontrollieren — (hat...kontrolliert) to check / control
+schneiden — (hat...geschnitten) to cut
+die Briefmarke — (die Briefmarken) the stamp
+aussuchen — (hat...ausgesucht) to choose / pick out
+ähnlich — similar
+süß — sweet / cute
+ungewöhnlich — unusual
+
 ===== A2 – Chapter 10 =====
-der E-Scooter — e-scooter  (pl. die E-Scooter)
-das Mietauto — rental car  (pl. die Mietautos)
-das Leihrad — rental bike  (pl. die Leihräder)
-dafür — for it / for that; in return
-versprechen — to promise  (verspricht, hat versprochen)
-ablehnen — to reject / to decline  (lehnt ab, hat abgelehnt)
+der E-Scooter — (die E-Scooter) the e-scooter
+das Mietauto — (die Mietautos) the rental car
+das Leihrad — (die Leihräder) the rental bike
+versprechen — (du versprichst, er verspricht / hat...versprochen) to promise
+ablehnen — (hat...abgelehnt) to refuse
 definitiv — definitely
-gegenüber — opposite; towards
-die Reihe — row / line  (pl. die Reihen)
-der Stau — traffic jam  (pl. die Staus)
-unternehmen — to do / to undertake  (unternimmt, hat unternommen)
-herrlich — wonderful / glorious
-der Bäcker — baker  (pl. die Bäcker)
-endlich — finally / at last
-das Chaos — chaos
-der Zebrastreifen — zebra crossing / crosswalk  (pl. die Zebrastreifen)
-der Bürgersteig — pavement / sidewalk  (pl. die Bürgersteige)
-die Fußgängerzone — pedestrian zone  (pl. die Fußgängerzonen)
-die Fahrbahn — carriageway / road lane  (pl. die Fahrbahnen)
-die Autobahn — motorway / highway  (pl. die Autobahnen)
-die Ausfahrt — exit (motorway)  (pl. die Ausfahrten)
-die Baustelle — construction site / roadworks  (pl. die Baustellen)
-die Umleitung — detour / diversion  (pl. die Umleitungen)
-der Unfall — accident  (pl. die Unfälle)
-der Pkw — car (passenger vehicle)  (pl. die Pkws)
-der Lkw — truck / lorry  (pl. die Lkws)
-die Nachricht — message; news  (pl. die Nachrichten)
-folgen — to follow  (folgt, ist gefolgt)
-Bundes- — federal ...
+gegenüber — opposite
+die Reihe — (die Reihen) the row
+der Stau — (die Staus) the traffic jam
+unternehmen — (du unternimmst, er unternimmt / hat...unternommen) to undertake, to do activities
+herrlich — magnificent
+der Bäcker — (die Bäcker) the baker (male)
+die Bäckerin — (die Bäckerinnen) the baker (female)
+endlich — finally
+das Chaos — the chaos
+der Zebrastreifen — (die Zebrastreifen) the pedestrian crossing
+der Bürgersteig — (die Bürgersteige) the sidewalk
+der Gehweg — (die Gehwege) the sidewalk
+die Fußgängerzone — (die Fußgängerzonen) the pedestrian zone
+die Fahrbahn — (die Fahrbahnen) the roadway
+die Autobahn — (die Autobahnen) the highway
+die Ausfahrt — (die Ausfahrten) the exit (highway)
+die Baustelle — (die Baustellen) the construction site
+die Umleitung — (die Umleitungen) the detour
+der Unfall — (die Unfälle) the accident
+der Pkw — (die Pkws) the car
+der Lkw — (die Lkws) the truck
+die Nachricht — (die Nachrichten) the message
+folgen — (ist...gefolgt) to follow
+Bundesstraße — federal road (a major road connecting cities, but not a highway)
 vorsichtig — careful
-überholen — to overtake  (überholt, hat überholt)
+überholen — (hat...überholt) to overtake
+
 ===== A2 – Chapter 11 =====
-die Überquerung — crossing  (pl. die Überquerungen)
-die Aussicht — view; prospect  (pl. die Aussichten)
+die Überquerung — (die Überquerungen) the crossing
+die Aussicht — (die Aussichten) the view
 das Camping — camping
-die Sauna — sauna  (pl. die Saunen)
-das Luxushotel — luxury hotel  (pl. die Luxushotels)
-die Zahnbürste — toothbrush  (pl. die Zahnbürsten)
-die Zahnpasta — toothpaste  (pl. die Zahnpasten)
-die Sonnencreme — sunscreen  (pl. die Sonnencremes)
-der Sonnenhut — sun hat  (pl. die Sonnenhüte)
-das Pflaster — plaster / band-aid  (pl. die Pflaster)
-das Handtuch — towel  (pl. die Handtücher)
-der Schlafsack — sleeping bag  (pl. die Schlafsäcke)
-die Wolldecke — wool blanket  (pl. die Wolldecken)
-das Ladegerät — charger  (pl. die Ladegeräte)
-das Taschenmesser — pocketknife  (pl. die Taschenmesser)
-die Taschenlampe — torch / flashlight  (pl. die Taschenlampen)
-die Trinkflasche — water bottle  (pl. die Trinkflaschen)
-die Wanderung — hike  (pl. die Wanderungen)
-der Bergführer — mountain guide  (pl. die Bergführer)
-erreichen — to reach  (erreicht, hat erreicht)
-überqueren — to cross  (überquert, hat überquert)
+die Sauna — (die Saunen) the sauna
+das Luxushotel — (die Luxushotels) the luxury hotel
+die Zahnbürste — (die Zahnbürsten) the toothbrush
+die Zahnpasta — the toothpaste
+die Sonnencreme — (die Sonnencremes) the sunscreen
+der Sonnenhut — (die Sonnenhüte) the sun hat
+das Pflaster — (die Pflaster) the band-aid
+das Handtuch — (die Handtücher) the towel
+der Schlafsack — (die Schlafsäcke) the sleeping bag
+die Wolldecke — (die Wolldecken) the wool blanket
+das Ladegerät — (die Ladegeräte) the charger
+das Taschenmesser — (die Taschenmesser) the pocket knife
+die Taschenlampe — (die Taschenlampen) the flashlight
+die Trinkflasche — (die Trinkflaschen) the water bottle
+die Wanderung — (die Wanderungen) the hike
+der Bergführer — (die Bergführer) the mountain guide (male)
+die Bergführerin — (die Bergführerinnen) the mountain guide (female)
+erreichen — (hat...erreicht) to reach
+überqueren — (hat...überquert) to cross
 leer — empty
-träumen — to dream  (träumt, hat geträumt)
-die Chance — chance / opportunity  (pl. die Chancen)
-der Berg — mountain  (pl. die Berge)
-die Berge — the mountains  (pl. die Berge)
-der Knochen — bone  (pl. die Knochen)
-der Muskel — muscle  (pl. die Muskeln)
+träumen — (hat...geträumt) to dream
+die Chance — (die Chancen) the chance
+der Berg — (die Berge) the mountain
+das Gebirge — the mountain range
+der Knochen — (die Knochen) the bone
+der Muskel — (die Muskeln) the muscle
 plötzlich — suddenly
-der Stein — stone  (pl. die Steine)
-vorher — before / beforehand
-der Zucker — sugar
-die Kreuzfahrt — cruise  (pl. die Kreuzfahrten)
-das Kajak — kayak  (pl. die Kajaks)
-reduzieren — to reduce  (reduziert, hat reduziert)
-das Prozent — percent  (pl. die Prozente)
-die meisten — most (of)
-rund — around / approximately; round
-die Hälfte — half  (pl. die Hälften)
-das Viertel — quarter; district  (pl. die Viertel)
-einige — some / a few
-Wellness — wellness / spa
-das Abenteuer — adventure  (pl. die Abenteuer)
+der Stein — (die Steine) the stone
+vorher — before
+der Zucker — the sugar
+die Kreuzfahrt — (die Kreuzfahrten) the cruise
+das Kajak — (die Kajaks) the kayak
+reduzieren — (hat...reduziert) to reduce
+das Prozent — (die Prozente) the percent
+die meisten — the most
+rund — round, about
+etwa — about
+die Hälfte — (die Hälften) the half
+das Viertel — (die Viertel) the quarter
+einige — some
+Wellness — wellness
+das Abenteuer — (die Abenteuer) the adventure
+
 ===== A2 – Chapter 12 =====
-Kopf hoch! — Chin up! / Cheer up!
-ansehen — to look at / to watch  (sieht an, hat angesehen)
-anschauen — to look at / to watch  (schaut an, hat angeschaut)
-rufen — to call / to shout  (ruft, hat gerufen)
-das Visum — visa  (pl. die Visa)
-der Reisepass — passport  (pl. die Reisepässe)
-der Personalausweis — ID card  (pl. die Personalausweise)
-das Zeugnis — certificate / school report  (pl. die Zeugnisse)
-der Lebenslauf — CV / résumé  (pl. die Lebensläufe)
-die Bewerbung — job application  (pl. die Bewerbungen)
-die Gesundheitskarte — health insurance card  (pl. die Gesundheitskarten)
-die Impfung — vaccination  (pl. die Impfungen)
+Kopf hoch! — chin up!
+ansehen — (du siehst an, er sieht an / hat...angesehen) to look at
+rufen — (hat...gerufen) to call
+das Visum — (die Visa) the visa
+der Reisepass — (die Reisepässe) the passport
+der Pass — (die Pässe) the passport
+der Personalausweis — (die Personalausweise) the identity card
+der Ausweis — (die Ausweise) the ID
+das Zeugnis — (die Zeugnisse) the certificate
+der Lebenslauf — (die Lebensläufe) the résumé, the CV
+die Bewerbung — (die Bewerbungen) the application
+die Gesundheitskarte — (die Gesundheitskarten) the health card
+die Versichertenkarte — (die Versichertenkarten) the insurance card
+die Impfung — (die Impfungen) the vaccination
 freiwillig — voluntary
-erfahren — to find out / to learn; to experience  (erfährt, hat erfahren)
-passen (zu) — to suit / to fit (with)  (passt, hat gepasst)
-der Freiwillige — volunteer  (pl. die Freiwilligen)
-die Betreuung — care / supervision  (pl. die Betreuungen)
-gleichzeitig — at the same time
+erfahren — (du erfährst, er erfährt / hat...erfahren) o find out / to learn about something
+passen — (du passt / hat...gepasst) to fit
+Freiwillige — volunteer (person/s)
+die Betreuung — (die Betreuungen) the care
+gleichzeitig — simultaneously
 bereits — already
-die Voraussetzung — requirement / prerequisite  (pl. die Voraussetzungen)
-die Kenntnis — knowledge  (pl. die Kenntnisse)
+die Voraussetzung — (die Voraussetzungen) the requirement
+die Kenntnis — (die Kenntnisse) the knowledge
 gültig — valid
-eventuell — possibly / perhaps
-die Ausnahme — exception  (pl. die Ausnahmen)
-die Öffnungszeit — opening hours  (pl. die Öffnungszeiten)
-die Demonstration — demonstration (protest)  (pl. die Demonstrationen)
-die Anmeldung — registration  (pl. die Anmeldungen)
-historisch — historical / historic
-die Tankstelle — petrol / gas station  (pl. die Tankstellen)
-der Zugang — access / entrance  (pl. die Zugänge)
-der Saal — hall (large room)  (pl. die Säle)
-ausleihen — to borrow; to lend  (leiht aus, hat ausgeliehen)
-der Eintritt — admission / entry (fee)  (pl. die Eintritte)
+eventuell — possibly
+die Ausnahme — (die Ausnahmen) the exception
+die Öffnungszeit — (die Öffnungszeiten) the opening time
+die Demonstration — (die Demonstrationen) the demonstration
+die Anmeldung — (die Anmeldungen) the registration
+historisch — historical
+die Tankstelle — (die Tankstellen) the gas station
+der Zugang — (die Zugänge) the access
+der Saal — (die Säle) the hall
+leihen — (hat...geliehen) to lend
+ausleihen — (hat...ausgeliehen) to borrow
+borgen — (hat...geborgt) to borrow
+der Eintritt — (die Eintritte) the entrance
 öffentlich — public
-die Linie — line (bus/metro)  (pl. die Linien)
-die Gefahr — danger  (pl. die Gefahren)
-die Innenstadt — city centre / downtown  (pl. die Innenstädte)
-kopieren — to copy  (kopiert, hat kopiert)
-ehrlich — honest / honestly
-sich überlegen — to think about / to consider  (überlegt sich, hat sich überlegt)
-die Erfahrung — experience  (pl. die Erfahrungen)
-die Leitung — management / leadership  (pl. die Leitungen)
-unterstützen — to support  (unterstützt, hat unterstützt)
-leiten — to lead / to manage  (leitet, hat geleitet)
-die Geduld — patience
+die Linie — (die Linien) the line
+die Gefahr — (die Gefahren) the danger
+die Innenstadt — (die Innenstädte) the city center
+kopieren — (hat...kopiert) to copy
+ehrlich — honest
+überlegen — (hat...überlegt) to consider, to think
+die Erfahrung — (die Erfahrungen) the experience
+die Leitung — (die Leitungen) the management
+unterstützen — (du unterstützt , hat...unterstützt) to support
+leiten — (du leitest, er leitet / hat...geleitet) to lead
+die Geduld — the patience
+eben — just
+die Enttäuschung — (die Enttäuschungen) the disappointment
+
 ===== A2 – Chapter 13 =====
 typisch — typical
-der Abschied — farewell / goodbye  (pl. die Abschiede)
-scharf — spicy; sharp
-das Verhalten — behaviour
+der Abschied — (die Abschiede) the farewell
+scharf — spicy
+das Verhalten — (die Verhalten) the behavior
 unmöglich — impossible
-der Durst — thirst
-wegräumen — to clear away / to put away  (räumt weg, hat weggeräumt)
-bemerken — to notice  (bemerkt, hat bemerkt)
-das Geschirr — dishes / crockery
-der Teller — plate  (pl. die Teller)
-das Glas — glass (drinking)  (pl. die Gläser)
-die Tasse — cup  (pl. die Tassen)
-das Messer — knife  (pl. die Messer)
-die Gabel — fork  (pl. die Gabeln)
-der Löffel — spoon  (pl. die Löffel)
-das Salz — salt  (pl. die Salze)
-die Karaffe — carafe / jug  (pl. die Karaffen)
-die Schüssel — bowl  (pl. die Schüsseln)
-der Topf — pot / saucepan  (pl. die Töpfe)
-das Besteck — cutlery  (pl. die Bestecke)
-der Pfeffer — pepper
-der Zucker — sugar
-der Essig — vinegar  (pl. die Essige)
-das Öl — oil  (pl. die Öle)
-die Praline — chocolate / praline  (pl. die Pralinen)
-fett — fatty; fat
+der Durst — the thirst
+wegräumen — (hat...weggeräumt) to clear away
+merken — (hat...gemerkt) to notice
+bemerken — (hat...bemerkt) to observe
+geben — (hat...gegeben) to give
+mailen — (hat...gemailt) to email
+das Geschirr — (die Geschirre) the dishes
+der Teller — (die Teller) the plate
+das Glas — (die Gläser) the glass
+die Tasse — (die Tassen) the cup
+das Messer — (die Messer) the knife
+die Gabel — (die Gabeln) the fork
+der Löffel — (die Löffel) the spoon
+das Salz — (die Salze) the salt
+die Karaffe — (die Karaffen) the carafe
+die Schüssel — (die Schüsseln) the bowl
+der Topf — (die Töpfe) the pot
+das Besteck — (die Bestecke) the cutlery
+der Pfeffer — (die Pfeffer) the pepper
+der Zucker — (kein Plural) the sugar
+der Essig — (die Essige) the vinegar
+das Öl — (die Öle) the oil
+die Praline — (die Pralinen) the chocolate candy
+fett — fatty
 bitter — bitter
 salzig — salty
 willkommen — welcome
 satt — full (after eating)
-sich verabschieden — to say goodbye  (verabschiedet sich, hat sich verabschiedet)
+verabschieden — (hat...verabschiedet) to say goodbye
+
 ===== A2 – Chapter 14 =====
-herunter / runter — down (downwards)
-schimpfen — to scold / to grumble  (schimpft, hat geschimpft)
-üben — to practise  (übt, hat geübt)
-lassen — to let / to leave; to have something done  (lässt, hat gelassen)
-der Dienst — service; duty / shift  (pl. die Dienste)
-schwer — heavy; difficult
-der Umzug — move (moving house)  (pl. die Umzüge)
-das Dach — roof  (pl. die Dächer)
-der Stock — floor / storey  (pl. die Stockwerke)
-der Eingang — entrance  (pl. die Eingänge)
-das Treppenhaus — stairwell  (pl. die Treppenhäuser)
-die Wohnungstür — apartment door  (pl. die Wohnungstüren)
-die Garage — garage  (pl. die Garagen)
-der Fahrradkeller — bicycle cellar  (pl. die Fahrradkeller)
-der Hof — courtyard; yard  (pl. die Höfe)
-die Mülltonne — rubbish bin / trash can  (pl. die Mülltonnen)
-der Briefkasten — mailbox / letterbox  (pl. die Briefkästen)
-die Hausnummer — house number  (pl. die Hausnummern)
-die Nachbarschaft — neighbourhood  (pl. die Nachbarschaften)
-sich aussuchen — to choose (for oneself)  (sucht sich aus, hat sich ausgesucht)
-der Ton — tone; sound  (pl. die Töne)
-der Bewohner — resident  (pl. die Bewohner)
-die Unterhaltung — conversation; entertainment  (pl. die Unterhaltungen)
+herunter — down
+runter — down
+schimpfen — (hat...geschimpft) to scold
+üben — (hat...geübt) to practice
+lassen — (hat...gelassen) to let
+der Dienst — (die Dienste) the service
+schwer — difficult, heavy
+der Umzug — (die Umzüge) the move (relocation)
+das Dach — (die Dächer) the roof
+der Stock — (die Stöcke) the floor, level
+das Stockwerk — (die Stockwerke) the floor, level
+der Eingang — (die Eingänge) the entrance
+das Treppenhaus — (die Treppenhäuser) the stairwell
+die Wohnungstür — (die Wohnungstüren) the apartment door
+die Garage — (die Garagen) the garage
+der Fahrradkeller — (die Fahrradkeller) the bicycle cellar
+der Hof — (die Höfe) the courtyard
+die Mülltonne — (die Mülltonnen) the garbage bin
+der Briefkasten — (die Briefkästen) the mailbox
+die Hausnummer — (die Hausnummern) the house number
+die Nachbarschaft — (die Nachbarschaften) the neighborhood
+aussuchen — (hat...ausgesucht) to select
+der Ton — (die Töne) the tone
+der Bewohner — (die Bewohner) the male resident
+die Bewohnerin — (die Bewohnerinnen) the female resident
+die Unterhaltung — (die Unterhaltungen) the conversation, entertainment
 spontan — spontaneous
 hilfsbereit — helpful
-damals — back then / at that time
-die Kräuter — herbs  (pl. die Kräuter)
-der Hinterhof — backyard / rear courtyard  (pl. die Hinterhöfe)
-der Einkauf — shopping / purchase  (pl. die Einkäufe)
-rauf — up (upwards)
-lösen — to solve  (löst, hat gelöst)
-ansprechen — to speak to / to address  (spricht an, hat angesprochen)
-persönlich — personal / in person
-hell — bright; light (colour)
-der Song — song  (pl. die Songs)
-genial — brilliant / genius
-der Radfahrer — cyclist  (pl. die Radfahrer)
+damals — back then
+die Kräuter — (die Kräuter) the herbs
+der Hinterhof — (die Hinterhöfe) the backyard
+der Einkauf — (die Einkäufe) the shopping
+rauf — up
+lösen — (hat...gelöst) to solve
+ansprechen — (hat...angesprochen) to address
+persönlich — personal
+hell — bright
+der Song — (die Songs) the song
+genial — brilliant
+der Radfahrer — (die Radfahrer) the male cyclist
+die Radfahrerin — (die Radfahrerinnen) the female cyclist
 berühmt — famous
+
 ===== A2 – Chapter 15 =====
-der Arbeitstag — working day  (pl. die Arbeitstage)
-raten — to advise; to guess  (rät, hat geraten)
-die Krawatte — tie  (pl. die Krawatten)
-die Party — party  (pl. die Partys)
-das Date — date (romantic)  (pl. die Dates)
+der Arbeitstag — (die Arbeitstage) the workday
+raten — (hat...geraten) to advise
+die Krawatte — (die Krawatten) the tie
+die Party — (die Partys) the party
+das Date — (die Dates) the date
 elegant — elegant
-gelten — to be valid; to be considered  (gilt, hat gegolten)
-schick — smart / chic
-das Experiment — experiment  (pl. die Experimente)
-hübsch — pretty / handsome
-das Lächeln — smile
-die Regel — rule  (pl. die Regeln)
-das Ritual — ritual  (pl. die Rituale)
-duzen — to address someone with "du"  (duzt, hat geduzt)
-das Gegenteil — opposite  (pl. die Gegenteile)
-das Interesse — interest  (pl. die Interessen)
-der Parkplatz — parking space / car park  (pl. die Parkplätze)
-der Kopierer — photocopier  (pl. die Kopierer)
-der Sekretär — secretary  (pl. die Sekretäre)
-der Urlaub — holiday / vacation (from work)  (pl. die Urlaube)
+gelten — (hat...gegolten) to be valid
+schick — chic
+das Experiment — (die Experimente) the experiment
+hübsch — cute
+das Lächeln — (das Lächeln) the smile
+die Regel — (die Regeln) the rule
+das Ritual — (die Rituale) the ritual
+duzen — (hat...geduzt) to address informally
+siezen — (hat...gesiezt) to address formally
+das Gegenteil — (die Gegenteile) the opposite
+jeder — each
+das Interesse — (die Interessen) the interest
+der Parkplatz — (die Parkplätze) the parking lot
+der Kopierer — (die Kopierer) the copier
+der Lift — (die Lifte) the elevator
+der Aufzug — (die Aufzüge) the elevator
+die Rezeption — (die Rezeptionen) the reception
+der Empfang — (die Empfänge) the reception
+das Sekretariat — (die Sekretariate) the secretary's office
+der Sekretär — (die Sekretäre) the secretary (male)
+die Sekretärin — (die Sekretärinnen) the secretary (female)
+der Hausmeister — (die Hausmeister) the janitor (male)
+die Hausmeisterin — (die Hausmeisterinnen) the janitor (female)
+der Lohn — (die Löhne) the wage, the salary
+das Gehalt — (die Gehälter) the salary
+der Feierabend — the end of the workday
+der Urlaub — the vacation
+Vollzeit arbeiten — to work full-time
+Teilzeit arbeiten — to work part-time
 chaotisch — chaotic
 niedrig — low
 verliebt — in love
-das Gesicht — face  (pl. die Gesichter)
+das Gesicht — (die Gesichter) the face
 reich — rich
-schief — crooked; wrong (go wrong)
-der Rat — advice  (pl. die Ratschläge)
-die Stellenanzeige — job advertisement  (pl. die Stellenanzeigen)
-der Lift — lift / elevator  (pl. die Lifte)
-die Rezeption — reception (desk)  (pl. die Rezeptionen)
-das Sekretariat — secretary's office  (pl. die Sekretariate)
-der Hausmeister — caretaker / janitor  (pl. die Hausmeister)
-der Lohn — wage / pay  (pl. die Löhne)
-der Feierabend — end of the working day  (pl. die Feierabende)
-Vollzeit arbeiten — to work full-time
-Teilzeit arbeiten — to work part-time
+schief — crooked
+etwas geht schief — something goes wrong
+drücken — (hat...gedrückt) to press
+der Rat — the advice
+die Stellenanzeige — (die Stellenanzeigen) the job advertisement
+
 ===== A2 – Chapter 16 =====
-die Stimmung — mood / atmosphere  (pl. die Stimmungen)
-wiedersehen — to see again  (sieht wieder, hat wiedergesehen)
-die Laune — mood  (pl. die Launen)
-das Videospiel — video game  (pl. die Videospiele)
-der Podcast — podcast  (pl. die Podcasts)
-die Zeitschrift — magazine  (pl. die Zeitschriften)
-die Talkshow — talk show  (pl. die Talkshows)
-der Krimi — crime film / crime novel  (pl. die Krimis)
-die Nachrichten — the news  (pl. die Nachrichten)
-die Doku — documentary  (pl. die Dokus)
-das Hörbuch — audiobook  (pl. die Hörbücher)
-das Tutorial — tutorial  (pl. die Tutorials)
-streiten — to argue / to quarrel  (streitet, hat gestritten)
-weggehen — to go away / to go out  (geht weg, ist weggegangen)
-sich verlieben — to fall in love  (verliebt sich, hat sich verliebt)
-verbringen — to spend (time)  (verbringt, hat verbracht)
-verstehen — to understand  (versteht, hat verstanden)
-sich entschuldigen — to apologise  (entschuldigt sich, hat sich entschuldigt)
-die Sorge — worry / concern  (pl. die Sorgen)
+die Stimmung — the mood, the atmosphare
+wiedersehen — (hat...wiedergesehen) to see again
+die Laune — the mood
+einschlafen — (ist...eingeschlafen) to fall asleep
+das Videospiel — (die Videospiele) the video game
+der Podcast — (die Podcasts) the podcast
+die Zeitschrift — (die Zeitschriften) the magazine
+die Talkshow — (die Talkshows) the talk show
+der Kirmi — (die Krimis) the crime movie or novel
+die Nachrichten — the news
+die Doku — (die Dokus) the documentary
+die Serie — (die Serien) the TV series
+das Hörbuch — (die Hörbücher) the audiobook
+das Tutorial — (die Tutorials) the tutorial
+sich streiten — (hat...gestritten) to argue
+weggehen — (ist...weggegangen) to go away
+sich verlieben — (hat...verliebt) to fall in love
+verbringen — (hat...verbracht) to spend (time)
+sich verstehen — (hat...verstanden) to understand
+sich entschuldigen — (hat...entschuldigt) to apologize
+die Sorge — (die Sorgen) the worry
 ständig — constantly
-sich treffen — to meet (each other)  (trifft sich, hat sich getroffen)
-sich ärgern — to be annoyed  (ärgert sich, hat sich geärgert)
-sich fühlen — to feel  (fühlt sich, hat sich gefühlt)
-sich unterhalten — to chat / to talk; to enjoy oneself  (unterhält sich, hat sich unterhalten)
-sich beeilen — to hurry  (beeilt sich, hat sich beeilt)
-sich beschweren — to complain  (beschwert sich, hat sich beschwert)
-der Kommissar — detective / inspector  (pl. die Kommissare)
-die Figur — character (in a story); figure  (pl. die Figuren)
-der Mord — murder  (pl. die Morde)
-aktuell — current / up to date
-die Folge — episode; consequence  (pl. die Folgen)
+sich treffen — (hat...getroffen) to meet
+sich ärgern — (hat...geärgert) to be annoyed
+sich fühlen — (hat...gefühlt) to feel
+sich unterhalten — (hat...unterhalten) to chat / to discuss
+sich beeilen — (hat...beeilt) to hurry
+sich beschweren — (hat...beschwert) to complain
+Kriminal — criminal
+der Kommissar — (die Kommissare) the inspector (male)
+die Kommissarin — (die Kommissarinnen) the inspector (female)
+die Figur — (die Figuren) the character
+Mord — the murder
+aktuell — current
+die Folge — (die Folgen) the episode
 tot — dead
-die Band — band (music)  (pl. die Bands)
-die Hütte — hut / cabin  (pl. die Hütten)
+die Band — (die Bands) the band
+die Hütte — (die Hütten) the hut
 nervig — annoying
 logisch — logical
-insgesamt — in total / overall
+insgesamt — overall
 privat — private
-der Patient — patient  (pl. die Patienten)
-nerven — to annoy / to get on someone's nerves  (nervt, hat genervt)
-sich erinnern — to remember  (erinnert sich, hat sich erinnert)
-der Streit — argument / quarrel  (pl. die Streite)
+der Patient — (die Patienten) the patient (male)
+die Patientin — (die Patientinnen) the patient (female)
+sich nerven — (hat...genervt) to be annoyed
+sich erinnern — (hat erinnert) to remind
+der Streit — (die Streite) the argument
 romantisch — romantic
+
 ===== A2 – Chapter 17 =====
-genervt — annoyed
-gut gelaunt — in a good mood
-schlecht gelaunt — in a bad mood
+genervt sein — to be annoyed
+gut gelaunt sein — to be in a good mood
+schlecht gelaunt sein — to be in a bad mood
 höflich — polite
 kooperativ — cooperative
 unkooperativ — uncooperative
-unsicher — unsure / insecure
-vorwärts — forward(s)
-achten — to pay attention  (achtet, hat geachtet)
-die Zusammenarbeit — cooperation / collaboration
+unsicher sein — to be insecure
+vorwärts — forward
+achten — (hat...geachtet) to pay attention
+die Zusammenarbeit — the collaboration
 produktiv — productive
 unproduktiv — unproductive
-sich interessieren — to be interested  (interessiert sich, hat sich interessiert)
-das Wissen — knowledge
-gegenseitig — mutual / each other
-das Ergebnis — result  (pl. die Ergebnisse)
+interessieren — (hat...interessiert) to interest
+das Wissen — the knowledge
+gegenseitig — mutual
+das Ergebnis — (die Ergebnisse) the result
 frustriert — frustrated
 ideal — ideal
-tolerant sein — to be tolerant
-sich kümmern — to take care (of)  (kümmert sich, hat sich gekümmert)
-bunt — colourful
-das Ziel — goal / destination  (pl. die Ziele)
-die Kooperation — cooperation  (pl. die Kooperationen)
-die Interaktion — interaction  (pl. die Interaktionen)
-sich kümmern um — to take care of / to look after
-sich freuen auf — to look forward to
-sich freuen über — to be happy about
-sich interessieren für — to be interested in
-sich ärgern über — to be annoyed about
-erzählen von — to tell about
-träumen von — to dream of
-achten auf — to pay attention to
-sich konzentrieren auf — to concentrate on
-sich erinnern an — to remember
-warten auf — to wait for
-sprechen mit — to speak with
-sprechen über — to talk about
+tolerant — tolerant
+kümmern — (hat...gekümmert) to take care of
+bunt — colorful
+das Ziel — (die Ziele) the goal
+die Kooperation — (die Kooperationen) the cooperation
+die Interaktion — (die Interaktionen) the interaction
+sich kümmern um — (hat...gekümmert) to take care of
+sich freuen auf — (hat...gefreut) to look forward to
+sich freuen über — (hat...gefreut) to be happy about
+sich interessieren für — (hat...interessiert) to be interested in
+sich ärgern über — (hat...geärgert) to be annoyed about
+erzählen von — (hat...erzählt) to tell about
+träumen von — (hat...geträumt) to dream of
+achten auf — (hat...geachtet) to pay attention to
+sich konzentrieren auf — (hat...konzentriert) to concentrate on
+sich erinnern an — (hat...erinnert) to remember
+warten auf — (hat...gewartet) to wait for
+sprechen mit — (hat...gesprochen) to speak with
+sprechen über — (hat...gesprochen) to speak about
 zufrieden sein mit — to be satisfied with
-enttäuscht sein von — to be disappointed by
+enttäuscht sein von — to be disappointed by / with / in
 Angst haben vor — to be afraid of
-Lust haben auf — to feel like / to fancy
-die Schlange — snake; queue / line  (pl. die Schlangen)
-die Politik — politics
-der Geschäftsführer — managing director / CEO  (pl. die Geschäftsführer)
-die Aufgabe — task; exercise  (pl. die Aufgaben)
+Lust haben auf — to feel like doing something
+die Schlange — (die Schlangen) the snake
+die Politik — the politics
+der Geschäftsführer — (die Geschäftsführer) the managing director (male)
+die Geschäftsführerin — (die Geschäftsführerinnen) the managing director (female)
+die Aufgabe — (die Aufgaben) the task
 absolut — absolutely
-der Auftritt — appearance / performance  (pl. die Auftritte)
-entscheiden — to decide  (entscheidet, hat entschieden)
-der Wunsch — wish  (pl. die Wünsche)
-die Geschäftsführung — management
-der Snack — snack  (pl. die Snacks)
-aufteilen — to divide up / to split  (teilt auf, hat aufgeteilt)
-sich einigen — to agree / to come to an agreement  (einigt sich, hat sich geeinigt)
-der Leiter — head / leader / manager  (pl. die Leiter)
-verteilen — to distribute / to hand out  (verteilt, hat verteilt)
+der Auftritt — (die Auftritte) the performance
+entscheiden — (hat...entschieden) to decide
+der Wunsch — (die Wünsche) the wish
+der Text — (die Texte) the text
+die Geschäftsführung — (die Geschäftsführungen) the management
+der Snack — (die Snacks) the snack
+aufteilen — (hat...aufgeteilt) to divide
+einigen — (hat...geeinigt) to agree
+der Leiter — (die Leiter) the leader (male)
+die Leiterin — (die Leiterinnen) the leader (female)
+vertielen — (hat...verteilt) to distribute
+
 ===== A2 – Chapter 18 =====
-entdecken — to discover  (entdeckt, hat entdeckt)
-der QR-Code — QR code  (pl. die QR-Codes)
-die Datei — file (digital)  (pl. die Dateien)
-der Link — link  (pl. die Links)
-aufladen — to charge (battery); to top up  (lädt auf, hat aufgeladen)
-installieren — to install  (installiert, hat installiert)
-recherchieren — to research  (recherchiert, hat recherchiert)
-heben — to lift / to raise  (hebt, hat gehoben)
-trotzdem — nevertheless / anyway
-bearbeiten — to edit / to process  (bearbeitet, hat bearbeitet)
-herunterladen — to download  (lädt herunter, hat heruntergeladen)
-hochladen — to upload  (lädt hoch, hat hochgeladen)
-liken — to like (on social media)  (likt, hat gelikt)
-mailen — to email  (mailt, hat gemailt)
-posten — to post (online)  (postet, hat gepostet)
-scannen — to scan  (scannt, hat gescannt)
-weiterleiten — to forward  (leitet weiter, hat weitergeleitet)
-bequem — comfortable; convenient
-aufhören — to stop  (hört auf, hat aufgehört)
-anklicken — to click on  (klickt an, hat angeklickt)
-checken — to check  (checkt, hat gecheckt)
-überweisen — to transfer (money)  (überweist, hat überwiesen)
-einchecken — to check in  (checkt ein, hat eingecheckt)
-tippen — to type; to tap  (tippt, hat getippt)
-die Suchmaschine — search engine  (pl. die Suchmaschinen)
-das Resultat — result  (pl. die Resultate)
+entdekcen — (hat...entdeckt) to discover
+der QR-Code — (die QR-Codes) the QR code
+die Datei — (die Dateien) the file
+der Link — (die Links) the link
+aufladen — (hat...aufgeladen) to charge
+bearbeiten — (hat...bearbeitet) to edit
+chatten — (hat...gechattet) to chat
+herunterladen — (hat...heruntergeladen) to download
+hochladen — (hat...hochgeladen) to upload
+installieren — (hat...installiert) to install
+liken — (hat...geliket) to like
+mailen — (hat...gemailt) to email
+posten — (hat...gepostet) to post
+recherchieren — (hat...recherchiert) to research
+scannen — (hat...gescannt) to scan
+surfen — (hat...gesurft) to surf
+weiterleiten — (hat...weitergeleitet) to forward
+heben — (hat...gehoben) to lift
+trotzdem — nevertheless
+bequem — comfortable
+aufhören — (hat...aufgehört) to stop
+anklicken — (hat...angeklickt) to click
+checken — (hat...gecheckt) to check
+überweisen — (hat...überwiesen) to transfer
+einchecken — (hat...eingecheckt) to check in
+tippen — (hat...getippt) to type
+die Suchmaschine — (die Suchmaschinen) the search engine
+das Resultat — (die Resultate) the result
 wenigstens — at least
-die Plattform — platform  (pl. die Plattformen)
-die Community — community (online)  (pl. die Communitys)
+die Plattform — (die Plattformen) the platform
+die Community — (die Communities) the community
 digital — digital
-die Diät — diet  (pl. die Diäten)
-die Sucht — addiction  (pl. die Süchte)
-das Thema — topic / subject  (pl. die Themen)
-einschalten — to switch on  (schaltet ein, hat eingeschaltet)
+die Diät — the diet
+die Sucht — the addiction
+das Thema — (die Themen) the topic
+einschalten — (hat...eingeschaltet) to switch on
+
 ===== A2 – Chapter 19 =====
-die Mango — mango  (pl. die Mangos)
-das Tattoo — tattoo  (pl. die Tattoos)
-fangen — to catch  (fängt, hat gefangen)
-besichtigen — to visit / to tour (sights)  (besichtigt, hat besichtigt)
-aufbleiben — to stay up  (bleibt auf, ist aufgeblieben)
-die Mitternacht — midnight
-die Zigarette — cigarette  (pl. die Zigaretten)
-die Spritze — injection / syringe  (pl. die Spritzen)
+die Mango — (die Mangos) the mango
+das Tattoo — (die Tattoos) the tattoo
+fangen — (hat...gefangen) to catch
+besichtigen — (hat...besichtigt) to visit (a place)
+aufbleiben — (ist...aufgeblieben) to stay up late
+die Mitternacht — the midnight
+die Zigarette — (die...Zigaretten) the cigarette
+die Spritze — (die Spritzen) the injection / shot
 das Heimweh — homesickness
-das Gewissen — conscience  (pl. die Gewissen)
-das Feuer — fire  (pl. die Feuer)
-der Liebeskummer — heartbreak / lovesickness
-tätowieren — to tattoo  (tätowiert, hat tätowiert)
-die Angel — fishing rod  (pl. die Angeln)
-der Bundeskanzler — Federal Chancellor  (pl. die Bundeskanzler)
+das Gewissen — the conscience
+das Feuer — the fire
+der Liebeskummer — heartache
+tätowieren — (hat...tätowiert) to tattoo
+die Angel — (die Angeln) the fishing rod
+der Bundeskanzler — the chancellor (male)
+die Bundeskanzlerin — the chancellor (female)
 wahr — true
 das Pech — bad luck
-der Cousin — cousin (male)  (pl. die Cousins)
-außer — except (for)
-einen Tanzkurs machen — to take a dance class
-sich in einer Bürgerinitiative engagieren — to get involved in a citizens' initiative
-einen Baum pflanzen — to plant a tree
-die Not — need / hardship / emergency  (pl. die Nöte)
-ein Sabbatical machen — to take a sabbatical
-spenden — to donate  (spendet, hat gespendet)
-sich vegan ernähren — to eat a vegan diet
-an einem Triathlon teilnehmen — to take part in a triathlon
-einen Salto machen — to do a somersault
-einen Hund adoptieren — to adopt a dog
-ein Fest feiern — to celebrate / to throw a party
-in einer Karaoke-Bar singen — to sing in a karaoke bar
-Griechenland — Greece
-beantragen — to apply for  (beantragt, hat beantragt)
+der Cousin — (die Cousins) the cousin (male)
+die Xousine — (die Cousinen) the cousin (female)
+außer — except
+der Tanz — (die Tänze) the dance
+beantragen — (hat...beantragt) to apply for
+Griechenlad — Greece
+einen Tanzkursmachen — (hat...gemacht) to take a dance class
+ein Sabbatical machen — (hat...gemacht) to take a sabbatical
+eine Radtour machen — (hat...gemacht) to go on a bike tour
+spenden — (hat...gespendet) to donate
+sich in einer Bürgerinitiative engagieren — (hat...engagiert) to get involved in a citizens' initiative
+sich vegan ernähren — (hat...ernährt) to eat vegan
+an einem Triathlon teilnehmen — (hat...teilgenommen) to participate in a triathlon
+einen Salto machen — (hat...gemacht) to do a somersault
+einen Baum pflanzen — (hat...gepflanzt) to plant a tree
+einen Hund adoptieren — (hat...adoptiert) to adopt a dog
+ein Fest feiern — (hat...gefeiert) to celebrate a festival
+in einer Karaoke-Bar singen — (hat...gesungen) to sing in a karaoke bar
+die Not — the emergency / misery
+
 ===== A2 – Chapter 20 =====
-der Imker — beekeeper  (pl. die Imker)
-produzieren — to produce  (produziert, hat produziert)
-stechen — to sting  (sticht, hat gestochen)
-die Tradition — tradition  (pl. die Traditionen)
+der Imker — (die Imker) the beekeeper (male)
+die Imkerin — (die Imkerinnen) the beekeeper (female)
+produzieren — (hat...produziert) to produce
+stechen — (hat...gestochen) to sting
+die Tradition — (die Traditionen) the tradition
 stundenlang — for hours
-vorbei an — past (going by)
-die Erde — earth; soil  (pl. die Erden)
-der Bauernhof — farm  (pl. die Bauernhöfe)
-das Tor — gate; goal  (pl. die Tore)
-besitzen — to own / to possess  (besitzt, hat besessen)
-der Besitzer — owner  (pl. die Besitzer)
-der Bienenstock — beehive  (pl. die Bienenstöcke)
-der Kasten — box / crate  (pl. die Kästen)
-die Steuer — tax  (pl. die Steuern)
-ziehen — to move (house); to pull  (zieht, ist gezogen)
-kündigen — to quit (a job); to cancel  (kündigt, hat gekündigt)
-mutig — brave / courageous
-einen Geschäftsplan machen — to make a business plan
-Kontakte knüpfen — to make contacts / to network
-reduzieren — to reduce
-beraten — to advise / to consult
-Vorträge über ... halten — to give talks about ...
-Werbung machen — to advertise
-Workshops besuchen — to attend workshops
-Workshops geben — to give workshops
-irgend- — some- / any- (prefix)
-verändern — to change  (verändert, hat verändert)
-lebendig — alive / lively
-sich anfühlen — to feel (to the touch)  (fühlt sich an, hat sich angefühlt)
+an...vorbei — past
+die Erde — the earth
+der Bauernhof — (die Bauernhöfe) the farm
+das Tor — (die Tore) the gate
+besitzen — (hat...besessen) to own
+der Besitzer — (die Besitzer) the owner (male)
+die Besitzerin — (die Besitzerinnen) the owner (female)
+der Bienenstock — (die Bienenstöcke) the beehive
+der Kasten — (die Kästen) the box / case
+die Steuer — (die Steuern) the tax
+ziehen — (ist...gezogen) to move
+kündigen — (hat...gekündigt) to cancel / to quit
+mutig — brave
+einen Geschäftsplan machen — (hat...gemacht) to make a business plan
+Kontakte knüpfen — (hat...geknüpft) to make contacts
+Kontakte pflegen — (hat...gepflegt) to maintain contacts
+kündigen — (hat...gekündigt) to cancel / to quit
+die Arbeit reduzieren — (hat...reduziert) to reduce work
+Unternehmen beraten — (hat...beraten) to advise companies
+Vorträge halten — (hat...gehalten) to give lectures
+Werbung machen — (hat...gemacht) to advertise
+Workshops besuchen — (hat...besucht) to attend workshops
+Workshops geben — (hat...gegeben) to give workshops
+irgend... — some... / any...
+verändern — (hat...verändert) to change
+lebendig — alive / vivid
+anfühlen — (hat...sich angefühlt) to feel
+tagsüber — during the day
+
 ===== A2 – Chapter 21 =====
-demonstrieren — to demonstrate / to protest  (demonstriert, hat demonstriert)
-der Klimawandel — climate change
-nachdenken — to think (about) / to reflect  (denkt nach, hat nachgedacht)
-der Unsinn — nonsense
+demonstrieren — (hat...demonstriert) to protest / to demonstrate
+der Klimawandel — (die Klimawandel) the climate change (unveränderlich)
+nachdenken — (hat...nachgedacht) to think about
+der Unsinn — (die Unsinn) nonsense (unveränderlich)
 vorgestern — the day before yesterday
-der Redakteur — editor  (pl. die Redakteure)
-die Redaktion — editorial office / team  (pl. die Redaktionen)
-der Schutz — protection
-schnell — fast / quick
-weitermachen — to carry on / to continue  (macht weiter, hat weitergemacht)
-ändern — to change  (ändert, hat geändert)
-gerecht — fair / just
+der Redakteur — (die Redakteure) the editor (male)
+die Redakteurin — (die Redakteurinnen) the editor (female)
+die Redaktion — (die Redaktionen) the editorial office
+der Schutz — (der Schutz) protection (unveränderlich)
+schnell — fast
+weitermachen — (hat...weitergemacht) to continue
+ändern — (hat...geändert) to change
+gerecht — fair
 verantwortlich — responsible
-inzwischen — meanwhile / by now
-der Elektromotor — electric motor  (pl. die Elektromotoren)
+inzwischen — meanwhile
+der Elektromotor — (die Elektromotoren) the electric motor
 fair — fair
-widersprechen — to contradict / to disagree  (widerspricht, hat widersprochen)
-begründen — to justify / to give reasons for  (begründet, hat begründet)
-blockieren — to block  (blockiert, hat blockiert)
-die Frisur — hairstyle  (pl. die Frisuren)
-lassen — to leave / to let
-fliegen — to fly
-Lastenfahrrad — cargo bike
-auf Fleisch verzichten — to give up meat
-sich für den Tierschutz engagieren — to get involved in animal protection
-Secondhandkleidung kaufen — to buy second-hand clothes
-Geräte selbst reparieren — to repair devices yourself
-Heizkosten sparen — to save on heating costs
-Plastik vermeiden — to avoid plastic
-regionale Lebensmittel kaufen — to buy local food
-Kosmetik selbst machen — to make your own cosmetics
-für das Klima demonstrieren — to protest for the climate
+widersprechen — (hat...widersprochen) to contradict / oppose
+begründen — (hat...begründet) to justify / explain
+blockieren — (hat...blockiert) to block
+die Frisur — (die Frisuren) the hairstyle
+das Auto zu Hause lassen — (hat...gelassen) to leave the car at home
+nicht fliegen — (ist...geflogen) to not fly
+ein Lastenfahrrad haben — to have an e-bike
+auf Fleisch verzichten — (hat...verzichtet) to avoid meat
+sich für den Tierschutz engagieren — (hat...engagiert) to engage for animal welfare
+Secondhandkleidung kaufen — (hat...gekauft) to buy second-hand clothes
+Geräte selbst reparieren — (hat...repariert) to repair devices by oneself
+Heizkosten sparen — (hat...gespart) to save heating costs
+Plastik vermeiden — (hat...vermieden) to avoid plastic
+regionale Lebensmittel kaufen — (hat...gekauft) to buy regional food
+Kosmetik selbst machen — (hat...gemacht) to make cosmetics by oneself
+für das Klima demonstrieren — (hat...demonstriert) to protest for the climate
+
 ===== A2 – Chapter 22 =====
-der König — king  (pl. die Könige)
-die Zukunft — future
+der König — (die Könige) the king
+die Königin — (die Königinnen) the queen
+die Zukunft — the future
 glücklich — happy
 froh — glad / happy
-stressig — stressful
-der Sinn — meaning / sense  (pl. die Sinne)
-sozial — social
-das Engagement — commitment / involvement  (pl. die Engagements)
-die Religion — religion  (pl. die Religionen)
-der Umweltschutz — environmental protection
-der Frieden — peace
 traurig — sad
 optimistisch — optimistic
 pessimistisch — pessimistic
-ängstlich — anxious / fearful
+mutig — brave
+ängstlich — scared
 entspannt — relaxed
 nervös — nervous
+stressig — stressful
 fröhlich — cheerful
 langweilig — boring
 spannend — exciting
-das Netzwerk — network  (pl. die Netzwerke)
-wahrscheinlich — probably
-die Rente — pension; retirement  (pl. die Renten)
-der Motorroller — motor scooter  (pl. die Motorroller)
-die Operation — operation (surgery)  (pl. die Operationen)
+der Sinn — (die Sinne) the sense
+sozial — social
+das Engagement — the commitment / involvement
+die Religion — (die Religionen) the religion
+Umweltschutz — the environmental protection
+der Frieden — the peace
+das Neztwerk — (die Netzwerke) the network
+wahrscheinlich — likely
+die Rente — (die Renten) the pension
+der Motorroller — (die Motorroller) the scooter
+die Operation — (die Operationen) the operation
+
 ===== A2 – Chapter 23 =====
-bewegen — to move  (bewegt, hat bewegt)
-die Nähmaschine — sewing machine  (pl. die Nähmaschinen)
-vorne — at the front
-der Elefant — elephant  (pl. die Elefanten)
-das Spielzeug — toy  (pl. die Spielzeuge)
-die Nadel — needle  (pl. die Nadeln)
-der Stoff — fabric / material  (pl. die Stoffe)
+bewegen — (hat...bewegt) to move
+die Nähmaschine — (die Nähmaschinen) the sewing machine
+vorne — in front
+der Elefant — (die Elefanten) the elephant
+das Spielzeug — (die Spielzeuge) the toy
+die Nadel — (die Nadeln) the needle
 weich — soft
-der Knopf — button  (pl. die Knöpfe)
-die Biografie — biography  (pl. die Biografien)
-das Unternehmen — company / enterprise  (pl. die Unternehmen)
-der Unternehmer — entrepreneur / businessman  (pl. die Unternehmer)
-international — international
-der Schüler — (school) pupil  (pl. die Schüler)
-der Schulabschluss — school leaving qualification  (pl. die Schulabschlüsse)
-die Ausbildung — vocational training  (pl. die Ausbildungen)
-der Studierende — (university) student  (pl. die Studierenden)
-das Studium — university studies  (pl. die Studien)
-die Geburt — birth  (pl. die Geburten)
-die Führung — guided tour; leadership  (pl. die Führungen)
-erfahren — experienced
-der Wagen — car; carriage / cart  (pl. die Wagen)
-die Werkstatt — workshop  (pl. die Werkstätten)
-mehrere — several
-riesig — huge / enormous
-der Beginn — beginning / start  (pl. die Beginne)
-der Bär — bear  (pl. die Bären)
-präsentieren — to present  (präsentiert, hat präsentiert)
-der Präsident — president  (pl. die Präsidenten)
+der Stoff — (die Stoffe) the fabric
+der Knopf — (die Knöpfe) the button
+die Biografie — (die Biografien) the biography
+die Schule — (die Schulen) the school
+der Schüler — (die Schüler) the student (male)
+die Schülerin — (die Schülerinnen) the student (female)
+der Abschluss — (die Abschlüsse) the degree
+die Ausbildung — (die Ausbildungen) the apprenticeship / training
+das Unternehmen — (die Unternehmen) the company
+die Universität — (die Universitäten) the university
+der Studierende — (die Studierenden) the student (male/)
+die Studierende — (die Studierenden) the student (female)
+das Studium — the study
+der Unternehmer — (die Unternehmer) the entrepreneur (male)
+die Unternehmerin — (die Unternehmerinnen) the entrepreneur (female)
+der Azubi — (die Azubis) the apprentice (male)
+der Auszubildender — (die Auszubildenden) the trainee (male)
+die Azubi — (die Azubis) the apprentice (female)
+die Auszubildende — (die Auszubildenden) the trainee (female)
+die Geburt — (die Geburten) the birth
+die Führung — the leadership
+erfahren — (hat...erfahren) to learn / experience
+der Rollstuhl — (die Rollstühle) the wheelchair
+der Wagen — (die Wagen) the car / vehicle
+die Werkstatt — (die Werkstätten) the workshop
+mehrer... — several
+einstellen — (hat...eingestellt) to hire
+riesig — huge
+der Beginn — the beginning
+der Bär — (die Bären) the bear
+präsentieren — (hat...präsentiert) to present
+der Präsident — (die Präsidenten) the president (male)
+die Präsidentin — (die Präsidentinnen) the president (female)
 beliebt — popular
-das Baby — baby  (pl. die Babys)
-der Praktikant — intern  (pl. die Praktikanten)
-der Grieche — Greek (person)  (pl. die Griechen)
-eröffnen — to open (a business)  (eröffnet, hat eröffnet)
-geboren — born
-die Hochschule — university / college  (pl. die Hochschulen)
-der Professor — professor  (pl. die Professoren)
-die Klinik — clinic / hospital  (pl. die Kliniken)
+das Baby — (die Babys) the baby
+der Praktikant — (die Praktikanten) the intern (male)
+die Praktikantin — (die Praktikantinnen) the intern (female)
+der Grieche — (die Griechen) the Greek (male)
+die Griechin — (die Griechinnen) the Greek (female)
+eröffnen — (hat...eröffnet) to open
+geboren — (ist...geboren) to be born
+die Hochschule — (die Hochschulen) the college / university
+der Professor — (die Professoren) the professor (male)
+die Professorin — (die Professorinnen) the professor (female)
+die Klinik — (die Kliniken) the clinic
+
 ===== A2 – Chapter 24 =====
 offen — open
-der Blumenladen — flower shop / florist  (pl. die Blumenläden)
-die Bäckerei — bakery  (pl. die Bäckereien)
-die Buchhandlung — bookshop  (pl. die Buchhandlungen)
-der Gemüse- und Obststand — fruit and vegetable stall  (pl. die Gemüse- und Obststände)
-der Getränkemarkt — drinks store  (pl. die Getränkemärkte)
-die Kneipe — pub / bar  (pl. die Kneipen)
-der Coiffeur — hairdresser (Swiss)  (pl. die Coiffeure)
-das Kapitel — chapter  (pl. die Kapitel)
-realisieren — to realise / to carry out  (realisiert, hat realisiert)
+der Blumenladen — (die Blumenläden) the flower shop
+die Bäckerei — (die Bäckereien) the bakery
+die Buchhandlung — (die Buchhandlungen) the bookstore
+der Gemüsestand — (die Gemüsestände) the vegetable stand
+der Obststand — (die Obststände) the fruit stand
+der Getränkemarkt — (die Getränkemärkte) the beverage store
+der Handyladen — (die Handyläden) the mobile phone shop
+das Juewliergeschäft — (die Juweliere) the jewelry store
+die Boutique — (die Boutiquen) the boutique
+die Kneipe — (die Kneipen) the pub / bar
+das Optikgeschäft — (die Optikergeschäfte) the optical shop
+die Reinigung — (die Reinigungen) the dry cleaner’s
+das Schuhgeschäft — (die Schuhgeschäfte) the shoe shop
+das Kapitel — (die Kapitel) the chapter
+realisieren — (hat...realisiert) to realize
 europäisch — European
-führen — to lead / to run (a business)  (führt, hat geführt)
-pflegen — to take care of / to maintain  (pflegt, hat gepflegt)
+führen — (hat...geführt) to lead / to manage
+pflegen — (hat...gepflegt) to care for / maintain
 überzeugt — convinced
-der Handyladen — mobile phone shop  (pl. die Handyläden)
-das Juweliergeschäft — jewellery shop  (pl. die Juweliergeschäfte)
-die Boutique — boutique  (pl. die Boutiquen)
-das Optikgeschäft — optician's  (pl. die Optikgeschäfte)
-die Reinigung — dry cleaner's; cleaning  (pl. die Reinigungen)
-das Schuhgeschäft — shoe shop  (pl. die Schuhgeschäfte)
-die Eröffnung — opening  (pl. die Eröffnungen)
-der Salon — salon  (pl. die Salons)
-dick — thick; fat
-die Dekoration — decoration  (pl. die Dekorationen)
-das Geschäft — shop / business  (pl. die Geschäfte)
+die Eröffnung — (die Eröffnungen) the opening
+der Salon — (die Salons) the salon
+dick — thick / fat
+die Dekoration — (die Dekorationen) the decoration
 `;
 
     const rawB1Text = `
