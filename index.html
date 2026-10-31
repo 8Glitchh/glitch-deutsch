@@ -685,7 +685,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 54;
+    const APP_VERSION = 55;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -831,7 +831,7 @@
       let en = line.slice(cut + 1).trim();
       if (verbatim) {
         const m = de.match(/^(der|die|das)\s+([A-ZÄÖÜ].*)$/);
-        return { de, en, article: m ? m[1] : '', noun: m ? m[2] : '', plural: '', forms: '', note: '' };
+        return { de, en, article: m ? m[1] : '', noun: m ? m[2] : '', plural: '', forms: '', note: '', gju: true };
       }
       let plural = '', forms = '';
       // Grammar info is the trailing "  (...)" group (separated by two spaces)
@@ -849,6 +849,13 @@
       const article = m ? m[1] : '';
       const noun = m ? m[2] : '';
       return { de, en, article, noun, plural, forms, note };
+    }
+
+    // "(hat...kennengelernt) to get to know" -> hint + text. Only GJU cards, only real grammar hints: "(to) home" stays whole.
+    function splitEn(w) {
+      const m = w.gju && w.en.match(/^\(([^)]*)\)\s*(.+)$/);
+      if (!m || !/\.\.\.|^(der|die|das|du|er|sie|ich|es)\b|\b(hat|ist|sich)\b|plural/i.test(m[1])) return { hint: '', text: w.en };
+      return { hint: m[1], text: m[2] };
     }
 
     function buildData(raw, verbatim) {
@@ -1835,8 +1842,9 @@
             ${w.article ? `<span class="gtag">${{ der: 'masculine', die: 'feminine', das: 'neuter' }[w.article]}</span>` : ''}
             <div class="fword">${this.deHtml(w)}</div>
             ${this.wordExtra(w) ? `<div class="fsub">${this.wordExtra(w)}</div>` : ''}
+            ${dir === 'en-de' && splitEn(w).hint ? `<div class="fsub">(${esc(splitEn(w).hint)})</div>` : ''}
           </div>`;
-        const enFace = `<div class="fface-mid"><div class="fword">${esc(w.en)}</div></div>`;
+        const enFace = `<div class="fface-mid"><div class="fword">${esc(dir === 'en-de' ? splitEn(w).text : w.en)}</div></div>`;
         const [front, back] = dir === 'de-en' ? [deFace, enFace] : [enFace, deFace];
         const [fl, bl] = dir === 'de-en' ? ['German', 'English'] : ['English', 'German'];
         const status = Store.status(w.de);
@@ -2100,7 +2108,7 @@
           <div class="deck-bar"><i style="width:${s.i / s.qs.length * 100}%"></i></div>
           <div class="q-prompt">
             <div class="q-label">${q.toEn ? 'What does this mean?' : 'How do you say this in German?'}</div>
-            <div class="q-word ${gClass(q.w)}">${q.toEn ? this.deHtml(q.w) + this.speakBtn(q.w.de) : esc(q.w.en)}</div>
+            <div class="q-word ${gClass(q.w)}">${q.toEn ? this.deHtml(q.w) + this.speakBtn(q.w.de) : esc(splitEn(q.w).text)}</div>
           </div>
           <div class="opts">${q.opts.map((o, i) => `<button class="opt" data-action="q-ans" data-i="${i}"><span class="n">${i + 1}</span><span>${esc(o)}</span></button>`).join('')}</div>
           <div id="fb"></div>
@@ -2159,7 +2167,7 @@
           <div class="deck-bar"><i style="width:${s.i / s.qs.length * 100}%"></i></div>
           <div class="q-prompt">
             <div class="q-label">Write in German${w.article ? ' — include the article' : ''}</div>
-            <div class="q-word">${esc(w.en)}</div>
+            <div class="q-word">${esc(splitEn(w).text)}</div>
             ${w.note ? `<div class="muted small" style="margin-top:6px">(${esc(w.note)})</div>` : ''}
           </div>
           <form class="type-box" id="type-form" autocomplete="off">
@@ -2198,7 +2206,7 @@
           'bad': ['bad', val.trim() ? 'Not quite' : 'Answer', `<span class="${gClass(w)}">${this.deHtml(w)}</span>${w.plural ? ` · Pl. ${esc(w.plural)}` : ''}`],
         }[result];
         $('#type-go').textContent = 'Next';
-        $('#fb').innerHTML = `<div class="feedback ${msg[0]}"><span class="fb-text">${msg[1]}${msg[2] ? `<small>${msg[2]}</small>` : ''}</span>${this.speakBtn(w.de)}</div>`;
+        $('#fb').innerHTML = `<div class="feedback ${msg[0]}"><span class="fb-text">${msg[1]}${msg[2] || splitEn(w).hint ? `<small>${[msg[2], splitEn(w).hint && '(' + esc(splitEn(w).hint) + ')'].filter(Boolean).join(' · ')}</small>` : ''}</span>${this.speakBtn(w.de)}</div>`;
         if (Store.d.settings.autoSpeak) Speech.say(w.de);
       },
       nextType() { const s = this.s; s.i++; s.done = false; this.renderType($('#panel')); },
@@ -2358,7 +2366,7 @@
         p.innerHTML = `
           <div class="timer-bar ${s.left <= 10 ? 'low' : ''}"><i id="s-bar" style="width:${s.left / this.SPRINT_TIME * 100}%"></i></div>
           <div class="q-meta"><span id="s-left" style="font-variant-numeric:tabular-nums">${s.left}s</span><span>${s.combo > 1 ? `<span class="combo">×${s.combo} combo</span> · ` : ''}Score <b style="color:var(--text)">${s.score}</b></span></div>
-          <div class="q-prompt"><div class="q-label">${q.toEn ? 'English?' : 'German?'}</div><div class="q-word ${gClass(q.w)}">${q.toEn ? this.deHtml(q.w) : esc(q.w.en)}</div></div>
+          <div class="q-prompt"><div class="q-label">${q.toEn ? 'English?' : 'German?'}</div><div class="q-word ${gClass(q.w)}">${q.toEn ? this.deHtml(q.w) : esc(splitEn(q.w).text)}</div></div>
           <div class="opts">${q.opts.map((o, i) => `<button class="opt" data-action="s-ans" data-i="${i}"><span class="n">${i + 1}</span><span>${esc(o)}</span></button>`).join('')}</div>
           <div class="kbd-hint"><kbd>1</kbd>–<kbd>4</kbd> answer</div>`;
         this.timers.push(setInterval(() => this.sprintTick(), 1000));
@@ -2427,7 +2435,7 @@
         p.innerHTML = `
           <div class="q-meta"><span>Sentence ${s.i + 1} / ${s.qs.length}</span><span style="color:var(--ok)">${s.score} correct</span></div>
           <div class="deck-bar"><i style="width:${s.i / s.qs.length * 100}%"></i></div>
-          <div class="q-prompt" style="padding-bottom:16px"><div class="q-label">Build this in German</div><div class="q-word">“${esc(q.en)}”</div></div>
+          <div class="q-prompt" style="padding-bottom:16px"><div class="q-label">Build this in German</div><div class="q-word">“${esc(splitEn(q).text)}”</div></div>
           <div class="build ${s.placed.length ? 'filled' : ''} ${cls}">
             ${s.placed.length ? s.placed.map((wi, k) => `<button class="wchip placed" data-action="x-remove" data-k="${k}">${esc(words[wi])}</button>`).join('') : '<span class="muted small">Tap the words below in the right order</span>'}
           </div>
@@ -2438,7 +2446,7 @@
               <button class="btn btn-primary" data-action="x-check" ${s.placed.length !== words.length ? 'disabled style="opacity:.5"' : ''}>Check</button>` :
               `<button class="btn btn-primary" data-action="x-next">Next ${icon('right')}</button>`}
           </div>
-          <div id="fb">${s.checked === false ? `<div class="feedback bad"><span class="fb-text">Correct order<small>${esc(q.de)}</small></span>${this.speakBtn(q.de)}</div>` : s.checked ? `<div class="feedback ok"><span class="fb-text">Richtig!<small>${esc(q.de)}</small></span>${this.speakBtn(q.de)}</div>` : ''}</div>`;
+          <div id="fb">${s.checked === false ? `<div class="feedback bad"><span class="fb-text">Correct order<small>${esc(q.de)}${splitEn(q).hint ? ' · (' + esc(splitEn(q).hint) + ')' : ''}</small></span>${this.speakBtn(q.de)}</div>` : s.checked ? `<div class="feedback ok"><span class="fb-text">Richtig!<small>${esc(q.de)}${splitEn(q).hint ? ' · (' + esc(splitEn(q).hint) + ')' : ''}</small></span>${this.speakBtn(q.de)}</div>` : ''}</div>`;
         s.words = words;
       },
       on_sentences(a, el) {
