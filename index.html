@@ -685,7 +685,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 50;
+    const APP_VERSION = 51;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -1207,7 +1207,7 @@
         if (!cs || cs.ch !== this.chKey()) cs = Store.d.cardSession = { ch: this.chKey(), parts: {} };
         cs.parts[this.part] = {
           filter: s.filter, shuffled: s.shuffled, i: s.i, got: s.got, again: s.again,
-          deck: s.deck.map(w => w.de), againList: s.againList.map(w => w.de),
+          deck: s.deck.map(w => w.de), againList: s.againList.map(w => w.de), skipped: s.skipped || [],
         };
         Store.save();
       },
@@ -1218,10 +1218,10 @@
         const byKey = new Map(this.pool().map(w => [w.de, w]));
         const pool = this.pool();
         // The part's words changed (word-list update): keep your place at the same word.
-        if ((d.filter || 'all') === 'all' && !d.shuffled && (d.deck.length !== pool.length || d.deck.some((k, n) => k !== pool[n].de))) {
+        if ((d.filter || 'all') === 'all' && !d.shuffled && (d.deck.length !== pool.length || d.deck.some(k => !byKey.has(k)))) {
           const at = pool.findIndex(w => w.de === d.deck[d.i]);
           return { filter: 'all', shuffled: false, deck: pool, i: at >= 0 ? at : Math.min(d.i || 0, pool.length), flipped: false,
-            got: d.got || 0, again: d.again || 0, againList: (d.againList || []).map(k => byKey.get(k)).filter(Boolean) };
+            got: d.got || 0, again: d.again || 0, againList: (d.againList || []).map(k => byKey.get(k)).filter(Boolean), skipped: (d.skipped || []).filter(k => byKey.has(k)), skipped: (d.skipped || []).filter(k => byKey.has(k)) };
         }
         const deck = d.deck.map(k => byKey.get(k)).filter(Boolean);
         if (!deck.length) return null;
@@ -1777,7 +1777,7 @@
         if (s.filter === 'hard') list = list.filter(w => Store.status(w.de) === 'hard');
         if (s.filter === 'new') list = list.filter(w => Store.status(w.de) === 'new');
         if (s.shuffled) list = shuffle(list);
-        Object.assign(s, { deck: list, i: 0, flipped: false, got: 0, again: 0, againList: [] });
+        Object.assign(s, { deck: list, i: 0, flipped: false, got: 0, again: 0, againList: [], skipped: [] });
       },
 
       renderCards(p) {
@@ -1865,9 +1865,10 @@
             <button class="btn btn-sm btn-ghost" data-action="c-step" data-d="-1" ${s.i === 0 ? 'disabled style="opacity:.4"' : ''}>${icon('left')} Back</button>
             <span class="deck-mid">
               <span class="muted small" style="font-variant-numeric:tabular-nums">${s.i + 1} / ${s.deck.length}${this.part ? ' · Part ' + this.part + ' of ' + this.partLists().length : ''}</span>
+              ${(s.skipped || []).length ? `<span class="small" style="color:var(--accent);font-weight:700">${s.skipped.length} skipped, coming back</span>` : ''}
               <button class="btn btn-sm btn-ghost" data-action="c-reset-open" title="Clear this part's marks and start it again from the first card">${icon('restart')} Restart</button>
             </span>
-            <button class="btn btn-sm btn-ghost" data-action="c-step" data-d="1">Skip ${icon('right')}</button>
+            <button class="btn btn-sm btn-ghost" data-action="c-step" data-d="1" title="Not now: this card comes back at the end">Skip ${icon('right')}</button>
           </div>
           <div class="kbd-hint"><kbd>Space</kbd> flip · <kbd>←</kbd> still learning · <kbd>→</kbd> got it · <kbd>S</kbd> speak · <kbd>F</kbd> save · or swipe the card</div>`;
 
@@ -1890,6 +1891,7 @@
         if (this.animating) { this.queued = () => this.rateCard(r); return; }
         Store.setStatus(w.de, r);
         if (r === 'learned') s.got++; else { s.again++; s.againList.push(w); }
+        if (s.skipped) s.skipped = s.skipped.filter(k => k !== w.de);
         // "Got it" leaves to the right, "Still learning" to the left; the next card comes in from the other side.
         this.flyOut(r === 'learned' ? 1 : -1, () => { s.i++; s.flipped = false; this.refreshStats(); this.renderCards($('#panel')); }, true);
       },
@@ -1999,12 +2001,24 @@
           const d = +el.dataset.d;
           if (this.animating) { this.queued = () => this.on_cards(a, el); return; }
           if (d < 0 && s.i === 0) return;
-          return this.flyOut(d > 0 ? -1 : 1, () => { s.i = Math.max(0, s.i + d); s.flipped = false; this.renderCards($('#panel')); });
+          if (d > 0) {
+            if (s.i >= s.deck.length - 1) return this.toast('Last card left: choose Got it or Still learning to finish');
+            return this.flyOut(-1, () => {
+              const deck = s.deck.slice();   // a copy: the deck can be the chapter's own word list
+              const [w] = deck.splice(s.i, 1);
+              deck.push(w);
+              s.deck = deck;
+              s.skipped = [...new Set([...(s.skipped || []), w.de])];
+              s.flipped = false;
+              this.renderCards($('#panel'));
+            });
+          }
+          return this.flyOut(1, () => { s.i = Math.max(0, s.i - 1); s.flipped = false; this.renderCards($('#panel')); });
         }
         if (a === 'c-filter') {
           const f = el.dataset.f;
           if (f === s.filter) return;
-          if (s.filter === 'all') s.savedAll = { deck: s.deck, i: s.i, got: s.got, again: s.again, againList: s.againList, shuffled: s.shuffled };
+          if (s.filter === 'all') s.savedAll = { deck: s.deck, i: s.i, got: s.got, again: s.again, againList: s.againList, shuffled: s.shuffled, skipped: s.skipped || [] };
           s.filter = f;
           if (f === 'all' && s.savedAll && s.savedAll.shuffled === s.shuffled) { Object.assign(s, s.savedAll, { flipped: false }); s.savedAll = null; }
           else this.buildDeck();
@@ -2022,7 +2036,7 @@
           this.toast((this.part ? 'Part ' + this.part : 'Chapter') + ' restarted');
           return this.renderCards($('#panel'));
         }
-        if (a === 'c-again') { const list = s.shuffled ? shuffle(s.againList) : s.againList; Object.assign(s, { deck: list, i: 0, flipped: false, got: 0, again: 0, againList: [] }); return this.renderCards($('#panel')); }
+        if (a === 'c-again') { const list = s.shuffled ? shuffle(s.againList) : s.againList; Object.assign(s, { deck: list, i: 0, flipped: false, got: 0, again: 0, againList: [], skipped: [] }); return this.renderCards($('#panel')); }
       },
       key_cards(e, typing) {
         if (typing || !this.s.deck || this.s.i >= this.s.deck.length) return;
