@@ -685,7 +685,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 53;
+    const APP_VERSION = 54;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -1217,18 +1217,19 @@
         if (!d) return null;
         const byKey = new Map(this.pool().map(w => [w.de, w]));
         const pool = this.pool();
+        const saved = {
+          flipped: false, got: d.got || 0, again: d.again || 0,
+          againList: (d.againList || []).map(k => byKey.get(k)).filter(Boolean),
+          skipped: (d.skipped || []).filter(k => byKey.has(k)), answers: d.answers || {},
+        };
         // The part's words changed (word-list update): keep your place at the same word.
         if ((d.filter || 'all') === 'all' && !d.shuffled && (d.deck.length !== pool.length || d.deck.some(k => !byKey.has(k)))) {
           const at = pool.findIndex(w => w.de === d.deck[d.i]);
-          return { filter: 'all', shuffled: false, deck: pool, i: at >= 0 ? at : Math.min(d.i || 0, pool.length), flipped: false,
-            got: d.got || 0, again: d.again || 0, againList: (d.againList || []).map(k => byKey.get(k)).filter(Boolean), skipped: (d.skipped || []).filter(k => byKey.has(k)), answers: d.answers || {}, hist: d.hist || [], skipped: (d.skipped || []).filter(k => byKey.has(k)), answers: d.answers || {} };
+          return { ...saved, filter: 'all', shuffled: false, deck: pool, i: at >= 0 ? at : Math.min(d.i || 0, pool.length), hist: [] };
         }
         const deck = d.deck.map(k => byKey.get(k)).filter(Boolean);
         if (!deck.length) return null;
-        return {
-          filter: d.filter || 'all', shuffled: !!d.shuffled, deck, i: Math.min(d.i || 0, deck.length), flipped: false,
-          got: d.got || 0, again: d.again || 0, againList: (d.againList || []).map(k => byKey.get(k)).filter(Boolean),
-        };
+        return { ...saved, filter: d.filter || 'all', shuffled: !!d.shuffled, deck, i: Math.min(d.i || 0, deck.length), hist: d.hist || [] };
       },
       pool() { const p = this.part; return p ? (this.partLists()[p - 1] || this.words()) : this.words(); },
       poolName() { return this.part ? 'Part ' + this.part : 'this chapter'; },
