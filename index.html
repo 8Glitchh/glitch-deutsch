@@ -685,7 +685,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 49;
+    const APP_VERSION = 50;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -997,11 +997,6 @@
         this.data.A2 = buildData(rawA2Text, true);             // GJU flashcards, word for word
         this.data.B1 = buildData(rawB1Text, true);   // GJU flashcards, English kept word for word
         for (const L of ['A1', 'A2', 'B1']) for (const ch in this.data[L]) for (const w of this.data[L][ch]) { w.L = L; w.ch = +ch; }
-        // GJU eLearning always wins: an AI-translated word (A1 1-15) that is also on a GJU card shows the GJU text.
-        const gju = new Map();
-        for (const L of ['A1', 'A2', 'B1']) for (const ch in this.data[L]) if (L !== 'A1' || +ch >= 16) for (const w of this.data[L][ch]) if (!gju.has(w.de)) gju.set(w.de, w.en);
-        this.gjuOverrides = 0;
-        for (let ch = 1; ch <= 15; ch++) for (const w of this.data.A1[ch] || []) if (gju.has(w.de)) { w.en = gju.get(w.de); w.plural = w.forms = w.note = ''; this.gjuOverrides++; }
         const d = Store.load();
         this.migrateWords();
         this.level = d.lastLevel in this.data || d.lastLevel === 'MY' ? d.lastLevel : 'A1';
