@@ -685,7 +685,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 51;
+    const APP_VERSION = 52;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -1207,7 +1207,7 @@
         if (!cs || cs.ch !== this.chKey()) cs = Store.d.cardSession = { ch: this.chKey(), parts: {} };
         cs.parts[this.part] = {
           filter: s.filter, shuffled: s.shuffled, i: s.i, got: s.got, again: s.again,
-          deck: s.deck.map(w => w.de), againList: s.againList.map(w => w.de), skipped: s.skipped || [],
+          deck: s.deck.map(w => w.de), againList: s.againList.map(w => w.de), skipped: s.skipped || [], answers: s.answers || {},
         };
         Store.save();
       },
@@ -1221,7 +1221,7 @@
         if ((d.filter || 'all') === 'all' && !d.shuffled && (d.deck.length !== pool.length || d.deck.some(k => !byKey.has(k)))) {
           const at = pool.findIndex(w => w.de === d.deck[d.i]);
           return { filter: 'all', shuffled: false, deck: pool, i: at >= 0 ? at : Math.min(d.i || 0, pool.length), flipped: false,
-            got: d.got || 0, again: d.again || 0, againList: (d.againList || []).map(k => byKey.get(k)).filter(Boolean), skipped: (d.skipped || []).filter(k => byKey.has(k)), skipped: (d.skipped || []).filter(k => byKey.has(k)) };
+            got: d.got || 0, again: d.again || 0, againList: (d.againList || []).map(k => byKey.get(k)).filter(Boolean), skipped: (d.skipped || []).filter(k => byKey.has(k)), answers: d.answers || {}, skipped: (d.skipped || []).filter(k => byKey.has(k)), answers: d.answers || {} };
         }
         const deck = d.deck.map(k => byKey.get(k)).filter(Boolean);
         if (!deck.length) return null;
@@ -1777,7 +1777,7 @@
         if (s.filter === 'hard') list = list.filter(w => Store.status(w.de) === 'hard');
         if (s.filter === 'new') list = list.filter(w => Store.status(w.de) === 'new');
         if (s.shuffled) list = shuffle(list);
-        Object.assign(s, { deck: list, i: 0, flipped: false, got: 0, again: 0, againList: [], skipped: [] });
+        Object.assign(s, { deck: list, i: 0, flipped: false, got: 0, again: 0, againList: [], skipped: [], answers: {} });
       },
 
       renderCards(p) {
@@ -1890,6 +1890,11 @@
         if (!w) return;
         if (this.animating) { this.queued = () => this.rateCard(r); return; }
         Store.setStatus(w.de, r);
+        s.answers = s.answers || {};
+        const prev = s.answers[w.de];
+        if (prev === 'learned') s.got--;
+        if (prev === 'hard') { s.again--; s.againList = s.againList.filter(x => x.de !== w.de); }
+        s.answers[w.de] = r;
         if (r === 'learned') s.got++; else { s.again++; s.againList.push(w); }
         if (s.skipped) s.skipped = s.skipped.filter(k => k !== w.de);
         // "Got it" leaves to the right, "Still learning" to the left; the next card comes in from the other side.
@@ -2002,6 +2007,7 @@
           if (this.animating) { this.queued = () => this.on_cards(a, el); return; }
           if (d < 0 && s.i === 0) return;
           if (d > 0) {
+            if ((s.answers || {})[s.deck[s.i].de]) return this.flyOut(-1, () => { s.i++; s.flipped = false; this.renderCards($('#panel')); });
             if (s.i >= s.deck.length - 1) return this.toast('Last card left: choose Got it or Still learning to finish');
             return this.flyOut(-1, () => {
               const deck = s.deck.slice();   // a copy: the deck can be the chapter's own word list
@@ -2018,7 +2024,7 @@
         if (a === 'c-filter') {
           const f = el.dataset.f;
           if (f === s.filter) return;
-          if (s.filter === 'all') s.savedAll = { deck: s.deck, i: s.i, got: s.got, again: s.again, againList: s.againList, shuffled: s.shuffled, skipped: s.skipped || [] };
+          if (s.filter === 'all') s.savedAll = { deck: s.deck, i: s.i, got: s.got, again: s.again, againList: s.againList, shuffled: s.shuffled, skipped: s.skipped || [], answers: s.answers || {} };
           s.filter = f;
           if (f === 'all' && s.savedAll && s.savedAll.shuffled === s.shuffled) { Object.assign(s, s.savedAll, { flipped: false }); s.savedAll = null; }
           else this.buildDeck();
@@ -2036,7 +2042,7 @@
           this.toast((this.part ? 'Part ' + this.part : 'Chapter') + ' restarted');
           return this.renderCards($('#panel'));
         }
-        if (a === 'c-again') { const list = s.shuffled ? shuffle(s.againList) : s.againList; Object.assign(s, { deck: list, i: 0, flipped: false, got: 0, again: 0, againList: [], skipped: [] }); return this.renderCards($('#panel')); }
+        if (a === 'c-again') { const list = s.shuffled ? shuffle(s.againList) : s.againList; Object.assign(s, { deck: list, i: 0, flipped: false, got: 0, again: 0, againList: [], skipped: [], answers: {} }); return this.renderCards($('#panel')); }
       },
       key_cards(e, typing) {
         if (typing || !this.s.deck || this.s.i >= this.s.deck.length) return;
