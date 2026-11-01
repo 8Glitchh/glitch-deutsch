@@ -637,7 +637,35 @@
     .speak.off { opacity: .4; position: relative; }
     .speak.off::after { content: ""; position: absolute; left: 25%; right: 25%; top: 50%; height: 2px; background: currentColor; transform: rotate(-40deg); border-radius: 2px; }
     .voice-select { margin-top: 8px; max-width: 220px; width: 100%; height: 36px; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--surface-2); color: var(--text); padding: 0 8px; font-size: 14px; }
-    .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 20px); transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: .88rem; z-index: 60; animation: up .25s var(--ease); box-shadow: var(--shadow); }
+    /* Bottom bar + compact top bar */
+    #modes, #partbar, #myentry { display: none !important; }
+    .wrap { padding-bottom: calc(env(safe-area-inset-bottom) + 92px); }
+    #bottomnav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: flex; justify-content: center; padding: 8px 4px calc(env(safe-area-inset-bottom) + 8px); background: var(--bg-2); border-top: 1px solid var(--line); }
+    #bottomnav button { flex: 1; max-width: 130px; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 0; border-radius: 12px; font-size: .68rem; font-weight: 750; color: var(--text-2); position: relative; }
+    #bottomnav button svg { width: 22px; height: 22px; }
+    #bottomnav button.on { color: var(--accent); }
+    #bottomnav .count { position: absolute; top: -1px; left: 50%; margin-left: 7px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-size: .62rem; font-weight: 850; display: grid; place-items: center; }
+    body.typing #bottomnav { display: none; }
+    #topbar { margin-bottom: 10px; padding: 10px 14px; }
+    #topbar .t b { font-size: .92rem; }
+    #topbar .go svg { width: 18px; height: 18px; }
+    .prac { width: 100%; display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center; text-align: left; padding: 12px; border-radius: var(--r-md); background: var(--surface); border: 1.5px solid transparent; margin-bottom: 8px; }
+    .prac:hover { background: var(--surface-2); }
+    .prac.on { border-color: var(--accent); }
+    .prac b { display: block; font-size: .98rem; }
+    .prac small { display: block; font-size: .8rem; color: var(--text-2); }
+    .prac .my-ic svg { fill: none; width: 22px; height: 22px; }
+    @media (max-height: 740px) {
+      .top { padding-bottom: 10px; }
+      .panel { padding: 12px; }
+      .panel-head { margin-bottom: 10px; }
+      .deck-bar { margin-bottom: 10px; }
+      .fcard { min-height: 190px !important; }
+      .summary .big, .summary .next-part { display: none; }
+      .card-stage { margin-bottom: 10px; }
+      .rate .btn { height: 48px; }
+    }
+    .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 84px); transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: .88rem; z-index: 60; animation: up .25s var(--ease); box-shadow: var(--shadow); }
 
     @media (max-width: 520px) {
       .panel { padding: 16px; border-radius: var(--r-lg); }
@@ -668,7 +696,7 @@
       <button class="icon-btn" data-action="settings" aria-label="Settings" id="settings-btn"></button>
     </header>
 
-    <section class="course" id="chapter-card"></section>
+    <button class="my-entry" id="topbar" data-action="open-panel" aria-label="Change chapter or part"></button>
     <div id="myentry"></div>
     <nav class="modes" id="modes" aria-label="Practice modes"></nav>
     <div class="partbar" id="partbar"></div>
@@ -681,11 +709,19 @@
     </section>
     <footer class="foot"><button data-action="notice"><b>ⓘ About this app</b><span>Words by Dr. Omar Alduais · A1 ch. 1–15 English by AI · the rest from GJU eLearning</span></button><div class="made-by">Made by Ahmed Hashash</div></footer>
   </div>
+  <div class="scrim" id="panel-scrim" data-action="close-panel" style="display:none;z-index:45">
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="panel-title">
+      <div class="sheet-grab"></div>
+      <div class="sheet-head"><h3 id="panel-title">Chapters</h3><button class="icon-btn" data-action="close-panel" id="panel-x" aria-label="Close"></button></div>
+      <div class="sheet-body"><section class="course" id="chapter-card"></section></div>
+    </div>
+  </div>
+  <nav id="bottomnav" aria-label="Main"></nav>
   <div id="overlay"></div>
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 55;
+    const APP_VERSION = 56;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -1006,13 +1042,21 @@
         for (const L of ['A1', 'A2', 'B1']) for (const ch in this.data[L]) for (const w of this.data[L][ch]) { w.L = L; w.ch = +ch; }
         const d = Store.load();
         this.migrateWords();
-        this.level = d.lastLevel in this.data || d.lastLevel === 'MY' ? d.lastLevel : 'A1';
-        this.chapter = Math.min(24, Math.max(1, +d.lastChapter || 1));
-        this.mode = MODES.some(m => m.id === d.lastMode) ? d.lastMode : 'cards';
+        // Always open straight on the flashcards, at the chapter you were last in.
+        const lastL = d.lastLevel === 'MY' ? (d.lastNormalLevel || 'A1') : d.lastLevel;
+        this.level = lastL in this.data ? lastL : 'A1';
+        this.chapter = Math.min(24, Math.max(1, +(d.lastLevel === 'MY' ? (d.levelChapter || {})[this.level] : d.lastChapter) || 1));
+        this.mode = 'cards';
         this.applyTheme();
         Speech.init();
         $('#settings-btn').innerHTML = icon('gear');
         $('#about-btn').innerHTML = icon('info');
+        $('#panel-x').innerHTML = icon('x');
+        // Touch keyboards: the bottom bar steps aside while typing.
+        if (matchMedia('(pointer: coarse)').matches) {
+          document.addEventListener('focusin', e => { if (e.target.matches('input[type="text"], input[type="search"], input:not([type])')) document.body.classList.add('typing'); });
+          document.addEventListener('focusout', () => document.body.classList.remove('typing'));
+        }
         this.renderInstallBtn();
         this.loadSession();
         if ((Store.d.seenNotice === true ? 1 : Store.d.seenNotice || 0) < 2) setTimeout(() => this.openNotice(true), 300);
@@ -1022,7 +1066,7 @@
         let tap = null;
         document.addEventListener('pointerdown', e => {
           if (e.pointerType !== 'touch') return;
-          const btn = e.target.closest('#panel button[data-action], #partbar button[data-action]');
+          const btn = e.target.closest('#panel button[data-action], #bottomnav button[data-action]');
           tap = btn ? { btn, x: e.clientX, y: e.clientY, t: Date.now() } : null;
         }, true);
         document.addEventListener('pointercancel', () => { tap = null; }, true);
@@ -1098,23 +1142,14 @@
           b.title = (on ? 'Remove from' : 'Add to') + ' My Words'; b.setAttribute('aria-label', b.title);
         });
         this.toast(on ? '⭐ Added to My Words' : 'Removed from My Words');
-        if (this.level === 'MY') this.renderChapterCard(); else this.renderMyEntry();
+        this.renderChapterCard(); this.renderModes();
       },
-      renderMyEntry() {
-        const box = $('#myentry');
-        if (this.level === 'MY') return box.innerHTML = '';
-        const n = Object.keys(Store.d.starred || {}).length;
-        box.innerHTML = `<button class="my-entry" data-action="open-my">
-            <span class="my-ic">${icon('star')}</span>
-            <span class="t"><b>My Words</b><span>${n ? n + ' saved word' + (n === 1 ? '' : 's') + ' to practise' : 'Tap ☆ on a card to save words you keep forgetting'}</span></span>
-            <span class="go">Open ${icon('right')}</span>
-          </button>`;
-      },
+      renderMyEntry() {},
       renderMyCard() {
         const c = this.countList(this.words());
         $('#chapter-card').innerHTML = `
           <div class="my-card">
-            <button class="btn btn-sm btn-ghost" data-action="leave-my" style="margin-left:-8px">${icon('left')} Chapters</button>
+            <button class="btn btn-sm btn-ghost" data-action="leave-my" style="margin-left:-8px">${icon('left')} Back to chapters</button>
             <div class="my-title"><span class="my-ic">${icon('star')}</span><div><b>My Words</b><span>${c.total} saved word${c.total === 1 ? '' : 's'} from all chapters</span></div></div>
             <div class="cur-stats">
               <span><i class="dot" style="background:var(--ok)"></i><b>${c.learned}</b> mastered</span>
@@ -1204,14 +1239,15 @@
         if (s.done) { s.i++; s.done = false; }
         if (s.checked != null && s.qs) { s.i++; s.placed = []; s.checked = null; s.order = null; }
       },
-      forgetSessions() { this.sessions = {}; Store.d.cardSession = null; Store.save(); },
+      forgetSessions() { this.sessions = {}; Store.d.cardSession = null; Store.d.cardSessionMY = null; Store.save(); },
 
       // Flashcard position is also saved to storage, so it survives the app being closed.
       saveCards() {
         const s = this.s;
         if (!s.deck) return;
-        let cs = Store.d.cardSession;
-        if (!cs || cs.ch !== this.chKey()) cs = Store.d.cardSession = { ch: this.chKey(), parts: {} };
+        const slot = this.level === 'MY' ? 'cardSessionMY' : 'cardSession';
+        let cs = Store.d[slot];
+        if (!cs || cs.ch !== this.chKey()) cs = Store.d[slot] = { ch: this.chKey(), parts: {} };
         cs.parts[this.part] = {
           filter: s.filter, shuffled: s.shuffled, i: s.i, got: s.got, again: s.again,
           deck: s.deck.map(w => w.de), againList: s.againList.map(w => w.de), skipped: s.skipped || [], answers: s.answers || {}, hist: s.hist || [],
@@ -1219,7 +1255,7 @@
         Store.save();
       },
       restoreCards() {
-        const cs = Store.d.cardSession;
+        const cs = this.level === 'MY' ? Store.d.cardSessionMY : Store.d.cardSession;
         const d = cs && cs.ch === this.chKey() && cs.parts[this.part];
         if (!d) return null;
         const byKey = new Map(this.pool().map(w => [w.de, w]));
@@ -1338,13 +1374,56 @@
       },
 
       renderModes() {
-        const hard = this.countList(this.pool()).hard;
-        $('#modes').innerHTML = MODES.map(m => `
-          <button class="mode ${this.mode === m.id ? 'active' : ''}" data-action="mode" data-mode="${m.id}">
-            ${icon(m.icon)}${m.label}${m.id === 'cards' && hard ? `<span class="badge">${hard}</span>` : ''}
-          </button>`).join('');
-        const act = $('#modes .mode.active');
-        if (act) act.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+        const inPractice = !['cards', 'words'].includes(this.mode);
+        const on = this.mode === 'words' ? 'search' : this.level === 'MY' ? 'my' : inPractice ? 'practice' : 'cards';
+        const n = Object.keys(Store.d.starred || {}).length;
+        const item = (id, ic, label, extra = '') => `<button class="${on === id ? 'on' : ''}" data-action="nav" data-tab="${id}" ${on === id ? 'aria-current="page"' : ''}>${icon(ic)}${label}${extra}</button>`;
+        $('#bottomnav').innerHTML = item('cards', 'cards', 'Flashcards') + item('practice', 'quiz', 'Practice') + item('chapters', 'grid', 'Chapters')
+          + item('my', 'star', 'My Words', n ? `<span class="count">${n > 99 ? '99+' : n}</span>` : '') + item('search', 'search', 'Search');
+        this.renderTopBar();
+      },
+
+      renderTopBar() {
+        const mode = MODES.find(m => m.id === this.mode);
+        const label = this.mode === 'words' ? 'Search' : this.mode !== 'cards' ? mode.label : '';
+        let head, sub;
+        if (this.level === 'MY') { const n = this.words().length; head = 'My Words'; sub = n + ' saved word' + (n === 1 ? '' : 's'); }
+        else { const p = this.part; head = `${this.level} · Chapter ${this.chapter} · ${p ? `Part ${p} of ${this.partLists().length}` : 'All parts'}`; sub = esc(this.title()); }
+        $('#topbar').innerHTML = `<span class="t"><b>${head}</b><span>${sub}</span></span><span class="go">${label}${icon('down')}</span>`;
+      },
+
+      navTo(tab) {
+        this.closePanel(); this.closeSheet();
+        const toNormal = () => { if (this.level === 'MY') { const L = Store.d.lastNormalLevel || 'A1'; this.setChapter(L, (Store.d.levelChapter || {})[L] || 1); } };
+        if (tab === 'cards') { toNormal(); this.setMode('cards'); return window.scrollTo(0, 0); }
+        if (tab === 'practice') return this.openPractice();
+        if (tab === 'chapters') { toNormal(); return this.openPanel(); }
+        if (tab === 'my') {
+          // Saved words may have changed since last time: rebuild from the current list, keeping your place.
+          for (const k of Object.keys(this.sessions)) if (k.startsWith('MY_')) delete this.sessions[k];
+          if (this.level !== 'MY') this.setChapter('MY', 1, true); else this.loadSession();
+          this.setMode('cards'); return window.scrollTo(0, 0);
+        }
+        if (tab === 'search') { this.setMode('words'); window.scrollTo(0, 0); const i = $('#w-q'); if (i) i.focus(); }
+      },
+
+      openPractice() {
+        const about = { quiz: 'Multiple choice, 10 questions', type: 'Type the German word', articles: 'Pick the right article', match: 'Pair German with English', sprint: '60 seconds, as many as you can', sentences: 'Put the words in order' };
+        const items = MODES.filter(m => about[m.id]).map(m => `<button class="prac ${this.mode === m.id ? 'on' : ''}" data-action="practice-go" data-mode="${m.id}"><span class="my-ic">${icon(m.icon)}</span><span><b>${m.label}</b><small>${about[m.id]}</small></span>${icon('right')}</button>`).join('');
+        const scope = this.level === 'MY' ? 'My Words' : `${this.level} · Chapter ${this.chapter}${this.part ? ' · Part ' + this.part : ''}`;
+        this.openSheet(`<div class="sheet-head"><div><h3>Practice</h3><div class="muted small">${scope}</div></div><button class="icon-btn" data-action="close-sheet" aria-label="Close">${icon('x')}</button></div><div class="sheet-body">${items}</div>`);
+      },
+
+      openPanel() {
+        $('#panel-title').textContent = this.level === 'MY' ? 'My Words' : 'Chapters';
+        $('#panel-scrim').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        this.renderChapterCard();   // the chapter row can only centre itself once visible
+      },
+      closePanel() {
+        if ($('#panel-scrim').style.display === 'none') return;
+        $('#panel-scrim').style.display = 'none';
+        if (!$('#overlay').firstChild) document.body.style.overflow = '';
       },
 
       renderPanel() {
@@ -1363,7 +1442,8 @@
       refreshStats() { this.renderStreak(); this.renderChapterCard(); this.renderModes(); this.renderPartBar(); },
 
       setChapter(level, ch, stay) {
-        if (level !== this.level || ch !== this.chapter) this.forgetSessions();
+        if (level === 'MY' || this.level === 'MY') this.stashSession();
+        else if (level !== this.level || ch !== this.chapter) { for (const k of Object.keys(this.sessions)) if (!k.startsWith('MY_')) delete this.sessions[k]; Store.d.cardSession = null; Store.save(); }
         else this.stashSession();
         this.level = level; this.chapter = ch; this.loadSession();
         this.persist(); this.render();
@@ -1391,13 +1471,17 @@
           case 'chapters': return this.openChapters(this.level === 'MY' ? (Store.d.lastNormalLevel || 'A1') : this.level);
           case 'star': e.stopPropagation(); return this.toggleStar(ds.key, ds.l, ds.ch);
           case 'open-my': return this.setChapter('MY', 1);
-          case 'leave-my': { const L = Store.d.lastNormalLevel || 'A1'; return this.setChapter(L, (Store.d.levelChapter || {})[L] || 1); }
+          case 'leave-my': { this.closePanel(); const L = Store.d.lastNormalLevel || 'A1'; return this.setChapter(L, (Store.d.levelChapter || {})[L] || 1); }
           case 'sheet-level': return this.openChapters(ds.level);
           case 'set-level': if (ds.level === this.level) return; this.toast(ds.level + ' selected'); return this.setChapter(ds.level, (Store.d.levelChapter || {})[ds.level] || 1);
-          case 'pick-ch': { const fromSheet = !!$('#overlay').firstChild; this.closeSheet(); if (!fromSheet && +ds.ch === this.chapter && ds.level === this.level) return; return this.setChapter(ds.level, +ds.ch, !fromSheet); }
+          case 'pick-ch': { const fromSheet = !!$('#overlay').firstChild; this.closeSheet(); this.closePanel(); if (!fromSheet && +ds.ch === this.chapter && ds.level === this.level) return; return this.setChapter(ds.level, +ds.ch, !fromSheet); }
           case 'ch-step': return this.setChapter(this.level, Math.min(24, Math.max(1, this.chapter + +ds.dir)));
           case 'close-sheet': if (el.classList.contains('scrim') && e.target !== el) return; if (this.sheetLocked) return; return this.closeSheet();
-          case 'set-part': return this.setPart(+ds.p);
+          case 'nav': return this.navTo(ds.tab);
+          case 'open-panel': return this.openPanel();
+          case 'close-panel': if (el.classList.contains('scrim') && e.target !== el) return; return this.closePanel();
+          case 'practice-go': this.closeSheet(); this.setMode(ds.mode); return window.scrollTo(0, 0);
+          case 'set-part': this.closePanel(); return this.setPart(+ds.p);
           case 'toggle-done': {
             const k = this.chKey();
             Store.d.completedChapters[k] = !Store.d.completedChapters[k]; Store.save();
@@ -1449,6 +1533,7 @@
 
       onKey(e) {
         if ($('#overlay').firstChild) { if (e.key === 'Escape' && !this.sheetLocked) this.closeSheet(); return; }
+        if ($('#panel-scrim').style.display !== 'none') { if (e.key === 'Escape') this.closePanel(); return; }
         const typing = !!(e.target.matches && e.target.matches('input, textarea'));
         if (e.metaKey || e.ctrlKey || e.altKey) return;
         const h = this[`key_${this.mode}`];
@@ -1460,7 +1545,7 @@
         $('#overlay').innerHTML = `<div class="scrim" data-action="close-sheet"><div class="sheet" role="dialog" aria-modal="true"><div class="sheet-grab"></div>${html}</div></div>`;
         document.body.style.overflow = 'hidden';
       },
-      closeSheet() { this.sheetLocked = false; $('#overlay').innerHTML = ''; document.body.style.overflow = ''; },
+      closeSheet() { this.sheetLocked = false; $('#overlay').innerHTML = ''; if ($('#panel-scrim').style.display === 'none') document.body.style.overflow = ''; },
 
       // Shown on first open (must be held to close), and from the footer / settings afterwards.
       openNotice(first) {
@@ -1788,7 +1873,17 @@
         Object.assign(s, { deck: list, i: 0, flipped: false, got: 0, again: 0, againList: [], skipped: [], answers: {}, hist: [] });
       },
 
+      // Short phones get a smaller card: let it grow back when a long word needs the room.
+      fitCard() {
+        const card = $('#panel .fcard');
+        if (!card) return;
+        let h = 0;
+        card.querySelectorAll('.fface').forEach(x => { if (x.scrollHeight > x.clientHeight) h = Math.max(h, x.scrollHeight + 2); });
+        if (h) card.style.setProperty('min-height', h + 'px', 'important');
+      },
+
       renderCards(p) {
+        queueMicrotask(() => this.fitCard());
         const s = this.s;
         if (!s.deck) { s.filter = s.filter || 'all'; s.shuffled = !!s.shuffled; this.buildDeck(); }
         this.saveCards();
@@ -2469,7 +2564,7 @@
       /* ================= 8. Word list ================= */
       renderWords(p) {
         const s = this.s;
-        if (s.q == null) Object.assign(s, { q: '', f: 'all', all: false });
+        if (s.q == null) Object.assign(s, { q: '', f: 'all', all: true });
         p.innerHTML = `
           <div class="panel-head" style="margin-bottom:0">
             <label class="search">${icon('search')}<input id="w-q" type="search" placeholder="Search German or English…" value="${esc(s.q)}" autocomplete="off"></label>
