@@ -1,6 +1,6 @@
 // Offline support: everything the app needs is cached on first visit.
 // Bump VERSION whenever index.html changes so phones pick up the update.
-const VERSION = 'gd-v57';
+const VERSION = 'gd-v59';
 const FILES = [
   './',
   './index.html',

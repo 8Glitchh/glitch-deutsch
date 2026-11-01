@@ -643,6 +643,25 @@
     #bottomnav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: flex; justify-content: center; padding: 8px 4px calc(env(safe-area-inset-bottom) + 8px); background: var(--bg-2); border-top: 1px solid var(--line); }
     #bottomnav button { flex: 1; max-width: 130px; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 0; border-radius: 12px; font-size: .68rem; font-weight: 750; color: var(--text-2); position: relative; }
     #bottomnav button svg { width: 22px; height: 22px; }
+    @media (max-width: 359px) { #bottomnav button { font-size: .6rem; } }
+    body:not([data-page="chapters"]) #chapter-card, body:not([data-page="chapters"]) #ch-start { display: none; }
+    body[data-page="chapters"] #panel, body[data-page="chapters"] #topbar, body[data-page="home"] #topbar { display: none; }
+    #ch-start { width: 100%; margin-bottom: 14px; }
+    .page-title { font-size: 1.25rem; margin-bottom: 12px; }
+    .home-go { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; padding: 16px; margin-bottom: 18px; border-radius: var(--r-md); background: var(--accent); color: var(--accent-ink); }
+    .home-go span { flex: 1; min-width: 0; }
+    .home-go small { display: block; font-size: .72rem; font-weight: 800; letter-spacing: .06em; }
+    .home-go b { display: block; font-size: 1.08rem; }
+    .home-go em { display: block; font-style: normal; font-size: .82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .home-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 18px; }
+    .home-stats div { padding: 12px 6px; text-align: center; border-radius: var(--r-md); background: var(--surface-2); }
+    .home-stats b { display: block; font-size: 1.3rem; }
+    .home-stats span { font-size: .72rem; color: var(--text-2); }
+    .home-lv { width: 100%; display: block; text-align: left; padding: 12px 14px; margin-bottom: 8px; border-radius: var(--r-md); background: var(--surface-2); }
+    .home-lv > span { display: flex; justify-content: space-between; font-size: .85rem; color: var(--text-2); margin-bottom: 8px; }
+    .home-lv b { color: var(--text); }
+    .home-lv i { display: block; height: 6px; border-radius: 6px; background: var(--surface-3); overflow: hidden; }
+    .home-lv i u { display: block; height: 100%; background: var(--accent); }
     #bottomnav button.on { color: var(--accent); }
     #bottomnav .count { position: absolute; top: -1px; left: 50%; margin-left: 7px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-size: .62rem; font-weight: 850; display: grid; place-items: center; }
     body.typing #bottomnav { display: none; }
@@ -672,6 +691,29 @@
       .card-stage { margin-bottom: 10px; }
       .rate .btn { height: 48px; }
     }
+    .rw { width: 100%; min-height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 20px 14px; margin-bottom: 12px; text-align: center; border-radius: var(--r-lg); background: var(--surface-2); border: 1px solid var(--line-strong); }
+    .rw .fword { overflow-wrap: anywhere; }
+    .rw.spinning .fword { opacity: .55; }
+    .rw-en { font-size: 1.05rem; color: var(--text); }
+    .rw-tap { font-size: .85rem; color: var(--text-2); }
+    .rw-from { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: .82rem; color: var(--text-2); min-height: 40px; }
+    .rw-from span { flex: 1; min-width: 0; }
+    .rw-spin { width: 100%; }
+    .party-row { display: flex; gap: 8px; margin-bottom: 8px; }
+    .party-row input { flex: 1; min-width: 0; height: 44px; padding: 0 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line-strong); color: var(--text); font: inherit; font-size: 16px; }
+    .party-label { display: block; margin: 16px 0 8px; font-size: .78rem; font-weight: 800; letter-spacing: .05em; color: var(--text-2); }
+    .party-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .party-start { width: 100%; margin-top: 18px; }
+    .party-alone { width: 100%; margin-top: 8px; }
+    .party-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+    .party-head .page-title { margin: 0; }
+    .party-scores { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .party-scores span { padding: 5px 10px; border-radius: 999px; background: var(--surface-2); border: 1.5px solid transparent; font-size: .82rem; font-weight: 700; color: var(--text-2); }
+    .party-scores span.on { border-color: var(--accent); color: var(--text); }
+    .party-scores b { color: var(--accent); margin-left: 4px; }
+    .rw-turn { font-size: 1.5rem; font-weight: 850; overflow-wrap: anywhere; }
+    .party-rank { display: flex; justify-content: space-between; gap: 10px; padding: 12px 14px; margin-bottom: 8px; border-radius: var(--r-md); background: var(--surface-2); font-weight: 750; }
+    .party-rank span { min-width: 0; overflow-wrap: anywhere; }
     .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 84px); transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: .88rem; z-index: 60; animation: up .25s var(--ease); box-shadow: var(--shadow); }
 
     @media (max-width: 520px) {
@@ -704,6 +746,8 @@
     </header>
 
     <div class="my-entry" id="topbar" data-action="open-panel"></div>
+    <section class="course" id="chapter-card"></section>
+    <button class="btn btn-primary btn-lg" id="ch-start" data-action="nav" data-tab="cards"></button>
     <div id="myentry"></div>
     <nav class="modes" id="modes" aria-label="Practice modes"></nav>
     <div class="partbar" id="partbar"></div>
@@ -716,22 +760,17 @@
     </section>
     <footer class="foot"><button data-action="notice"><b>ⓘ About this app</b><span>Words by Dr. Omar Alduais · A1 ch. 1–15 English by AI · the rest from GJU eLearning</span></button><div class="made-by">Made by Ahmed Hashash</div></footer>
   </div>
-  <div class="scrim" id="panel-scrim" data-action="close-panel" style="display:none;z-index:45">
-    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="panel-title">
-      <div class="sheet-grab"></div>
-      <div class="sheet-head"><h3 id="panel-title">Chapters</h3><button class="icon-btn" data-action="close-panel" id="panel-x" aria-label="Close"></button></div>
-      <div class="sheet-body"><section class="course" id="chapter-card"></section></div>
-    </div>
-  </div>
   <nav id="bottomnav" aria-label="Main"></nav>
   <div id="overlay"></div>
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 57;
+    const APP_VERSION = 59;
 
     /* ================= Icons ================= */
     const ICONS = {
+      dice: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 8.5h.01M15.5 8.5h.01M12 12h.01M8.5 15.5h.01M15.5 15.5h.01"/>',
+      home: '<path d="M4 11l8-7 8 7"/><path d="M6 9.5V20h12V9.5"/><path d="M10 20v-6h4v6"/>',
       star: '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>',
       info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>',
       mail: '<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/>',
@@ -818,6 +857,7 @@
       { id: 'match',     label: 'Match',      icon: 'grid' },
       { id: 'sprint',    label: 'Sprint',     icon: 'zap' },
       { id: 'sentences', label: 'Sentences',  icon: 'puzzle' },
+      { id: 'lucky',     label: 'Word Party', icon: 'dice' },
       { id: 'words',     label: 'Word list',  icon: 'list' },
     ];
 
@@ -1058,7 +1098,7 @@
         Speech.init();
         $('#settings-btn').innerHTML = icon('gear');
         $('#about-btn').innerHTML = icon('info');
-        $('#panel-x').innerHTML = icon('x');
+        $('#ch-start').innerHTML = icon('cards') + ' Study flashcards';
         // Touch keyboards: the bottom bar steps aside while typing.
         if (matchMedia('(pointer: coarse)').matches) {
           document.addEventListener('focusin', e => { if (e.target.matches('input[type="text"], input[type="search"], input:not([type])')) document.body.classList.add('typing'); });
@@ -1382,12 +1422,13 @@
 
       renderModes() {
         const inPractice = !['cards', 'words'].includes(this.mode);
-        const on = this.mode === 'words' ? 'search' : this.level === 'MY' ? 'my' : inPractice ? 'practice' : 'cards';
+        const on = this.page || (this.mode === 'words' ? 'search' : this.level === 'MY' ? 'my' : inPractice ? 'practice' : 'cards');
         const n = Object.keys(Store.d.starred || {}).length;
         const item = (id, ic, label, extra = '') => `<button class="${on === id ? 'on' : ''}" data-action="nav" data-tab="${id}" ${on === id ? 'aria-current="page"' : ''}>${icon(ic)}${label}${extra}</button>`;
-        $('#bottomnav').innerHTML = item('cards', 'cards', 'Flashcards') + item('practice', 'quiz', 'Practice') + item('chapters', 'grid', 'Chapters')
+        $('#bottomnav').innerHTML = item('home', 'home', 'Home') + item('cards', 'cards', 'Flashcards') + item('practice', 'quiz', 'Practice') + item('chapters', 'grid', 'Chapters')
           + item('my', 'star', 'My Words', n ? `<span class="count">${n > 99 ? '99+' : n}</span>` : '') + item('search', 'search', 'Search');
         this.renderTopBar();
+        $('#topbar').style.display = this.mode === 'lucky' && !this.page ? 'none' : '';
       },
 
       renderTopBar() {
@@ -1404,12 +1445,17 @@
         $('#topbar').innerHTML = `<span class="t"><b>${head}</b><span>${sub}</span></span>${parts}<button class="go" data-action="open-panel" aria-label="Change chapter or part">${icon('down')}</button>`;
       },
 
+      // null = the current study mode; otherwise a page of its own.
+      setPage(page) { this.page = page; document.body.dataset.page = page || ''; },
+      showPage(page) { this.setPage(page); this.render(); window.scrollTo(0, 0); },
+
       navTo(tab) {
-        this.closePanel(); this.closeSheet();
+        this.closeSheet();
         const toNormal = () => { if (this.level === 'MY') { const L = Store.d.lastNormalLevel || 'A1'; this.setChapter(L, (Store.d.levelChapter || {})[L] || 1); } };
+        if (tab === 'home' || tab === 'practice') return this.showPage(tab);
+        if (tab === 'chapters') { toNormal(); return this.showPage(tab); }
+        this.setPage(null);
         if (tab === 'cards') { toNormal(); this.setMode('cards'); return window.scrollTo(0, 0); }
-        if (tab === 'practice') return this.openPractice();
-        if (tab === 'chapters') { toNormal(); return this.openPanel(); }
         if (tab === 'my') {
           // Saved words may have changed since last time: rebuild from the current list, keeping your place.
           for (const k of Object.keys(this.sessions)) if (k.startsWith('MY_')) delete this.sessions[k];
@@ -1419,35 +1465,43 @@
         if (tab === 'search') { this.setMode('words'); window.scrollTo(0, 0); const i = $('#w-q'); if (i) i.focus(); }
       },
 
-      openPractice() {
-        const about = { quiz: 'Multiple choice, 10 questions', type: 'Type the German word', articles: 'Pick the right article', match: 'Pair German with English', sprint: '60 seconds, as many as you can', sentences: 'Put the words in order' };
-        const items = MODES.filter(m => about[m.id]).map(m => `<button class="prac ${this.mode === m.id ? 'on' : ''}" data-action="practice-go" data-mode="${m.id}"><span class="my-ic">${icon(m.icon)}</span><span><b>${m.label}</b><small>${about[m.id]}</small></span>${icon('right')}</button>`).join('');
-        const scope = this.level === 'MY' ? 'My Words' : `${this.level} · Chapter ${this.chapter}${this.part ? ' · Part ' + this.part : ''}`;
-        this.openSheet(`<div class="sheet-head"><div><h3>Practice</h3><div class="muted small">${scope}</div></div><button class="icon-btn" data-action="close-sheet" aria-label="Close">${icon('x')}</button></div><div class="sheet-body">${items}</div>`);
+      renderPractice(p) {
+        const about = { quiz: 'Multiple choice, 10 questions', type: 'Type the German word', articles: 'Pick the right article', match: 'Pair German with English', sprint: '60 seconds, as many as you can', sentences: 'Put the words in order', lucky: 'Play with friends on one phone' };
+        p.innerHTML = '<h2 class="page-title">Practice</h2>' + MODES.filter(m => about[m.id]).map(m => `<button class="prac ${this.mode === m.id ? 'on' : ''}" data-action="practice-go" data-mode="${m.id}"><span class="my-ic">${icon(m.icon)}</span><span><b>${m.label}</b><small>${about[m.id]}</small></span>${icon('right')}</button>`).join('');
       },
 
-      openPanel() {
-        $('#panel-title').textContent = this.level === 'MY' ? 'My Words' : 'Chapters';
-        $('#panel-scrim').style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-        this.renderChapterCard();   // the chapter row can only centre itself once visible
-      },
-      closePanel() {
-        if ($('#panel-scrim').style.display === 'none') return;
-        $('#panel-scrim').style.display = 'none';
-        if (!$('#overlay').firstChild) document.body.style.overflow = '';
+      renderHome(p) {
+        let learned = 0, hard = 0;
+        const levels = [['A1', 'Beginner'], ['A2', 'Elementary'], ['B1', 'Intermediate']].map(([lv, name]) => {
+          for (let ch = 1; ch <= 24; ch++) { const c = this.counts(lv, ch); learned += c.learned; hard += c.hard; }
+          const pct = this.levelPct(lv);
+          return `<button class="home-lv" data-action="home-level" data-level="${lv}"><span><span><b>${lv}</b> · ${name}</span><b>${pct}%</b></span><i><u style="width:${pct}%"></u></i></button>`;
+        }).join('');
+        const my = this.level === 'MY', n = my ? 0 : this.partLists().length;
+        const where = my ? 'My Words' : `${this.level} · Chapter ${this.chapter}${this.part ? ` · Part ${this.part} of ${n}` : ''}`;
+        p.innerHTML = `<h2 class="page-title">Home</h2>
+          <button class="home-go" data-action="nav" data-tab="${my ? 'my' : 'cards'}"><span><small>CONTINUE</small><b>${where}</b>${my ? '' : `<em>${esc(this.title())}</em>`}</span>${icon('right')}</button>
+          <div class="home-stats">
+            <div><b>${Store.liveStreak()}</b><span>Day streak</span></div>
+            <div><b>${learned}</b><span>Mastered</span></div>
+            <div><b>${hard}</b><span>Still learning</span></div>
+          </div>
+          ${levels}`;
       },
 
       renderPanel() {
         this.clearTimers();
         const p = $('#panel');
         p.style.animation = 'none'; p.offsetHeight; p.style.animation = '';
+        if (this.page === 'home') return this.renderHome(p);
+        if (this.page === 'practice') return this.renderPractice(p);
+        if (this.page === 'chapters') return;
         if (this.level === 'MY' && !this.words().length) {
           return p.innerHTML = `<div class="hero"><div class="hero-icon">${icon('star')}</div><h2>No saved words yet</h2>
             <p>Open any chapter and tap <b>☆</b> on a flashcard (or in the word list) to save words you keep forgetting. They'll all be here to practise together.</p>
             <button class="btn btn-primary" data-action="leave-my">${icon('left')} Back to chapters</button></div>`;
         }
-        const fn = { cards: 'renderCards', quiz: 'renderQuiz', type: 'renderType', articles: 'renderArticles', match: 'renderMatch', sprint: 'renderSprint', sentences: 'renderSentences', words: 'renderWords' }[this.mode];
+        const fn = { cards: 'renderCards', quiz: 'renderQuiz', type: 'renderType', articles: 'renderArticles', match: 'renderMatch', sprint: 'renderSprint', sentences: 'renderSentences', words: 'renderWords', lucky: 'renderLucky' }[this.mode];
         this[fn](p);
       },
 
@@ -1483,17 +1537,17 @@
           case 'chapters': return this.openChapters(this.level === 'MY' ? (Store.d.lastNormalLevel || 'A1') : this.level);
           case 'star': e.stopPropagation(); return this.toggleStar(ds.key, ds.l, ds.ch);
           case 'open-my': return this.setChapter('MY', 1);
-          case 'leave-my': { this.closePanel(); const L = Store.d.lastNormalLevel || 'A1'; return this.setChapter(L, (Store.d.levelChapter || {})[L] || 1); }
+          case 'leave-my': return this.navTo('chapters');
+          case 'home-level': this.setChapter(ds.level, (Store.d.levelChapter || {})[ds.level] || 1); return this.navTo('chapters');
           case 'sheet-level': return this.openChapters(ds.level);
           case 'set-level': if (ds.level === this.level) return; this.toast(ds.level + ' selected'); return this.setChapter(ds.level, (Store.d.levelChapter || {})[ds.level] || 1);
-          case 'pick-ch': { const fromSheet = !!$('#overlay').firstChild; this.closeSheet(); this.closePanel(); if (!fromSheet && +ds.ch === this.chapter && ds.level === this.level) return; return this.setChapter(ds.level, +ds.ch, !fromSheet); }
+          case 'pick-ch': { const fromSheet = !!$('#overlay').firstChild; this.closeSheet(); if (!fromSheet && +ds.ch === this.chapter && ds.level === this.level) return; return this.setChapter(ds.level, +ds.ch, !fromSheet); }
           case 'ch-step': return this.setChapter(this.level, Math.min(24, Math.max(1, this.chapter + +ds.dir)));
           case 'close-sheet': if (el.classList.contains('scrim') && e.target !== el) return; if (this.sheetLocked) return; return this.closeSheet();
           case 'nav': return this.navTo(ds.tab);
-          case 'open-panel': return this.openPanel();
-          case 'close-panel': if (el.classList.contains('scrim') && e.target !== el) return; return this.closePanel();
-          case 'practice-go': this.closeSheet(); this.setMode(ds.mode); return window.scrollTo(0, 0);
-          case 'set-part': this.closePanel(); return this.setPart(+ds.p);
+          case 'open-panel': return this.navTo('chapters');
+          case 'practice-go': this.setPage(null); this.setMode(ds.mode); return window.scrollTo(0, 0);
+          case 'set-part': if (this.page === 'chapters') { this.setPage(null); if (this.mode === 'words') this.mode = 'cards'; window.scrollTo(0, 0); } return this.setPart(+ds.p);
           case 'toggle-done': {
             const k = this.chKey();
             Store.d.completedChapters[k] = !Store.d.completedChapters[k]; Store.save();
@@ -1545,7 +1599,7 @@
 
       onKey(e) {
         if ($('#overlay').firstChild) { if (e.key === 'Escape' && !this.sheetLocked) this.closeSheet(); return; }
-        if ($('#panel-scrim').style.display !== 'none') { if (e.key === 'Escape') this.closePanel(); return; }
+        if (this.page) return;
         const typing = !!(e.target.matches && e.target.matches('input, textarea'));
         if (e.metaKey || e.ctrlKey || e.altKey) return;
         const h = this[`key_${this.mode}`];
@@ -1557,7 +1611,7 @@
         $('#overlay').innerHTML = `<div class="scrim" data-action="close-sheet"><div class="sheet" role="dialog" aria-modal="true"><div class="sheet-grab"></div>${html}</div></div>`;
         document.body.style.overflow = 'hidden';
       },
-      closeSheet() { this.sheetLocked = false; $('#overlay').innerHTML = ''; if ($('#panel-scrim').style.display === 'none') document.body.style.overflow = ''; },
+      closeSheet() { this.sheetLocked = false; $('#overlay').innerHTML = ''; document.body.style.overflow = ''; },
 
       // Shown on first open (must be held to close), and from the footer / settings afterwards.
       openNotice(first) {
@@ -2574,6 +2628,144 @@
       },
 
       /* ================= 8. Word list ================= */
+      // Word Party: friends share one phone. Scores live only in the game; progress is untouched.
+      luckyWord(level = 'all', used) {
+        if (!this.allWords) { this.allWords = []; for (const L of ['A1', 'A2', 'B1']) for (let ch = 1; ch <= 24; ch++) this.allWords.push(...this.words(L, ch).map(w => ({ w, L, ch }))); }
+        let pool = level === 'all' ? this.allWords : this.allWords.filter(x => x.L === level);
+        if (used) { const left = pool.filter(x => !used[x.w.de]); if (left.length) pool = left; }
+        return pool[Math.floor(Math.random() * pool.length)];
+      },
+      renderLucky(p) {
+        this.luckySpinning = false;   // leaving mid-spin stops the timer
+        if (this.party) return this.party.phase === 'over' ? this.renderPartyEnd(p) : this.renderPartyGame(p);
+        if (this.luckySolo) return this.renderLuckySolo(p);
+        this.renderPartySetup(p);
+      },
+      partySetup() {
+        if (!this.partyForm) this.partyForm = { names: (Store.d.partyNames || ['', '']).slice(), level: 'all', rounds: 5 };
+        return this.partyForm;
+      },
+      readPartyNames() {
+        const f = this.partySetup();
+        document.querySelectorAll('.party-row input').forEach((x, i) => { f.names[i] = x.value; });
+        return f;
+      },
+      renderPartySetup(p) {
+        const f = this.partySetup();
+        const chip = (a, attr, val, on, label) => `<button class="fchip ${on ? 'on' : ''}" data-action="${a}" data-${attr}="${val}">${label}</button>`;
+        p.innerHTML = `<h2 class="page-title">Word Party</h2>
+          <p class="muted small">Pass the phone around. Say what the word means, then your friends decide if you got it.</p>
+          <span class="party-label">PLAYERS</span>
+          ${f.names.map((n, i) => `<div class="party-row"><input type="text" maxlength="16" value="${esc(n)}" placeholder="Player ${i + 1}" aria-label="Player ${i + 1} name">${f.names.length > 2 ? `<button class="icon-btn" data-action="party-del" data-i="${i}" aria-label="Remove player ${i + 1}">${icon('x')}</button>` : ''}</div>`).join('')}
+          ${f.names.length < 8 ? '<button class="btn btn-sm" data-action="party-add">+ Add player</button>' : ''}
+          <span class="party-label">WORDS FROM</span>
+          <div class="party-chips">${[['all', 'Everything'], ['A1', 'A1'], ['A2', 'A2'], ['B1', 'B1']].map(([v, l]) => chip('party-level', 'level', v, f.level === v, l)).join('')}</div>
+          <span class="party-label">WORDS EACH</span>
+          <div class="party-chips">${[3, 5, 10].map(v => chip('party-rounds', 'rounds', v, f.rounds === v, v)).join('')}</div>
+          <button class="btn btn-primary btn-lg party-start" data-action="party-start">Start game</button>
+          <button class="btn party-alone" data-action="party-solo">Just spin words alone</button>`;
+      },
+      renderPartyGame(p) {
+        const g = this.party, cur = g.players[g.turn], x = g.pick;
+        const scores = g.players.map((pl, i) => `<span class="${i === g.turn ? 'on' : ''}">${esc(pl.name)}<b>${pl.score}</b></span>`).join('');
+        let card, below;
+        if (g.phase === 'ready') {
+          card = `<div class="rw"><span class="rw-tap">Pass the phone to</span><span class="rw-turn">${esc(cur.name)}</span></div><div class="rw-from"></div>`;
+          below = `<button class="btn btn-primary btn-lg rw-spin" data-action="rw-spin">${icon('dice')} Spin</button>`;
+        } else {
+          card = `${this.luckyCard(x, g.phase === 'shown', 'Say the meaning out loud, then tap')}${this.luckyFrom(x)}`;
+          below = g.phase === 'shown'
+            ? `<div class="rate"><button class="btn btn-lg btn-bad" data-action="party-no">${icon('x')} Missed it</button><button class="btn btn-lg btn-ok" data-action="party-yes">${icon('check')} Got it</button></div>`
+            : '';
+        }
+        p.innerHTML = `<div class="party-head"><h2 class="page-title">Word ${g.round} of ${g.rounds}</h2><button class="btn btn-sm" data-action="party-quit">End game</button></div>
+          <div class="party-scores">${scores}</div>${card}${below}`;
+      },
+      renderPartyEnd(p) {
+        const g = this.party, ranked = g.players.slice().sort((a, b) => b.score - a.score), top = ranked[0].score;
+        const winners = ranked.filter(x => x.score === top);
+        p.innerHTML = `<div class="summary"><div class="big">🏆</div>
+            <h2>${winners.length > 1 ? "It's a tie!" : esc(winners[0].name) + ' wins!'}</h2>
+            <p>${winners.length > 1 ? winners.map(x => esc(x.name)).join(' & ') + ' share the win.' : top + ' out of ' + g.rounds + ' words.'}</p></div>
+          ${ranked.map(x => `<div class="party-rank"><span>${esc(x.name)}</span><b>${x.score}</b></div>`).join('')}
+          <button class="btn btn-primary btn-lg party-start" data-action="party-again">Play again</button>
+          <button class="btn party-alone" data-action="party-quit">Change players</button>`;
+      },
+      luckyCard(x, shown, hint) {
+        const w = x.w;
+        return `<button class="rw gender-${w.article || 'none'}" data-action="rw-show">
+            ${w.article ? `<span class="gtag">${{ der: 'masculine', die: 'feminine', das: 'neuter' }[w.article]}</span>` : ''}
+            <span class="fword">${this.deHtml(w)}</span>
+            ${shown ? `<span class="rw-en">${esc(w.en)}</span>` : `<span class="rw-tap">${hint}</span>`}
+          </button>`;
+      },
+      luckyFrom(x) {
+        return `<div class="rw-from"><span>From ${x.L} · Chapter ${x.ch} · ${esc(this.title(x.L, x.ch))}</span>${this.speakBtn(x.w.de)}${this.starBtn(Object.assign({}, x.w, { L: x.L, ch: x.ch }))}</div>`;
+      },
+      renderLuckySolo(p) {
+        const s = this.luckySolo;
+        if (!s.pick) { s.pick = this.luckyWord(); s.shown = false; }
+        p.innerHTML = `<div class="party-head"><h2 class="page-title">Word Party</h2><button class="btn btn-sm" data-action="party-quit">Play with friends</button></div>
+          ${this.luckyCard(s.pick, s.shown, 'Tap to see the meaning')}${this.luckyFrom(s.pick)}
+          <button class="btn btn-primary btn-lg rw-spin" data-action="rw-spin">${icon('dice')} Spin</button>`;
+      },
+      spinLucky(pick, done) {
+        const p = $('#panel'), card = p.querySelector('.rw');
+        this.clearTimers();
+        this.luckySpinning = true;
+        card.className = 'rw spinning';
+        card.innerHTML = '<span class="fword" id="rw-roll"></span>';
+        p.querySelectorAll('.rw-spin').forEach(b => { b.disabled = true; });
+        let n = 0;
+        const tick = () => {
+          $('#rw-roll').innerHTML = this.deHtml(this.luckyWord().w);
+          if (++n >= 12) { this.clearTimers(); done(pick()); this.renderLucky(p); }
+        };
+        tick();
+        this.timers.push(setInterval(tick, 60));
+      },
+      partyNext(gotIt) {
+        const g = this.party;
+        if (gotIt) g.players[g.turn].score++;
+        g.pick = null;
+        g.phase = 'ready';
+        if (++g.turn >= g.players.length) { g.turn = 0; if (++g.round > g.rounds) { g.round = g.rounds; g.phase = 'over'; } }
+        this.renderLucky($('#panel'));
+        window.scrollTo(0, 0);
+      },
+      partyBegin(players) {
+        const f = this.partySetup();
+        this.party = { players: players.map(name => ({ name, score: 0 })), level: f.level, rounds: f.rounds, turn: 0, round: 1, used: {}, phase: 'ready', pick: null };
+        this.renderLucky($('#panel'));
+        window.scrollTo(0, 0);
+      },
+      on_lucky(a, el) {
+        if (this.luckySpinning) return;
+        const p = $('#panel'), g = this.party, solo = this.luckySolo;
+        if (a === 'party-add') { this.readPartyNames().names.push(''); return this.renderPartySetup(p); }
+        if (a === 'party-del') { this.readPartyNames().names.splice(+el.dataset.i, 1); return this.renderPartySetup(p); }
+        if (a === 'party-level') { this.readPartyNames().level = el.dataset.level; return this.renderPartySetup(p); }
+        if (a === 'party-rounds') { this.readPartyNames().rounds = +el.dataset.rounds; return this.renderPartySetup(p); }
+        if (a === 'party-solo') { this.readPartyNames(); this.luckySolo = {}; return this.renderLucky(p); }
+        if (a === 'party-start') {
+          const f = this.readPartyNames();
+          Store.d.partyNames = f.names.map(n => n.trim()); Store.save();
+          return this.partyBegin(f.names.map((n, i) => n.trim() || 'Player ' + (i + 1)));
+        }
+        if (a === 'party-again') return this.partyBegin(g.players.map(x => x.name));
+        if (a === 'party-quit') { this.party = null; this.luckySolo = null; return this.renderLucky(p); }
+        if (a === 'party-yes') return this.partyNext(true);
+        if (a === 'party-no') return this.partyNext(false);
+        if (a === 'rw-spin') {
+          if (g) return this.spinLucky(() => this.luckyWord(g.level, g.used), x => { g.pick = x; g.used[x.w.de] = 1; g.phase = 'word'; });
+          if (solo) return this.spinLucky(() => this.luckyWord(), x => { solo.pick = x; solo.shown = false; });
+        }
+        if (a === 'rw-show') {
+          if (g) { g.phase = g.phase === 'shown' ? 'word' : 'shown'; return this.renderLucky(p); }
+          if (solo) { solo.shown = !solo.shown; return this.renderLucky(p); }
+        }
+      },
+
       renderWords(p) {
         const s = this.s;
         if (s.q == null) Object.assign(s, { q: '', f: 'all', all: true });
