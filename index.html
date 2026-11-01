@@ -648,7 +648,14 @@
     body.typing #bottomnav { display: none; }
     #topbar { margin-bottom: 10px; padding: 10px 14px; }
     #topbar .t b { font-size: .92rem; }
+    #topbar { cursor: pointer; gap: 8px; }
+    #topbar .t span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     #topbar .go svg { width: 18px; height: 18px; }
+    .top-parts { flex: none; }
+    .top-parts small { display: block; font-size: .62rem; font-weight: 800; letter-spacing: .08em; color: var(--accent); margin-bottom: 3px; }
+    .top-parts div { display: flex; gap: 4px; }
+    .top-parts button { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--accent); color: var(--accent); font-size: .82rem; font-weight: 850; display: grid; place-items: center; }
+    .top-parts button.on { background: var(--accent); color: var(--accent-ink); }
     .prac { width: 100%; display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center; text-align: left; padding: 12px; border-radius: var(--r-md); background: var(--surface); border: 1.5px solid transparent; margin-bottom: 8px; }
     .prac:hover { background: var(--surface-2); }
     .prac.on { border-color: var(--accent); }
@@ -696,7 +703,7 @@
       <button class="icon-btn" data-action="settings" aria-label="Settings" id="settings-btn"></button>
     </header>
 
-    <button class="my-entry" id="topbar" data-action="open-panel" aria-label="Change chapter or part"></button>
+    <div class="my-entry" id="topbar" data-action="open-panel"></div>
     <div id="myentry"></div>
     <nav class="modes" id="modes" aria-label="Practice modes"></nav>
     <div class="partbar" id="partbar"></div>
@@ -721,7 +728,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 56;
+    const APP_VERSION = 57;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -1386,10 +1393,15 @@
       renderTopBar() {
         const mode = MODES.find(m => m.id === this.mode);
         const label = this.mode === 'words' ? 'Search' : this.mode !== 'cards' ? mode.label : '';
-        let head, sub;
+        let head, sub, parts = '';
         if (this.level === 'MY') { const n = this.words().length; head = 'My Words'; sub = n + ' saved word' + (n === 1 ? '' : 's'); }
-        else { const p = this.part; head = `${this.level} · Chapter ${this.chapter} · ${p ? `Part ${p} of ${this.partLists().length}` : 'All parts'}`; sub = esc(this.title()); }
-        $('#topbar').innerHTML = `<span class="t"><b>${head}</b><span>${sub}</span></span><span class="go">${label}${icon('down')}</span>`;
+        else {
+          const p = this.part, n = this.partLists().length;
+          head = `${this.level} · Chapter ${this.chapter}`;
+          sub = (label ? label + ' · ' : '') + (p ? '' : 'All parts · ') + esc(this.title());
+          parts = `<span class="top-parts"><small>${n} PARTS</small><div>${Array.from({ length: n }, (_, i) => `<button class="${p === i + 1 ? 'on' : ''}" data-action="set-part" data-p="${i + 1}" aria-label="Part ${i + 1} of ${n}" ${p === i + 1 ? 'aria-current="true"' : ''}>${i + 1}</button>`).join('')}</div></span>`;
+        }
+        $('#topbar').innerHTML = `<span class="t"><b>${head}</b><span>${sub}</span></span>${parts}<button class="go" data-action="open-panel" aria-label="Change chapter or part">${icon('down')}</button>`;
       },
 
       navTo(tab) {
