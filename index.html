@@ -714,13 +714,6 @@
     .rw-turn { font-size: 1.5rem; font-weight: 850; overflow-wrap: anywhere; }
     .party-rank { display: flex; justify-content: space-between; gap: 10px; padding: 12px 14px; margin-bottom: 8px; border-radius: var(--r-md); background: var(--surface-2); font-weight: 750; }
     .party-rank span { min-width: 0; overflow-wrap: anywhere; }
-    body.feed .foot { display: none; }
-    .rf { display: flex; align-items: center; gap: 10px; min-height: 120px; padding: 16px 14px; margin-bottom: 10px; border-radius: var(--r-md); background: var(--surface-2); border-left: 4px solid var(--g, var(--line-strong)); }
-    .rf-t { flex: 1; min-width: 0; }
-    .rf .fword { font-size: 1.45rem; overflow-wrap: anywhere; }
-    .rf-en { margin-top: 4px; color: var(--text); overflow-wrap: anywhere; }
-    .rf-from { margin-top: 6px; font-size: .75rem; color: var(--text-2); }
-    .rf-b { display: flex; flex-direction: column; align-items: center; gap: 8px; }
     .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 84px); transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: .88rem; z-index: 60; animation: up .25s var(--ease); box-shadow: var(--shadow); }
 
     @media (max-width: 520px) {
@@ -772,7 +765,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 60;
+    const APP_VERSION = 61;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -1439,7 +1432,6 @@
         this.renderTopBar();
         const free = ['lucky', 'random'].includes(this.mode) && !this.page;
         $('#topbar').style.display = free ? 'none' : '';
-        document.body.classList.toggle('feed', this.mode === 'random' && !this.page);
       },
 
       renderTopBar() {
@@ -1477,7 +1469,7 @@
       },
 
       renderPractice(p) {
-        const about = { quiz: 'Multiple choice, 10 questions', type: 'Type the German word', articles: 'Pick the right article', match: 'Pair German with English', sprint: '60 seconds, as many as you can', sentences: 'Put the words in order', random: 'Scroll through words forever', lucky: 'Friends game: pass one phone around' };
+        const about = { quiz: 'Multiple choice, 10 questions', type: 'Type the German word', articles: 'Pick the right article', match: 'Pair German with English', sprint: '60 seconds, as many as you can', sentences: 'Put the words in order', random: 'One word at a time, from anywhere', lucky: 'Friends game: pass one phone around' };
         p.innerHTML = '<h2 class="page-title">Practice</h2>' + MODES.filter(m => about[m.id]).map(m => `<button class="prac ${this.mode === m.id ? 'on' : ''}" data-action="practice-go" data-mode="${m.id}"><span class="my-ic">${icon(m.icon)}</span><span><b>${m.label}</b><small>${about[m.id]}</small></span>${icon('right')}</button>`).join('');
       },
 
@@ -2067,6 +2059,7 @@
       },
 
       rateCard(r) {
+        if (this.mode === 'random') return this.rateRandom(r);
         const s = this.s, w = s.deck[s.i];
         if (!w) return;
         if (this.animating) { this.queued = () => this.rateCard(r); return; }
@@ -2118,7 +2111,7 @@
         setTimeout(() => {
           this.animating = false;
           const queued = this.queued; this.queued = null;
-          if (this.s !== s || this.mode !== 'cards') return;  // left flashcards meanwhile
+          if (this.s !== s || !['cards', 'random'].includes(this.mode)) return;  // left flashcards meanwhile
           this.enterFrom = -dir;
           then();
           if (queued) queued();
@@ -2639,32 +2632,66 @@
       },
 
       /* ================= 8. Word list ================= */
-      // Random Words: an endless scroll. Every word comes up once before any repeats.
-      randomCard(x) {
-        const w = x.w;
-        return `<div class="rf gender-${w.article || 'none'}"><div class="rf-t"><div class="fword">${this.deHtml(w)}</div><div class="rf-en">${esc(w.en)}</div><div class="rf-from">${x.L} · Chapter ${x.ch}</div></div><div class="rf-b">${this.speakBtn(w.de)}${this.starBtn(Object.assign({}, w, { L: x.L, ch: x.ch }))}</div></div>`;
-      },
-      moreRandom() {
+      // Random Words: one card at a time from the whole app; every word comes up once before any repeats.
+      nextRandom() {
         this.luckyWord();   // builds the list of all words
-        const add = [];
-        for (let i = 0; i < 20; i++) {
-          if (!this.randomBag || !this.randomBag.length) this.randomBag = shuffle(this.allWords);
-          add.push(this.randomBag.pop());
-        }
-        this.randomFeed.push(...add);
-        $('#rf-list').insertAdjacentHTML('beforeend', add.map(x => this.randomCard(x)).join(''));
+        if (!this.randomBag || !this.randomBag.length) this.randomBag = shuffle(this.allWords);
+        this.randomPick = this.randomBag.pop();
+        this.randomFlipped = false;
       },
       renderRandom(p) {
-        if (!this.randomFeed) this.randomFeed = [];
-        p.innerHTML = `<h2 class="page-title">Random Words</h2><div id="rf-list">${this.randomFeed.map(x => this.randomCard(x)).join('')}</div>`;
-        if (!this.randomFeed.length) this.moreRandom();
-        if (!this.randomScroll) {
-          this.randomScroll = true;
-          window.addEventListener('scroll', () => {
-            if (this.mode !== 'random' || this.page) return;
-            if (document.documentElement.scrollHeight - innerHeight - scrollY < 900) this.moreRandom();
-          }, { passive: true });
-        }
+        if (!this.randomPick) this.nextRandom();
+        const x = this.randomPick, s = this.s;
+        const w = Object.assign({}, x.w, { L: x.L, ch: x.ch });
+        // The shared flashcard helpers read the current card from the session.
+        s.deck = [w]; s.i = 0; s.flipped = this.randomFlipped;
+        queueMicrotask(() => this.fitCard());
+        p.innerHTML = `
+          <div class="card-stage">
+            <span class="swipe-tag l">${icon('x')} STILL LEARNING</span><span class="swipe-tag r">${icon('check')} GOT IT</span>
+            <div class="fcard ${s.flipped ? 'flipped' : ''} ${gClass(w)}" id="fcard" data-action="c-flip">
+              <div class="fface ${w.article ? 'g' : ''}">
+                <div class="fface-top"><span>${x.L} · Chapter ${x.ch}</span><span class="ft-r">${this.speakBtn(w.de)}${this.starBtn(w)}</span></div>
+                <div class="fface-mid">
+                  ${w.article ? `<span class="gtag">${{ der: 'masculine', die: 'feminine', das: 'neuter' }[w.article]}</span>` : ''}
+                  <div class="fword">${this.deHtml(w)}</div>
+                  ${this.wordExtra(w) ? `<div class="fsub">${this.wordExtra(w)}</div>` : ''}
+                </div>
+                <div class="fhint">Tap to reveal</div>
+              </div>
+              <div class="fface back">
+                <div class="fface-top"><span>English</span><span class="ft-r">${this.starBtn(w)}</span></div>
+                <div class="fface-mid"><div class="fword">${esc(w.en)}</div></div>
+                <div class="fhint">Did you know it?</div>
+              </div>
+            </div>
+          </div>
+          <div class="rate">
+            <button class="btn btn-lg btn-bad" data-action="c-rate" data-r="hard">${icon('x')} Still learning</button>
+            <button class="btn btn-lg btn-ok" data-action="c-rate" data-r="learned">${icon('check')} Got it</button>
+          </div>`;
+        this.attachSwipe($('#fcard'));
+        this.flyIn();
+        if (Store.d.settings.autoSpeak && !s.flipped) Speech.say(w.de);
+      },
+      rateRandom(r) {
+        if (this.animating) { this.queued = () => this.rateRandom(r); return; }
+        Store.setStatus(this.randomPick.w.de, r);
+        this.nextRandom();
+        this.flyOut(r === 'learned' ? 1 : -1, () => {
+          if (this.page) return;
+          this.refreshStats(); this.renderRandom($('#panel'));
+        }, true);
+      },
+      on_random(a, el) {
+        if (a === 'c-flip') { if (el.dataset.swiped) return; this.flipCard(); this.randomFlipped = this.s.flipped; return; }
+        if (a === 'c-rate') return this.rateRandom(el.dataset.r);
+      },
+      key_random(e, typing) {
+        if (typing) return;
+        if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); this.flipCard(); this.randomFlipped = this.s.flipped; }
+        else if (e.key === 'ArrowLeft' || e.key === '1') this.rateRandom('hard');
+        else if (e.key === 'ArrowRight' || e.key === '2') this.rateRandom('learned');
       },
 
       // Pass & Panic: friends share one phone. Scores live only in the game; progress is untouched.
