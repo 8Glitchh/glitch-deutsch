@@ -765,7 +765,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 61;
+    const APP_VERSION = 62;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -1452,7 +1452,13 @@
       setPage(page) { this.page = page; document.body.dataset.page = page || ''; },
       showPage(page) { this.setPage(page); this.render(); window.scrollTo(0, 0); },
 
+      // Which parts of the app get used: anonymous counts only.
+      track(name) {
+        try { if (window.goatcounter && goatcounter.count) goatcounter.count({ path: 'use/' + name, title: name, event: true }); } catch (_) {}
+      },
+
       navTo(tab) {
+        this.track(tab);
         this.closeSheet();
         const toNormal = () => { if (this.level === 'MY') { const L = Store.d.lastNormalLevel || 'A1'; this.setChapter(L, (Store.d.levelChapter || {})[L] || 1); } };
         if (tab === 'home' || tab === 'practice') return this.showPage(tab);
@@ -1549,7 +1555,7 @@
           case 'close-sheet': if (el.classList.contains('scrim') && e.target !== el) return; if (this.sheetLocked) return; return this.closeSheet();
           case 'nav': return this.navTo(ds.tab);
           case 'open-panel': return this.navTo('chapters');
-          case 'practice-go': this.setPage(null); this.setMode(ds.mode); return window.scrollTo(0, 0);
+          case 'practice-go': this.track('practice/' + ds.mode); this.setPage(null); this.setMode(ds.mode); return window.scrollTo(0, 0);
           case 'set-part': if (this.page === 'chapters') { this.setPage(null); if (this.mode === 'words') this.mode = 'cards'; window.scrollTo(0, 0); } return this.setPart(+ds.p);
           case 'toggle-done': {
             const k = this.chKey();
@@ -1636,6 +1642,7 @@
               <a class="mail" href="mailto:glitchdeutschmomente@gmail.com?subject=Translation%20mistake">${icon('mail')} Send an email</a>
               <div class="dom" style="user-select:all">glitchdeutschmomente@gmail.com</div>
             </div>
+            <p class="notice-tip" style="margin-bottom:4px !important">This app counts visits anonymously. No personal data or progress is collected.</p>
             <p class="notice-tip" style="margin-bottom:4px !important">Tip: tap the <b>logo</b> at the top (or ⓘ) to open this again.</p>
             <p class="notice-tip" style="margin-top:0 !important;font-size:.62rem !important;opacity:.35">Made by Ahmed Hashash</p>
             ${first
@@ -2806,6 +2813,7 @@
         if (a === 'party-start') {
           const f = this.readPartyNames();
           Store.d.partyNames = f.names.map(n => n.trim()); Store.save();
+          this.track('pass-and-panic/start');
           return this.partyBegin(f.names.map((n, i) => n.trim() || 'Player ' + (i + 1)));
         }
         if (a === 'party-again') return this.partyBegin(g.players.map(x => x.name));
@@ -6256,5 +6264,6 @@ das Bonbon — (die Bonbons) candy / sweet
       });
     }
   </script>
+  <script data-goatcounter="https://glitchdeutsch.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>
