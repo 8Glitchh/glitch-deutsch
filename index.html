@@ -774,7 +774,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 63;
+    const APP_VERSION = 64;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -984,10 +984,13 @@
         [300, 1000, 2500, 5000].forEach(t => setTimeout(load, t));
         // iOS pauses speech and audio when the app goes to the background: wake them on return.
         document.addEventListener('visibilitychange', () => {
-          if (document.visibilityState !== 'visible') { this.mediaOn = false; return; }
+          if (document.visibilityState !== 'visible') { this.mediaOn = false; this.warmed = false; return; }
           try { if (speechSynthesis.paused) speechSynthesis.resume(); } catch (e) {}
           try { if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume(); } catch (e) {}
         });
+        // iPhone takes a moment to wake its audio and speech on the first word. Do that on the
+        // first tap anywhere (it has to be inside a tap), so the first 🔊 plays straight away.
+        document.addEventListener('click', () => this.warm(), true);
         setTimeout(() => {
           if (this.ready) return;
           this.ready = true;
@@ -1054,6 +1057,12 @@
           const p = el.play(); this.mediaOn = true;
           if (p && p.catch) p.catch(() => { this.mediaOn = false; });
         } catch (e) {}
+      },
+      warm() {
+        if (this.warmed || !this.canSpeak) return;
+        this.warmed = true;
+        this.unlockAudio();
+        try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; if (this.voice) { u.voice = this.voice; u.lang = this.voice.lang; } speechSynthesis.speak(u); } catch (e) {}
       },
       releaseMedia() {
         const el = this.silentEl;
