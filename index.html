@@ -621,6 +621,10 @@
     .fface-top { min-height: 44px; }
     .wrow .star.on { background: var(--accent-soft); }
     .ft-r { display: flex; gap: 6px; align-items: center; }
+    .ft-l { display: inline-flex; gap: 8px; align-items: center; }
+    .copy { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; color: var(--text-3); border: 1px solid var(--line-strong); }
+    .copy svg { width: 15px; height: 15px; }
+    .copy:hover { color: var(--text); }
     .my-entry { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; margin: 0 0 14px; padding: 12px 14px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); transition: background .15s; }
     .my-entry:hover { background: var(--surface-2); }
     .my-ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); flex: none; }
@@ -645,7 +649,12 @@
     #bottomnav button svg { width: 22px; height: 22px; }
     @media (max-width: 359px) { #bottomnav button { font-size: .6rem; } }
     body:not([data-page="chapters"]) #chapter-card, body:not([data-page="chapters"]) #ch-start { display: none; }
-    body[data-page="chapters"] #panel, body[data-page="chapters"] #topbar, body[data-page="home"] #topbar { display: none; }
+    body[data-page="chapters"] #panel, body[data-page="chapters"] #topbar, body[data-page="home"] #topbar, body[data-page="mix"] #topbar { display: none; }
+    .mix-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+    .mix-ch { height: 44px; border-radius: 12px; background: var(--surface-2); color: var(--text-2); font-weight: 800; border: 1.5px solid transparent; }
+    .mix-ch.on { background: var(--accent); color: var(--accent-ink); }
+    .mix-row { display: flex; gap: 8px; margin-top: 12px; }
+    .mix-sum { margin-top: 12px; font-size: .85rem; color: var(--text-2); }
     #ch-start { width: 100%; margin-bottom: 14px; }
     .page-title { font-size: 1.25rem; margin-bottom: 12px; }
     .home-go { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; padding: 16px; margin-bottom: 18px; border-radius: var(--r-md); background: var(--accent); color: var(--accent-ink); }
@@ -765,10 +774,11 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 62;
+    const APP_VERSION = 63;
 
     /* ================= Icons ================= */
     const ICONS = {
+      copy: '<rect x="8.5" y="8.5" width="11.5" height="11.5" rx="2"/><path d="M15.5 8.5V5.5a1.5 1.5 0 0 0-1.5-1.5H5.5A1.5 1.5 0 0 0 4 5.5V14a1.5 1.5 0 0 0 1.5 1.5h3"/>',
       users: '<circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.5 2.5-6 6-6s6 2.500 6 6"/><path d="M16 4.800a3.500 3.500 0 0 1 0 6.400M18 14.500c1.900.8 3 2.800 3 5.500"/>',
       dice: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 8.5h.01M15.5 8.5h.01M12 12h.01M8.5 15.5h.01M15.5 15.5h.01"/>',
       home: '<path d="M4 11l8-7 8 7"/><path d="M6 9.5V20h12V9.5"/><path d="M10 20v-6h4v6"/>',
@@ -974,7 +984,7 @@
         [300, 1000, 2500, 5000].forEach(t => setTimeout(load, t));
         // iOS pauses speech and audio when the app goes to the background: wake them on return.
         document.addEventListener('visibilitychange', () => {
-          if (document.visibilityState !== 'visible') return;
+          if (document.visibilityState !== 'visible') { this.mediaOn = false; return; }
           try { if (speechSynthesis.paused) speechSynthesis.resume(); } catch (e) {}
           try { if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume(); } catch (e) {}
         });
@@ -1025,6 +1035,7 @@
           src.buffer = buf; src.connect(this.ctx.destination); src.start(0);
         } catch (e) {}
         try {
+          if (this.mediaOn && navigator.audioSession) return;
           if (!this.silentEl) {
             // 0.1 s of silence as a WAV, played through an <audio> element (switches iOS to the media channel)
             const sr = 8000, n = 800, b = new ArrayBuffer(44 + n), v = new DataView(b);
@@ -1036,8 +1047,19 @@
             this.silentEl = new Audio(URL.createObjectURL(new Blob([b], { type: 'audio/wav' })));
             this.silentEl.setAttribute('playsinline', '');
           }
-          const p = this.silentEl.play(); if (p && p.catch) p.catch(() => {});
+          // Once per visit is enough where iOS has audioSession: replaying it on every tap delayed
+          // the voice, and a loaded <audio> keeps the "Now Playing" card on the Lock Screen.
+          const el = this.silentEl;
+          el.onended = () => this.releaseMedia();
+          const p = el.play(); this.mediaOn = true;
+          if (p && p.catch) p.catch(() => { this.mediaOn = false; });
         } catch (e) {}
+      },
+      releaseMedia() {
+        const el = this.silentEl;
+        this.silentEl = null;
+        try { if (el) { el.pause(); URL.revokeObjectURL(el.src); el.removeAttribute('src'); el.load(); } } catch (e) {}
+        try { if (navigator.mediaSession) { navigator.mediaSession.metadata = null; navigator.mediaSession.playbackState = 'none'; } } catch (e) {}
       },
 
       say(text) {
@@ -1055,6 +1077,7 @@
         u.volume = 1;
         let started = false;
         u.onstart = () => { started = true; };
+        u.onend = () => { if (!synth.speaking && !synth.pending) this.releaseMedia(); };
         u.onerror = e => {
           if (e.error === 'interrupted' || e.error === 'canceled') return;
           if (typeof app !== 'undefined') app.toast('Could not play audio (' + (e.error || 'error') + ')');
@@ -1075,6 +1098,9 @@
     // Words no longer on any card: stay usable in My Words for anyone who starred them.
     const RETIRED_WORDS = {"Sehr geehrte":"Sehr geehrte — Dear (formal letter)","Geld verdienen":"Geld verdienen — to earn money","eigen":"eigen — own","die Erkältung":"die Erkältung — cold (illness)  (pl. die Erkältungen)","welches":"welches — which (neut.)","Es regnet":"Es regnet — It's raining","Es schneit":"Es schneit — It's snowing","Es donnert und blitzt":"Es donnert und blitzt — There's thunder and lightning","Es hagelt":"Es hagelt — It's hailing","Es ist bewölkt":"Es ist bewölkt — It's cloudy","Es ist windig":"Es ist windig — It's windy","Es ist neblig":"Es ist neblig — It's foggy","los":"los — go! / going on","drinnen":"drinnen — inside / indoors","feste Arbeitszeiten":"feste Arbeitszeiten — fixed working hours","flexible Arbeitszeiten":"flexible Arbeitszeiten — flexible working hours","Judo":"Judo — judo","Badminton":"Badminton — badminton","Golf":"Golf — golf","Tischtennis":"Tischtennis — table tennis","Pingpong":"Pingpong — ping-pong","Aquafitness":"Aquafitness — aqua fitness","Stand-Up-Paddeln":"Stand-Up-Paddeln — stand-up paddling","die Karte":"die Karte — card; ticket; menu  (pl. die Karten)","hängen":"hängen — to hang  (hängt, hat gehangen)","legen":"legen — to lay / to put (flat)  (legt, hat gelegt)","liegen":"liegen — to lie (be lying flat)  (liegt, hat gelegen)","stehen":"stehen — to stand  (steht, hat gestanden)","stellen":"stellen — to put / to place (upright)  (stellt, hat gestellt)","der Polster":"der Polster — cushion (sofa) (Austrian)  (pl. die Polster)","der Block":"der Block — notepad  (pl. die Blöcke)","zählen":"zählen — to count  (zählt, hat gezählt)","die Stufe":"die Stufe — step; level / stage  (pl. die Stufen)","dafür":"dafür — for it / for that; in return","Bundes-":"Bundes- — federal ...","die Berge":"die Berge — the mountains  (pl. die Berge)","anschauen":"anschauen — to look at / to watch  (schaut an, hat angeschaut)","herunter / runter":"herunter / runter — down (downwards)","der Krimi":"der Krimi — crime film / crime novel  (pl. die Krimis)","vorbei an":"vorbei an — past (going by)","Vorträge über ... halten":"Vorträge über ... halten — to give talks about ...","fliegen":"fliegen — to fly","Lastenfahrrad":"Lastenfahrrad — cargo bike","international":"international — international","der Schulabschluss":"der Schulabschluss — school leaving qualification  (pl. die Schulabschlüsse)","der Gemüse- und Obststand":"der Gemüse- und Obststand — fruit and vegetable stall  (pl. die Gemüse- und Obststände)","der Coiffeur":"der Coiffeur — hairdresser (Swiss)  (pl. die Coiffeure)","wie wenn":"wie wenn — as if / as when","der Kreis":"der Kreis — circle  (pl. die Kreise)","als Freelancer arbeiten":"als Freelancer arbeiten — to work as a freelancer","gescheit":"gescheit — clever / smart","das Bewerbungsschreiben":"das Bewerbungsschreiben — letter of application  (pl. die Bewerbungsschreiben)","der tabellarische Lebenslauf":"der tabellarische Lebenslauf — CV in table form  (pl. die tabellarischen Lebensläufe)","sich in jemanden verlieben":"sich in jemanden verlieben — to fall in love with someone","jemanden glücklich machen":"jemanden glücklich machen — to make someone happy","die Banknote":"die Banknote — banknote  (pl. die Banknoten)","die Banküberweisung":"die Banküberweisung — bank transfer  (pl. die Banküberweisungen)","das Süßgebäck":"das Süßgebäck — sweet pastries  (pl. die Süßgebäcke)","die Angehörigen":"die Angehörigen — relatives / next of kin  (pl. die Angehörigen)","die Arztpraxis":"die Arztpraxis — doctor's practice  (pl. die Arztpraxen)","vermuten":"vermuten — to suspect / to presume  (vermutet, hat vermutet)","sich einsetzen für":"sich einsetzen für — to stand up for / to campaign for","breit":"breit — wide / broad","sich etwas leisten":"sich etwas leisten — to afford something","West-":"West- — West(ern) ...","Bescheid geben":"Bescheid geben — to let (someone) know","Passt!":"Passt! — Fine! / Works for me!","eilig haben":"eilig haben — to be in a hurry","Quatsch machen":"Quatsch machen — to fool around"};
 
+    // Pseudo-levels that collect words from several chapters.
+    const isSet = L => L === 'MY' || L === 'MIX';
+
     /* ================= App ================= */
     const app = {
       data: { A1: {}, A2: {}, B1: {} },
@@ -1092,9 +1118,9 @@
         const d = Store.load();
         this.migrateWords();
         // Always open straight on the flashcards, at the chapter you were last in.
-        const lastL = d.lastLevel === 'MY' ? (d.lastNormalLevel || 'A1') : d.lastLevel;
+        const lastL = isSet(d.lastLevel) ? (d.lastNormalLevel || 'A1') : d.lastLevel;
         this.level = lastL in this.data ? lastL : 'A1';
-        this.chapter = Math.min(24, Math.max(1, +(d.lastLevel === 'MY' ? (d.levelChapter || {})[this.level] : d.lastChapter) || 1));
+        this.chapter = Math.min(24, Math.max(1, +(isSet(d.lastLevel) ? (d.levelChapter || {})[this.level] : d.lastChapter) || 1));
         this.mode = 'cards';
         this.applyTheme();
         Speech.init();
@@ -1132,8 +1158,8 @@
         this.render();
       },
 
-      words(level = this.level, ch = this.chapter) { return level === 'MY' ? this.myWords() : (this.data[level][ch] || []); },
-      title(level = this.level, ch = this.chapter) { return level === 'MY' ? 'My Words' : CHAPTER_TITLES[level][ch - 1] || `Chapter ${ch}`; },
+      words(level = this.level, ch = this.chapter) { return level === 'MY' ? this.myWords() : level === 'MIX' ? this.mixWords() : (this.data[level][ch] || []); },
+      title(level = this.level, ch = this.chapter) { return level === 'MY' ? 'My Words' : level === 'MIX' ? 'Mixed chapters' : CHAPTER_TITLES[level][ch - 1] || `Chapter ${ch}`; },
 
       // Runs once per device (and for imported backups). Marks and stars are copied, never removed.
       migrateWords() {
@@ -1165,6 +1191,10 @@
       },
 
       /* ---------- My Words (saved words from any chapter) ---------- */
+      mixWords() { return (Store.d.mix || []).flatMap(k => { const [L, ch] = k.split(':'); return (this.data[L] || {})[+ch] || []; }); },
+      mixLabel(list = Store.d.mix || []) {
+        return ['A1', 'A2', 'B1'].map(L => { const chs = list.filter(k => k.startsWith(L + ':')).map(k => k.split(':')[1]); return chs.length ? L + ' ' + chs.join(', ') : ''; }).filter(Boolean).join(' · ');
+      },
       myWords() {
         const out = [];
         for (const [key, at] of Object.entries(Store.d.starred || {})) {
@@ -1208,9 +1238,10 @@
             <div class="tip">Tap ⭐ on a card or in the word list to remove a word from here.</div>
           </div>`;
       },
-      chKey() { return `${this.level}_${this.chapter}`; },
+      chKey() { return this.level === 'MIX' ? 'MIX_' + (Store.d.mix || []).join(',') : `${this.level}_${this.chapter}`; },
+      cardSlot() { return this.level === 'MY' ? 'cardSessionMY' : this.level === 'MIX' ? 'cardSessionMIX' : 'cardSession'; },
 
-      persist() { if (this.level !== 'MY') Store.d.lastNormalLevel = this.level; Store.d.levelChapter = Object.assign({}, Store.d.levelChapter, { [this.level]: this.chapter }); Object.assign(Store.d, { lastLevel: this.level, lastChapter: this.chapter, lastMode: this.mode }); Store.save(); },
+      persist() { if (!isSet(this.level)) Store.d.lastNormalLevel = this.level; Store.d.levelChapter = Object.assign({}, Store.d.levelChapter, { [this.level]: this.chapter }); Object.assign(Store.d, { lastLevel: this.level, lastChapter: this.chapter, lastMode: this.mode }); Store.save(); },
 
       clearTimers() { this.timers.forEach(t => clearInterval(t)); this.timers = []; },
 
@@ -1224,8 +1255,8 @@
       },
 
       renderPartBar() {
-        $('#partbar').style.display = this.level === 'MY' ? 'none' : '';
-        if (this.level === 'MY') return;
+        $('#partbar').style.display = isSet(this.level) ? 'none' : '';
+        if (isSet(this.level)) return;
         const lists = this.partLists(), cur = this.part, n = lists.length;
         const pills = lists.map((l, i) => {
           const c = this.countList(l), full = c.total && c.learned === c.total;
@@ -1255,13 +1286,13 @@
 
       // Chapters are studied in parts: 3 parts under 50 words, 4 parts from 50 up.
       partLists(level = this.level, ch = this.chapter) {
-        if (level === 'MY') return [this.words(level, ch)];
+        if (isSet(level)) return [this.words(level, ch)];
         const list = this.words(level, ch), n = list.length, k = n >= 50 ? 4 : 3, out = [];
         for (let i = 0; i < k; i++) out.push(list.slice(Math.round(i * n / k), Math.round((i + 1) * n / k)));
         return out;
       },
       get part() {
-        if (this.level === 'MY') return 0;
+        if (isSet(this.level)) return 0;
         const p = (Store.d.chapterPart || {})[this.chKey()];
         if (p == null) return 1;
         return Math.min(p, this.partLists().length);   // a chapter can have fewer parts after a word-list update
@@ -1288,23 +1319,23 @@
         if (s.done) { s.i++; s.done = false; }
         if (s.checked != null && s.qs) { s.i++; s.placed = []; s.checked = null; s.order = null; }
       },
-      forgetSessions() { this.sessions = {}; Store.d.cardSession = null; Store.d.cardSessionMY = null; Store.save(); },
+      forgetSessions() { this.sessions = {}; Store.d.cardSession = null; Store.d.cardSessionMY = null; Store.d.cardSessionMIX = null; Store.save(); },
 
       // Flashcard position is also saved to storage, so it survives the app being closed.
       saveCards() {
         const s = this.s;
         if (!s.deck) return;
-        const slot = this.level === 'MY' ? 'cardSessionMY' : 'cardSession';
+        const slot = this.cardSlot();
         let cs = Store.d[slot];
         if (!cs || cs.ch !== this.chKey()) cs = Store.d[slot] = { ch: this.chKey(), parts: {} };
         cs.parts[this.part] = {
-          filter: s.filter, shuffled: s.shuffled, i: s.i, got: s.got, again: s.again,
+          filter: 'all', review: !!s.review, shuffled: s.shuffled, i: s.i, got: s.got, again: s.again,
           deck: s.deck.map(w => w.de), againList: s.againList.map(w => w.de), skipped: s.skipped || [], answers: s.answers || {}, hist: s.hist || [],
         };
         Store.save();
       },
       restoreCards() {
-        const cs = this.level === 'MY' ? Store.d.cardSessionMY : Store.d.cardSession;
+        const cs = Store.d[this.cardSlot()];
         const d = cs && cs.ch === this.chKey() && cs.parts[this.part];
         if (!d) return null;
         const byKey = new Map(this.pool().map(w => [w.de, w]));
@@ -1315,13 +1346,14 @@
           skipped: (d.skipped || []).filter(k => byKey.has(k)), answers: d.answers || {},
         };
         // The part's words changed (word-list update): keep your place at the same word.
-        if ((d.filter || 'all') === 'all' && !d.shuffled && (d.deck.length !== pool.length || d.deck.some(k => !byKey.has(k)))) {
+        const review = !!d.review || (d.filter || 'all') !== 'all';   // old "Learning" tab rounds carry on as a still-learning round
+        if (!review && !d.shuffled && (d.deck.length !== pool.length || d.deck.some(k => !byKey.has(k)))) {
           const at = pool.findIndex(w => w.de === d.deck[d.i]);
           return { ...saved, filter: 'all', shuffled: false, deck: pool, i: at >= 0 ? at : Math.min(d.i || 0, pool.length), hist: [] };
         }
         const deck = d.deck.map(k => byKey.get(k)).filter(Boolean);
         if (!deck.length) return null;
-        return { ...saved, filter: d.filter || 'all', shuffled: !!d.shuffled, deck, i: Math.min(d.i || 0, deck.length), hist: d.hist || [] };
+        return { ...saved, filter: 'all', review, shuffled: !!d.shuffled, deck, i: Math.min(d.i || 0, deck.length), hist: d.hist || [] };
       },
       pool() { const p = this.part; return p ? (this.partLists()[p - 1] || this.words()) : this.words(); },
       poolName() { return this.part ? 'Part ' + this.part : 'this chapter'; },
@@ -1424,7 +1456,7 @@
 
       renderModes() {
         const inPractice = !['cards', 'words'].includes(this.mode);
-        const on = this.page || (this.mode === 'words' ? 'search' : this.level === 'MY' ? 'my' : inPractice ? 'practice' : 'cards');
+        const on = this.page === 'mix' ? 'practice' : this.page || (this.mode === 'words' ? 'search' : this.level === 'MY' ? 'my' : this.level === 'MIX' || inPractice ? 'practice' : 'cards');
         const n = Object.keys(Store.d.starred || {}).length;
         const item = (id, ic, label, extra = '') => `<button class="${on === id ? 'on' : ''}" data-action="nav" data-tab="${id}" ${on === id ? 'aria-current="page"' : ''}>${icon(ic)}${label}${extra}</button>`;
         $('#bottomnav').innerHTML = item('home', 'home', 'Home') + item('cards', 'cards', 'Flashcards') + item('practice', 'quiz', 'Practice') + item('chapters', 'grid', 'Chapters')
@@ -1439,13 +1471,15 @@
         const label = this.mode === 'words' ? 'Search' : this.mode !== 'cards' ? mode.label : '';
         let head, sub, parts = '';
         if (this.level === 'MY') { const n = this.words().length; head = 'My Words'; sub = n + ' saved word' + (n === 1 ? '' : 's'); }
+        else if (this.level === 'MIX') { head = 'Mixed chapters'; sub = (label ? label + ' · ' : '') + this.mixLabel(); }
         else {
           const p = this.part, n = this.partLists().length;
           head = `${this.level} · Chapter ${this.chapter}`;
           sub = (label ? label + ' · ' : '') + (p ? '' : 'All parts · ') + esc(this.title());
           parts = `<span class="top-parts"><small>${n} PARTS</small><div>${Array.from({ length: n }, (_, i) => `<button class="${p === i + 1 ? 'on' : ''}" data-action="set-part" data-p="${i + 1}" aria-label="Part ${i + 1} of ${n}" ${p === i + 1 ? 'aria-current="true"' : ''}>${i + 1}</button>`).join('')}</div></span>`;
         }
-        $('#topbar').innerHTML = `<span class="t"><b>${head}</b><span>${sub}</span></span>${parts}<button class="go" data-action="open-panel" aria-label="Change chapter or part">${icon('down')}</button>`;
+        $('#topbar').dataset.action = this.level === 'MIX' ? 'mix-open' : 'open-panel';
+        $('#topbar').innerHTML = `<span class="t"><b>${head}</b><span>${sub}</span></span>${parts}<button class="go" data-action="${this.level === 'MIX' ? 'mix-open' : 'open-panel'}" aria-label="Change chapter or part">${icon('down')}</button>`;
       },
 
       // null = the current study mode; otherwise a page of its own.
@@ -1460,7 +1494,7 @@
       navTo(tab) {
         this.track(tab);
         this.closeSheet();
-        const toNormal = () => { if (this.level === 'MY') { const L = Store.d.lastNormalLevel || 'A1'; this.setChapter(L, (Store.d.levelChapter || {})[L] || 1); } };
+        const toNormal = () => { if (isSet(this.level)) { const L = Store.d.lastNormalLevel || 'A1'; this.setChapter(L, (Store.d.levelChapter || {})[L] || 1); } };
         if (tab === 'home' || tab === 'practice') return this.showPage(tab);
         if (tab === 'chapters') { toNormal(); return this.showPage(tab); }
         this.setPage(null);
@@ -1476,7 +1510,25 @@
 
       renderPractice(p) {
         const about = { quiz: 'Multiple choice, 10 questions', type: 'Type the German word', articles: 'Pick the right article', match: 'Pair German with English', sprint: '60 seconds, as many as you can', sentences: 'Put the words in order', random: 'One word at a time, from anywhere', lucky: 'Friends game: pass one phone around' };
-        p.innerHTML = '<h2 class="page-title">Practice</h2>' + MODES.filter(m => about[m.id]).map(m => `<button class="prac ${this.mode === m.id ? 'on' : ''}" data-action="practice-go" data-mode="${m.id}"><span class="my-ic">${icon(m.icon)}</span><span><b>${m.label}</b><small>${about[m.id]}</small></span>${icon('right')}</button>`).join('');
+        p.innerHTML = '<h2 class="page-title">Practice</h2>'
+          + `<button class="prac" data-action="mix-open"><span class="my-ic">${icon('grid')}</span><span><b>Mix chapters</b><small>Flashcards from any chapters you pick</small></span>${icon('right')}</button>`
+          + MODES.filter(m => about[m.id]).map(m => `<button class="prac ${this.mode === m.id ? 'on' : ''}" data-action="practice-go" data-mode="${m.id}"><span class="my-ic">${icon(m.icon)}</span><span><b>${m.label}</b><small>${about[m.id]}</small></span>${icon('right')}</button>`).join('');
+      },
+
+      renderMix(p) {
+        if (!this.mixDraft) this.mixDraft = (Store.d.mix || []).slice();
+        const L = this.mixLevel = this.mixLevel || Store.d.lastNormalLevel || 'A1', sel = new Set(this.mixDraft);
+        const chs = Array.from({ length: 24 }, (_, i) => i + 1).filter(ch => (this.data[L][ch] || []).length);
+        const n = this.mixDraft.reduce((t, k) => { const [l, c] = k.split(':'); return t + (this.data[l][+c] || []).length; }, 0);
+        const tabs = ['A1', 'A2', 'B1'].map(l => { const c = this.mixDraft.filter(k => k.startsWith(l + ':')).length; return `<button class="fchip ${l === L ? 'on' : ''}" data-action="mix-level" data-level="${l}">${l}${c ? ' · ' + c : ''}</button>`; }).join('');
+        const allOn = chs.every(ch => sel.has(L + ':' + ch));
+        p.innerHTML = `<h2 class="page-title">Mix chapters</h2>
+          <p class="muted small">Pick chapters from any level. Their flashcards go into one deck, and your marks count as normal.</p>
+          <div class="party-chips" style="margin:14px 0 12px">${tabs}</div>
+          <div class="mix-grid">${chs.map(ch => `<button class="mix-ch ${sel.has(L + ':' + ch) ? 'on' : ''}" data-action="mix-toggle" data-k="${L}:${ch}" aria-pressed="${sel.has(L + ':' + ch)}" title="${esc(this.title(L, ch))}">${ch}</button>`).join('')}</div>
+          <div class="mix-row"><button class="btn btn-sm" data-action="mix-all">${allOn ? 'Unselect' : 'Select'} all ${L}</button>${this.mixDraft.length ? '<button class="btn btn-sm" data-action="mix-clear">Clear all</button>' : ''}</div>
+          <p class="mix-sum">${this.mixDraft.length ? esc(this.mixLabel(this.mixDraft)) : 'Nothing picked yet'}</p>
+          <button class="btn btn-primary btn-lg party-start" data-action="mix-start" ${n ? '' : 'disabled'}>${n ? `Study ${n} words` : 'Pick at least one chapter'}</button>`;
       },
 
       renderHome(p) {
@@ -1487,9 +1539,10 @@
           return `<button class="home-lv" data-action="home-level" data-level="${lv}"><span><span><b>${lv}</b> · ${name}</span><b>${pct}%</b></span><i><u style="width:${pct}%"></u></i></button>`;
         }).join('');
         const my = this.level === 'MY', n = my ? 0 : this.partLists().length;
-        const where = my ? 'My Words' : `${this.level} · Chapter ${this.chapter}${this.part ? ` · Part ${this.part} of ${n}` : ''}`;
+        const mix = this.level === 'MIX';
+        const where = my ? 'My Words' : mix ? 'Mixed chapters' : `${this.level} · Chapter ${this.chapter}${this.part ? ` · Part ${this.part} of ${n}` : ''}`;
         p.innerHTML = `<h2 class="page-title">Home</h2>
-          <button class="home-go" data-action="nav" data-tab="${my ? 'my' : 'cards'}"><span><small>CONTINUE</small><b>${where}</b>${my ? '' : `<em>${esc(this.title())}</em>`}</span>${icon('right')}</button>
+          <button class="home-go" data-action="${mix ? 'mix-resume' : 'nav'}" data-tab="${my ? 'my' : 'cards'}"><span><small>CONTINUE</small><b>${where}</b>${my ? '' : `<em>${esc(mix ? this.mixLabel() : this.title())}</em>`}</span>${icon('right')}</button>
           <div class="home-stats">
             <div><b>${Store.liveStreak()}</b><span>Day streak</span></div>
             <div><b>${learned}</b><span>Mastered</span></div>
@@ -1504,6 +1557,7 @@
         p.style.animation = 'none'; p.offsetHeight; p.style.animation = '';
         if (this.page === 'home') return this.renderHome(p);
         if (this.page === 'practice') return this.renderPractice(p);
+        if (this.page === 'mix') return this.renderMix(p);
         if (this.page === 'chapters') return;
         if (this.level === 'MY' && !this.words().length && !['lucky', 'random'].includes(this.mode)) {
           return p.innerHTML = `<div class="hero"><div class="hero-icon">${icon('star')}</div><h2>No saved words yet</h2>
@@ -1517,8 +1571,8 @@
       refreshStats() { this.renderStreak(); this.renderChapterCard(); this.renderModes(); this.renderPartBar(); },
 
       setChapter(level, ch, stay) {
-        if (level === 'MY' || this.level === 'MY') this.stashSession();
-        else if (level !== this.level || ch !== this.chapter) { for (const k of Object.keys(this.sessions)) if (!k.startsWith('MY_')) delete this.sessions[k]; Store.d.cardSession = null; Store.save(); }
+        if (isSet(level) || isSet(this.level)) this.stashSession();
+        else if (level !== this.level || ch !== this.chapter) { for (const k of Object.keys(this.sessions)) if (!k.startsWith('MY_') && !k.startsWith('MIX_')) delete this.sessions[k]; Store.d.cardSession = null; Store.save(); }
         else this.stashSession();
         this.level = level; this.chapter = ch; this.loadSession();
         this.persist(); this.render();
@@ -1543,7 +1597,7 @@
         const a = el.dataset.action, ds = el.dataset;
         switch (a) {
           case 'mode': return this.setMode(ds.mode);
-          case 'chapters': return this.openChapters(this.level === 'MY' ? (Store.d.lastNormalLevel || 'A1') : this.level);
+          case 'chapters': return this.openChapters(isSet(this.level) ? (Store.d.lastNormalLevel || 'A1') : this.level);
           case 'star': e.stopPropagation(); return this.toggleStar(ds.key, ds.l, ds.ch);
           case 'open-my': return this.setChapter('MY', 1);
           case 'leave-my': return this.navTo('chapters');
@@ -1554,6 +1608,28 @@
           case 'ch-step': return this.setChapter(this.level, Math.min(24, Math.max(1, this.chapter + +ds.dir)));
           case 'close-sheet': if (el.classList.contains('scrim') && e.target !== el) return; if (this.sheetLocked) return; return this.closeSheet();
           case 'nav': return this.navTo(ds.tab);
+          case 'mix-open': this.mixDraft = null; this.mixLevel = null; this.track('mix'); return this.showPage('mix');
+          case 'mix-level': this.mixLevel = ds.level; return this.renderPanel();
+          case 'mix-toggle': { const i = this.mixDraft.indexOf(ds.k); i < 0 ? this.mixDraft.push(ds.k) : this.mixDraft.splice(i, 1); return this.renderPanel(); }
+          case 'mix-all': {
+            const L = this.mixLevel, keys = Array.from({ length: 24 }, (_, i) => L + ':' + (i + 1)).filter(k => (this.data[L][+k.split(':')[1]] || []).length);
+            const allOn = keys.every(k => this.mixDraft.includes(k));
+            this.mixDraft = this.mixDraft.filter(k => !k.startsWith(L + ':')).concat(allOn ? [] : keys);
+            return this.renderPanel();
+          }
+          case 'mix-clear': this.mixDraft = []; return this.renderPanel();
+          case 'mix-start': {
+            const rank = k => { const [l, c] = k.split(':'); return ['A1', 'A2', 'B1'].indexOf(l) * 100 + +c; };
+            // Already in a mix: put its session away under the old chapters before switching to the new ones.
+            const inMix = this.level === 'MIX';
+            if (inMix) this.stashSession();
+            Store.d.mix = this.mixDraft.slice().sort((a, b) => rank(a) - rank(b)); Store.save();
+            this.setPage(null);
+            if (inMix) { this.loadSession(); this.persist(); this.render(); } else this.setChapter('MIX', 1, true);
+            this.setMode('cards');
+            return window.scrollTo(0, 0);
+          }
+          case 'mix-resume': this.setPage(null); this.setChapter('MIX', 1, true); this.setMode('cards'); return window.scrollTo(0, 0);
           case 'open-panel': return this.navTo('chapters');
           case 'practice-go': this.track('practice/' + ds.mode); this.setPage(null); this.setMode(ds.mode); return window.scrollTo(0, 0);
           case 'set-part': if (this.page === 'chapters') { this.setPage(null); if (this.mode === 'words') this.mode = 'cards'; window.scrollTo(0, 0); } return this.setPart(+ds.p);
@@ -1592,6 +1668,7 @@
             Object.assign(Store.d, { completedChapters: {}, learnedWords: {}, difficultWords: {}, streak: { day: null, count: 0 }, best: {} });
             Store.save(); this.closeSheet(); this.forgetSessions(); this.s = {}; this.render(); return this.toast('Progress reset');
           }
+          case 'copy': e.stopPropagation(); return this.copyText(ds.text);
           case 'speak': {
             e.stopPropagation();
             if (Speech.ok && !Speech.ready) Speech.load();
@@ -1864,6 +1941,22 @@
       deHtml(w) {
         return w.article ? `<span class="art">${w.article}</span> ${esc(w.noun)}` : esc(w.de);
       },
+      copyBtn(text) {
+        return `<button class="copy" data-action="copy" data-text="${esc(text)}" aria-label="Copy word" title="Copy">${icon('copy')}</button>`;
+      },
+      copyText(text) {
+        const done = () => this.toast('Copied: ' + text);
+        const fallback = () => {
+          const ta = document.createElement('textarea');
+          ta.value = text; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+          document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
+          let ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+          ta.remove();
+          ok ? done() : this.toast('Could not copy');
+        };
+        try { if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text).then(done, fallback); } catch (e) {}
+        fallback();
+      },
       speakBtn(text) {
         const off = Speech.ready && !Speech.canSpeak;
         return `<button class="speak ${off ? 'off' : ''}" data-action="speak" data-text="${esc(text)}" aria-label="${off ? 'German voice not available - how to add it' : 'Listen'}" title="${off ? 'No German voice on this device - tap to see how to add one' : 'Listen'}">${icon('speaker')}</button>`;
@@ -1925,7 +2018,7 @@
         return this.level === 'MY' ? `Save at least ${m} words to use ${what}.` : `This part needs at least ${m} words for ${what}.`;
       },
       distractors(w, n, field, pool) {
-        pool = (pool || (this.level === 'MY' && w.L ? this.words(w.L, w.ch) : this.words())).filter(x => x[field] !== w[field]);
+        pool = (pool || (isSet(this.level) && w.L ? this.words(w.L, w.ch) : this.words())).filter(x => x[field] !== w[field]);
         const same = pool.filter(x => !!x.article === !!w.article);
         const out = pick(same.length >= n ? same : pool, n).map(x => x[field]);
         return [...new Set(out)];
@@ -1943,10 +2036,8 @@
       buildDeck() {
         const s = this.s;
         let list = this.pool();
-        if (s.filter === 'hard') list = list.filter(w => Store.status(w.de) === 'hard');
-        if (s.filter === 'new') list = list.filter(w => Store.status(w.de) === 'new');
         if (s.shuffled) list = shuffle(list);
-        Object.assign(s, { deck: list, i: 0, flipped: false, got: 0, again: 0, againList: [], skipped: [], answers: {}, hist: [] });
+        Object.assign(s, { filter: 'all', review: false, deck: list, i: 0, flipped: false, got: 0, again: 0, againList: [], skipped: [], answers: {}, hist: [] });
       },
 
       // Short phones get a smaller card: let it grow back when a long word needs the room.
@@ -1967,11 +2058,6 @@
         const c = this.countList(this.pool());
         const head = `
           <div class="panel-head">
-            <div class="seg" role="tablist">
-              <button class="${s.filter === 'all' ? 'on' : ''}" data-action="c-filter" data-f="all">All ${c.total}</button>
-              <button class="${s.filter === 'new' ? 'on' : ''}" data-action="c-filter" data-f="new">New ${c.fresh}</button>
-              <button class="${s.filter === 'hard' ? 'on' : ''}" data-action="c-filter" data-f="hard">Learning ${c.hard}</button>
-            </div>
             <div class="btn-row">
               <button class="btn btn-sm ${s.shuffled ? 'btn-primary' : ''}" data-action="c-shuffle" title="Mix the cards into a random order">${icon('shuffle')} ${s.shuffled ? 'Shuffled' : 'Shuffle'}</button>
               <button class="btn btn-sm" data-action="c-dir" title="Show German first or English first">${icon('swap')} ${dir === 'de-en' ? 'DE → EN' : 'EN → DE'}</button>
@@ -2026,12 +2112,12 @@
             <span class="swipe-tag l">${icon('x')} STILL LEARNING</span><span class="swipe-tag r">${icon('check')} GOT IT</span>
             <div class="fcard ${s.flipped ? 'flipped' : ''} ${gClass(w)}" id="fcard" data-action="c-flip">
               <div class="fface ${dir === 'de-en' && w.article ? 'g' : ''}">
-                <div class="fface-top"><span>${fl}</span><span class="ft-r">${dir === 'de-en' ? this.speakBtn(w.de) : `<span>${status === 'hard' ? '⚠ still learning' : status === 'learned' ? '✓ mastered' : ''}</span>`}${this.starBtn(w)}</span></div>
+                <div class="fface-top"><span class="ft-l">${fl}${dir === 'de-en' ? this.copyBtn(w.de) : ''}</span><span class="ft-r">${dir === 'de-en' ? this.speakBtn(w.de) : `<span>${status === 'hard' ? '⚠ still learning' : status === 'learned' ? '✓ mastered' : ''}</span>`}${this.starBtn(w)}</span></div>
                 ${front}
                 <div class="fhint">Tap to reveal</div>
               </div>
               <div class="fface back ${dir === 'en-de' && w.article ? 'g' : ''}">
-                <div class="fface-top"><span>${bl}</span><span class="ft-r">${dir === 'en-de' ? this.speakBtn(w.de) : ''}${this.starBtn(w)}</span></div>
+                <div class="fface-top"><span class="ft-l">${bl}${dir === 'en-de' ? this.copyBtn(w.de) : ''}</span><span class="ft-r">${dir === 'en-de' ? this.speakBtn(w.de) : ''}${this.starBtn(w)}</span></div>
                 ${back}
                 <div class="fhint">Did you know it?</div>
               </div>
@@ -2044,7 +2130,7 @@
           <div class="deck-nav">
             <button class="btn btn-sm btn-ghost" data-action="c-step" data-d="-1" ${s.i === 0 && !(s.hist || []).length ? 'disabled style="opacity:.4"' : ''}>${icon('left')} Back</button>
             <span class="deck-mid">
-              <span class="muted small" style="font-variant-numeric:tabular-nums">${s.i + 1} / ${s.deck.length}${this.part ? ' · Part ' + this.part + ' of ' + this.partLists().length : ''}</span>
+              <span class="muted small" style="font-variant-numeric:tabular-nums">${s.i + 1} / ${s.deck.length}${s.review ? ' · Still learning' : this.part ? ' · Part ' + this.part + ' of ' + this.partLists().length : ''}</span>
               ${(s.skipped || []).length ? `<span class="small" style="color:var(--accent);font-weight:700">${s.skipped.length} skipped, coming back</span>` : ''}
               <button class="btn btn-sm btn-ghost" data-action="c-reset-open" title="Clear this part's marks and start it again from the first card">${icon('restart')} Restart</button>
             </span>
@@ -2171,7 +2257,7 @@
           el.style.transform = ''; this.swipeFx(el, tagL, tagR, 0);   // glide back, colour fades out
         };
         el.addEventListener('pointerdown', e => {
-          if (e.target.closest('.speak, .star') || pid !== null) return;
+          if (e.target.closest('.speak, .star, .copy') || pid !== null) return;
           pid = e.pointerId; x0 = e.clientX; y0 = e.clientY; dx = 0; moved = false;
           window.addEventListener('pointermove', move);
           window.addEventListener('pointerup', end);
@@ -2222,19 +2308,24 @@
           else this.buildDeck();
           return this.renderCards($('#panel'));
         }
-        if (a === 'c-shuffle') { s.shuffled = !s.shuffled; s.savedAll = null; this.buildDeck(); this.toast(s.shuffled ? 'Cards shuffled into random order' : 'Cards back in normal order'); return this.renderCards($('#panel')); }
+        if (a === 'c-shuffle') {
+          // Only the cards still to come move: the round you're in (all, or the still-learning ones) stays.
+          s.shuffled = !s.shuffled; s.savedAll = null; s.flipped = false;
+          const ahead = s.deck.slice(s.i), order = new Map(this.pool().map((w, i) => [w.de, i]));
+          s.deck = s.deck.slice(0, s.i).concat(s.shuffled ? shuffle(ahead) : ahead.sort((x, y) => (order.get(x.de) || 0) - (order.get(y.de) || 0)));
+          this.toast(s.shuffled ? 'Cards shuffled into random order' : 'Cards back in normal order'); return this.renderCards($('#panel')); }
         if (a === 'c-dir') { Store.d.settings.dir = Store.d.settings.dir === 'de-en' ? 'en-de' : 'de-en'; Store.save(); s.flipped = false; this.toast(Store.d.settings.dir === 'de-en' ? 'German first, then English' : 'English first, then German'); return this.renderCards($('#panel')); }
         if (a === 'c-restart') { s.savedAll = null; this.buildDeck(); return this.renderCards($('#panel')); }
         if (a === 'c-reset-open') {
           for (const w of this.pool()) { delete Store.d.learnedWords[w.de]; delete Store.d.difficultWords[w.de]; }
           Store.save();
-          s.filter = 'all'; s.savedAll = null;
+          s.savedAll = null;
           this.buildDeck();
           this.refreshStats();
           this.toast((this.part ? 'Part ' + this.part : 'Chapter') + ' restarted');
           return this.renderCards($('#panel'));
         }
-        if (a === 'c-again') { const list = s.shuffled ? shuffle(s.againList) : s.againList; Object.assign(s, { deck: list, i: 0, flipped: false, got: 0, again: 0, againList: [], skipped: [], answers: {}, hist: [] }); return this.renderCards($('#panel')); }
+        if (a === 'c-again') { const list = s.shuffled ? shuffle(s.againList) : s.againList; Object.assign(s, { filter: 'all', review: true, deck: list, i: 0, flipped: false, got: 0, again: 0, againList: [], skipped: [], answers: {}, hist: [] }); return this.renderCards($('#panel')); }
       },
       key_cards(e, typing) {
         if (typing || !this.s.deck || this.s.i >= this.s.deck.length) return;
@@ -2658,7 +2749,7 @@
             <span class="swipe-tag l">${icon('x')} STILL LEARNING</span><span class="swipe-tag r">${icon('check')} GOT IT</span>
             <div class="fcard ${s.flipped ? 'flipped' : ''} ${gClass(w)}" id="fcard" data-action="c-flip">
               <div class="fface ${w.article ? 'g' : ''}">
-                <div class="fface-top"><span>${x.L} · Chapter ${x.ch}</span><span class="ft-r">${this.speakBtn(w.de)}${this.starBtn(w)}</span></div>
+                <div class="fface-top"><span class="ft-l">${x.L} · Chapter ${x.ch}${this.copyBtn(w.de)}</span><span class="ft-r">${this.speakBtn(w.de)}${this.starBtn(w)}</span></div>
                 <div class="fface-mid">
                   ${w.article ? `<span class="gtag">${{ der: 'masculine', die: 'feminine', das: 'neuter' }[w.article]}</span>` : ''}
                   <div class="fword">${this.deHtml(w)}</div>
