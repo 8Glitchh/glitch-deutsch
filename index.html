@@ -723,6 +723,9 @@
     .rw-turn { font-size: 1.5rem; font-weight: 850; overflow-wrap: anywhere; }
     .party-rank { display: flex; justify-content: space-between; gap: 10px; padding: 12px 14px; margin-bottom: 8px; border-radius: var(--r-md); background: var(--surface-2); font-weight: 750; }
     .party-rank span { min-width: 0; overflow-wrap: anywhere; }
+    .sdot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; vertical-align: middle; margin: 0 2px 2px; }
+    .sdot.ok { background: var(--ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 22%, transparent); }
+    .sdot.bad { background: var(--bad); box-shadow: 0 0 0 3px color-mix(in srgb, var(--bad) 22%, transparent); }
     .sync-code { font: 800 1.35rem/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .06em; text-align: center; padding: 16px 8px; margin: 14px 0 12px; border-radius: var(--r-md); background: var(--surface-2); border: 1.5px dashed var(--accent); color: var(--text); overflow-wrap: anywhere; }
     .sync-input { width: 100%; height: 52px; padding: 0 14px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line-strong); color: var(--text); font: 700 18px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .05em; text-transform: uppercase; }
     .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 84px); transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: .88rem; z-index: 60; animation: up .25s var(--ease); box-shadow: var(--shadow); }
@@ -776,7 +779,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 65;
+    const APP_VERSION = 66;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -978,7 +981,7 @@
         let any = false;
         for (const k in cur) if (m.base[k] !== cur[k]) { m.base[k] = cur[k]; m.times[k] = now; m.dirty[k] = 1; any = true; }
         for (const k in m.base) if (!(k in cur) && m.base[k] !== null) { m.base[k] = null; m.times[k] = now; m.dirty[k] = 1; any = true; }
-        if (any) { this.lastLocal = now; this.saveMeta(); }
+        if (any) { this.lastLocal = now; this.saveMeta(); if (typeof app !== 'undefined') app.updateSyncStatus(); }
         return any;
       },
       // Leaving the app: queue the very last tap too, and send everything now (it stays queued if that fails).
@@ -2028,12 +2031,25 @@
       syncText() {
         if (!SYNC_URL) return '';
         if (!Sync.on) return 'Keep the same progress on your phone, laptop and tablet';
-        if (Sync.error === 'offline') return 'On · offline, will sync when you are back online';
-        if (Sync.error) return 'On · could not reach the sync server, trying again';
+        const waiting = Object.keys(Sync.m.dirty).length;
+        if (waiting && Sync.error === 'offline') return 'Not synced yet · will sync when you are back online';
+        if (waiting && Sync.error) return 'Not synced yet · trying again';
+        if (waiting) return 'Syncing…';
+        if (Sync.error === 'offline') return 'Everything synced · offline now';
+        if (Sync.error) return 'Could not reach the sync server, trying again';
         const t = Sync.m.lastOk, ago = t ? Math.round((Date.now() - t) / 60000) : null;
-        return 'On · ' + (ago == null ? 'syncing…' : ago < 1 ? 'synced just now' : 'synced ' + ago + ' min ago');
+        return ago == null ? 'Syncing…' : ago < 1 ? 'Everything synced just now' : 'Everything synced · ' + ago + ' min ago';
       },
-      updateSyncStatus() { const el = $('#sync-status'); if (el) el.textContent = this.syncText(); },
+      // Red while this device has changes the server hasn't got yet, green once it has.
+      syncDot() {
+        if (!Sync.on) return '';
+        const waiting = Object.keys(Sync.m.dirty).length > 0;
+        return `<i class="sdot ${waiting ? 'bad' : 'ok'}" title="${waiting ? 'Not synced yet' : 'Synced'}"></i>`;
+      },
+      updateSyncStatus() {
+        document.querySelectorAll('#sync-status').forEach(el => { el.textContent = this.syncText(); });
+        document.querySelectorAll('.sdot').forEach(el => { el.outerHTML = this.syncDot(); });
+      },
       openSync() {
         const code = Sync.pretty(Sync.m.code);
         this.openSheet(`<div class="sheet-head"><h3>Sync</h3><button class="icon-btn" data-action="close-sheet" aria-label="Close">${icon('x')}</button></div>
@@ -2041,7 +2057,7 @@
             <p class="muted small">On your other devices, open Settings, tap <b>Join</b> under Sync and type this code. Keep it private: anyone with it can see and change your progress.</p>
             <div class="sync-code" style="user-select:all">${code}</div>
             <div class="btn-row" style="justify-content:center;margin-bottom:18px"><button class="btn btn-sm" data-action="copy" data-text="${code}">${icon('copy')} Copy code</button><button class="btn btn-sm" data-action="sync-now">Sync now</button></div>
-            <p class="muted small" id="sync-status">${this.syncText()}</p>
+            <p class="muted small">${this.syncDot()} <span id="sync-status">${this.syncText()}</span></p>
             <button class="btn btn-sm btn-bad" data-action="sync-off" style="margin-top:14px">Turn off sync on this device</button>
           </div>`);
       },
@@ -2079,7 +2095,7 @@
               <button class="btn btn-sm" data-action="check-update">Check for updates</button></div>
             <div class="set-row"><div class="lbl"><b>Works offline</b><span id="offline-status">Checking…</span></div><span id="offline-dot" class="dot" style="width:12px;height:12px;margin:0;background:var(--surface-3)"></span></div>
             <div class="set-row"><div class="lbl"><b>Your progress</b><span>${allLearned} words mastered · ${allHard} still learning · ${Store.liveStreak()}-day streak</span></div></div>
-${SYNC_URL ? `<div class="set-row"><div class="lbl"><b>Sync between devices</b><span id="sync-status">${this.syncText()}</span></div>
+${SYNC_URL ? `<div class="set-row"><div class="lbl"><b>Sync between devices ${this.syncDot()}</b><span id="sync-status">${this.syncText()}</span></div>
               ${Sync.on ? '<button class="btn btn-sm" data-action="sync-manage">Show code</button>' : '<div class="btn-row"><button class="btn btn-sm btn-primary" data-action="sync-on">Turn on</button><button class="btn btn-sm" data-action="sync-join-open">Join</button></div>'}</div>` : ''}
             <div class="set-row"><div class="lbl"><b>Back up progress</b><span>Save a file, or restore from one on another device</span></div>
               <div class="btn-row"><button class="btn btn-sm" data-action="export">Export</button><button class="btn btn-sm" data-action="import">Import</button></div></div>
