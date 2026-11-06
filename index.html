@@ -723,6 +723,8 @@
     .rw-turn { font-size: 1.5rem; font-weight: 850; overflow-wrap: anywhere; }
     .party-rank { display: flex; justify-content: space-between; gap: 10px; padding: 12px 14px; margin-bottom: 8px; border-radius: var(--r-md); background: var(--surface-2); font-weight: 750; }
     .party-rank span { min-width: 0; overflow-wrap: anywhere; }
+    .sync-code { font: 800 1.35rem/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .06em; text-align: center; padding: 16px 8px; margin: 14px 0 12px; border-radius: var(--r-md); background: var(--surface-2); border: 1.5px dashed var(--accent); color: var(--text); overflow-wrap: anywhere; }
+    .sync-input { width: 100%; height: 52px; padding: 0 14px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line-strong); color: var(--text); font: 700 18px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .05em; text-transform: uppercase; }
     .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 84px); transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: .88rem; z-index: 60; animation: up .25s var(--ease); box-shadow: var(--shadow); }
 
     @media (max-width: 520px) {
@@ -774,7 +776,7 @@
 
   <script>
     // Bump on every release; the app compares this with the website to offer updates.
-    const APP_VERSION = 64;
+    const APP_VERSION = 65;
 
     /* ================= Icons ================= */
     const ICONS = {
@@ -897,7 +899,7 @@
         this.d.settings = Object.assign({ theme: null, autoSpeak: false, dir: 'de-en' }, this.d.settings);
         return this.d;
       },
-      save() { try { localStorage.setItem(this.KEY, JSON.stringify(this.d)); } catch (e) {} },
+      save() { try { localStorage.setItem(this.KEY, JSON.stringify(this.d)); } catch (e) {} Sync.noteChange(); },
       status(key) { return this.d.learnedWords[key] ? 'learned' : this.d.difficultWords[key] ? 'hard' : 'new'; },
       setStatus(key, s) {
         delete this.d.learnedWords[key]; delete this.d.difficultWords[key];
@@ -916,6 +918,162 @@
         const s = this.d.streak, y = new Date(); y.setDate(y.getDate() - 1);
         return (s.day === dayKey() || s.day === dayKey(y)) ? s.count : 0;
       },
+    };
+
+    /* ================= Sync between devices =================
+       Devices that share a sync code keep the same progress. Progress is split into entries (one per
+       word mark, star, chapter...); each change is stamped with its time and the newest one wins.
+       Device-only things (theme, voice, popups seen) stay on the device. */
+    const SYNC_URL = 'https://glitch-deutsch-sync.glitchdeutschmomente.workers.dev/sync';
+    const Sync = {
+      KEY: 'glitch_deutsch_sync',
+      LOCAL: ['settings', 'seenNotice', 'seenInstall'],
+      MAPS: ['learnedWords', 'difficultWords', 'starred', 'completedChapters', 'chapterPart', 'levelChapter', 'best'],
+      ABC: 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789',
+      m: null,   // { code, ver, base: {entry: json|null}, times: {entry: ms}, dirty: {entry: 1}, lastOk }
+      get on() { return !!(this.m && SYNC_URL); },
+
+      init() {
+        try { this.m = JSON.parse(localStorage.getItem(this.KEY)); } catch (e) { this.m = null; }
+        if (!this.m || !this.m.code) this.m = null;
+        document.addEventListener('visibilitychange', () => {
+          if (!this.on) return;
+          if (document.visibilityState === 'visible') this.run();
+          else this.leave();
+        });
+        window.addEventListener('pagehide', () => { if (this.on) this.leave(); });
+        // Back online: send what was saved offline straight away.
+        window.addEventListener('online', () => { this.tries = 0; this.run(); });
+        window.addEventListener('offline', () => { this.error = 'offline'; if (typeof app !== 'undefined') app.updateSyncStatus(); });
+        // Only while the app is open on screen, and only if nothing synced in the last 1.5 minutes.
+        setInterval(() => { if (document.visibilityState === 'visible' && this.on && Date.now() - (this.m.lastOk || 0) > 90000) this.run(); }, 120000);
+        this.run();
+      },
+      saveMeta() { try { this.m ? localStorage.setItem(this.KEY, JSON.stringify(this.m)) : localStorage.removeItem(this.KEY); } catch (e) {} },
+      flat(d) {
+        const out = {};
+        for (const f in d) {
+          if (this.LOCAL.includes(f) || d[f] === undefined) continue;
+          if (this.MAPS.includes(f) && d[f] && typeof d[f] === 'object') { for (const k in d[f]) out[f + '\u0001' + k] = JSON.stringify(d[f][k]); }
+          else out[f] = JSON.stringify(d[f]);
+        }
+        return out;
+      },
+      setEntry(d, k, v) {
+        const i = k.indexOf('\u0001');
+        if (i < 0) { if (v === null) delete d[k]; else d[k] = JSON.parse(v); return; }
+        const f = k.slice(0, i), key = k.slice(i + 1);
+        if (!d[f] || typeof d[f] !== 'object') d[f] = {};
+        if (v === null) delete d[f][key]; else d[f][key] = JSON.parse(v);
+      },
+      // After every save: whatever differs from the last synced copy is stamped and queued.
+      noteChange() {
+        if (!this.on || this.applying) return;
+        clearTimeout(this.diffT);
+        this.diffT = setTimeout(() => { if (this.stamp()) { clearTimeout(this.pushT); this.pushT = setTimeout(() => this.run(), 2000); } }, 300);
+      },
+      stamp() {
+        const m = this.m; if (!m) return false;
+        const now = Date.now(), cur = this.flat(Store.d);
+        let any = false;
+        for (const k in cur) if (m.base[k] !== cur[k]) { m.base[k] = cur[k]; m.times[k] = now; m.dirty[k] = 1; any = true; }
+        for (const k in m.base) if (!(k in cur) && m.base[k] !== null) { m.base[k] = null; m.times[k] = now; m.dirty[k] = 1; any = true; }
+        if (any) { this.lastLocal = now; this.saveMeta(); }
+        return any;
+      },
+      // Leaving the app: queue the very last tap too, and send everything now (it stays queued if that fails).
+      leave() {
+        if (!this.on) return;
+        clearTimeout(this.diffT); this.stamp();
+        if (Object.keys(this.m.dirty).length) { clearTimeout(this.pushT); this.run(true); }
+      },
+      async post(msg, keepalive) {
+        const body = JSON.stringify(msg);
+        const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 15000);
+        try {
+          // text/plain keeps it a "simple" request: no extra preflight round trip.
+          const r = await fetch(SYNC_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body, signal: ctl.signal, keepalive: !!keepalive && body.length < 60000 });
+          if (!r.ok) throw new Error('Sync server said ' + r.status);
+          return await r.json();
+        } finally { clearTimeout(t); }
+      },
+      async run(leaving) {
+        if (!this.on) return;
+        if (this.busy) { this.again = true; return; }
+        // Known to be offline: don't even try. Changes stay queued until the 'online' event.
+        if (navigator.onLine === false) { this.error = 'offline'; if (typeof app !== 'undefined') app.updateSyncStatus(); return; }
+        clearTimeout(this.retryT);
+        this.busy = true;
+        const m = this.m, sent = Object.keys(m.dirty), changes = {};
+        for (const k of sent) changes[k] = [m.base[k], m.times[k]];
+        try {
+          const r = await this.post({ code: m.code, since: m.ver, changes }, leaving);
+          if (this.m !== m) return;   // turned off meanwhile
+          for (const k of sent) if (changes[k][1] === m.times[k]) delete m.dirty[k];
+          const got = this.apply(r.changes || {});
+          m.ver = r.ver; m.lastOk = Date.now(); this.error = null; this.tries = 0;
+          this.saveMeta();
+          if (got.length && typeof app !== 'undefined') app.onSynced(got);
+        } catch (e) {
+          this.error = navigator.onLine === false ? 'offline' : 'error';
+        } finally {
+          this.busy = false;
+          if (typeof app !== 'undefined') app.updateSyncStatus();
+          if (this.again || (this.m && !this.error && Object.keys(this.m.dirty).length)) { this.again = false; clearTimeout(this.pushT); this.pushT = setTimeout(() => this.run(), 1000); }
+          // Failed while the phone thinks it's online (weak signal, a server hiccup, or a missed
+          // 'online' event): try again after 5 s, 10 s, 20 s... up to every 2 minutes.
+          else if (this.m && this.error && document.visibilityState === 'visible') {
+            this.tries = (this.tries || 0) + 1;
+            clearTimeout(this.retryT); this.retryT = setTimeout(() => this.run(), Math.min(120000, 5000 * 2 ** (this.tries - 1)));
+          }
+        }
+      },
+      apply(changes) {
+        const m = this.m, got = [];
+        this.applying = true;
+        try {
+          for (const k in changes) {
+            const [v, t] = changes[k];
+            if ((m.times[k] || 0) >= t) continue;   // ours is the same or newer
+            m.times[k] = t; m.base[k] = v; delete m.dirty[k];
+            this.setEntry(Store.d, k, v); got.push(k);
+          }
+          if (got.length) Store.save();
+        } finally { this.applying = false; }
+        return got;
+      },
+      newCode() {
+        const r = crypto.getRandomValues(new Uint8Array(16));
+        return [...r].map(b => this.ABC[b & 31]).join('');
+      },
+      clean(input) { const c = String(input || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); return /^[A-HJ-NP-Z2-9]{16}$/.test(c) ? c : null; },
+      pretty(code) { return code.match(/.{4}/g).join('-'); },
+      // First device: upload everything under a new code.
+      async create() {
+        const code = this.newCode(), cur = this.flat(Store.d), now = Date.now(), changes = {};
+        for (const k in cur) changes[k] = [cur[k], now];
+        const r = await this.post({ code, since: 0, changes });
+        const times = {}; for (const k in cur) times[k] = now;
+        this.m = { code, ver: r.ver, base: cur, times, dirty: {}, lastOk: Date.now() };
+        this.saveMeta();
+        return code;
+      },
+      // Another device: take over the synced progress (this device's own is kept as a backup).
+      async join(input) {
+        const code = this.clean(input);
+        if (!code) throw new Error('That code is not right. It has 16 letters and numbers.');
+        const r = await this.post({ code, since: 0, changes: {} });
+        if (!r.ver) throw new Error('No progress found for that code.');
+        try { localStorage.setItem(Store.KEY + '_backup_before_sync', JSON.stringify(Store.d)); } catch (e) {}
+        const d = {}, m = { code, ver: r.ver, base: {}, times: {}, dirty: {}, lastOk: Date.now() };
+        for (const f of this.LOCAL) if (f in Store.d) d[f] = Store.d[f];
+        for (const k in r.changes) { const [v, t] = r.changes[k]; m.base[k] = v; m.times[k] = t; this.setEntry(d, k, v); }
+        this.m = m; this.saveMeta();
+        this.applying = true;
+        try { localStorage.setItem(Store.KEY, JSON.stringify(d)); } catch (e) {}
+        location.reload();
+      },
+      off() { this.m = null; clearTimeout(this.pushT); clearTimeout(this.diffT); this.saveMeta(); },
     };
 
     /* ================= Data parsing ================= */
@@ -1135,6 +1293,7 @@
         Speech.init();
         $('#settings-btn').innerHTML = icon('gear');
         $('#about-btn').innerHTML = icon('info');
+        Sync.init();
         $('#ch-start').innerHTML = icon('cards') + ' Study flashcards';
         // Touch keyboards: the bottom bar steps aside while typing.
         if (matchMedia('(pointer: coarse)').matches) {
@@ -1599,6 +1758,7 @@
 
       /* ---------- Events ---------- */
       onClick(e) {
+        this.lastAction = Date.now();
         const el = e.target.closest('[data-action]');
         const td = this.tapDone;
         if (e.type === 'click' && td && Date.now() - td.t < 800 && Math.abs(e.clientX - td.x) < 6 && Math.abs(e.clientY - td.y) < 6) { this.tapDone = null; return; }  // same touch, already handled on finger lift
@@ -1671,6 +1831,18 @@
           case 'do-update': return location.reload();
           case 'notice': return this.openNotice(false);
           case 'export': return this.exportProgress();
+          case 'sync-on': {
+            if (el.dataset.busy) return; el.dataset.busy = 1; el.textContent = 'Turning on…';
+            return Sync.create().then(() => { this.track('sync/on'); this.closeSheet(); this.openSync(); }, () => { delete el.dataset.busy; el.textContent = 'Turn on'; this.toast('Could not reach the sync server. Are you online?'); });
+          }
+          case 'sync-join-open': return this.openJoin();
+          case 'sync-join': {
+            if (el.dataset.busy) return; el.dataset.busy = 1; el.textContent = 'Joining…';
+            return Sync.join($('#sync-input').value).catch(err => { delete el.dataset.busy; el.textContent = 'Join'; this.toast(err && err.message && !/fetch|abort|network/i.test(err.message) ? err.message : 'Could not reach the sync server. Are you online?'); });
+          }
+          case 'sync-manage': return this.openSync();
+          case 'sync-now': return Sync.run();
+          case 'sync-off': if (!confirm('Turn off sync on this device? Your progress stays here, it just stops syncing.')) return; Sync.off(); this.closeSheet(); return this.toast('Sync turned off on this device');
           case 'import': return $('#import-file').click();
           case 'reset-all': {
             if (!confirm('Reset ALL progress (mastered words, practice list, streak)? This cannot be undone.')) return;
@@ -1836,6 +2008,54 @@
           </div>`);
       },
 
+      // Progress from another device arrived.
+      onSynced(keys) {
+        const moved = keys.some(k => /^(lastLevel|lastChapter|lastNormalLevel|mix|cardSession|levelChapter|chapterPart)/.test(k));
+        const idle = Date.now() - Math.max(this.lastAction || 0, Sync.lastLocal || 0) > 30000;
+        if (moved && idle && !$('#overlay').firstChild) {
+          // Not in the middle of something here: pick up where the other device left off.
+          const d = Store.d, L = isSet(d.lastLevel) ? (d.lastNormalLevel || 'A1') : d.lastLevel;
+          if (!isSet(this.level)) {
+            this.level = L in this.data ? L : 'A1';
+            this.chapter = Math.min(24, Math.max(1, +(isSet(d.lastLevel) ? (d.levelChapter || {})[this.level] : d.lastChapter) || 1));
+          }
+          this.sessions = {}; this.loadSession(); this.render();
+          return;
+        }
+        this.refreshStats();
+        if (this.page) this.renderPanel();
+      },
+      syncText() {
+        if (!SYNC_URL) return '';
+        if (!Sync.on) return 'Keep the same progress on your phone, laptop and tablet';
+        if (Sync.error === 'offline') return 'On · offline, will sync when you are back online';
+        if (Sync.error) return 'On · could not reach the sync server, trying again';
+        const t = Sync.m.lastOk, ago = t ? Math.round((Date.now() - t) / 60000) : null;
+        return 'On · ' + (ago == null ? 'syncing…' : ago < 1 ? 'synced just now' : 'synced ' + ago + ' min ago');
+      },
+      updateSyncStatus() { const el = $('#sync-status'); if (el) el.textContent = this.syncText(); },
+      openSync() {
+        const code = Sync.pretty(Sync.m.code);
+        this.openSheet(`<div class="sheet-head"><h3>Sync</h3><button class="icon-btn" data-action="close-sheet" aria-label="Close">${icon('x')}</button></div>
+          <div class="sheet-body">
+            <p class="muted small">On your other devices, open Settings, tap <b>Join</b> under Sync and type this code. Keep it private: anyone with it can see and change your progress.</p>
+            <div class="sync-code" style="user-select:all">${code}</div>
+            <div class="btn-row" style="justify-content:center;margin-bottom:18px"><button class="btn btn-sm" data-action="copy" data-text="${code}">${icon('copy')} Copy code</button><button class="btn btn-sm" data-action="sync-now">Sync now</button></div>
+            <p class="muted small" id="sync-status">${this.syncText()}</p>
+            <button class="btn btn-sm btn-bad" data-action="sync-off" style="margin-top:14px">Turn off sync on this device</button>
+          </div>`);
+      },
+      openJoin() {
+        this.openSheet(`<div class="sheet-head"><h3>Join sync</h3><button class="icon-btn" data-action="close-sheet" aria-label="Close">${icon('x')}</button></div>
+          <div class="sheet-body">
+            <p class="muted small">Type the code from your other device (Settings → Sync).</p>
+            <input id="sync-input" class="sync-input" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="24">
+            <p class="muted small" style="margin:10px 0 14px">This device will switch to the progress from your other device. What's on this device now is kept as a backup.</p>
+            <button class="btn btn-primary btn-lg" style="width:100%" data-action="sync-join">Join</button>
+          </div>`);
+        setTimeout(() => { const i = $('#sync-input'); if (i) i.focus(); }, 50);
+      },
+
       openSettings() {
         const st = Store.d.settings;
         const allLearned = Object.keys(Store.d.learnedWords).length;
@@ -1859,6 +2079,8 @@
               <button class="btn btn-sm" data-action="check-update">Check for updates</button></div>
             <div class="set-row"><div class="lbl"><b>Works offline</b><span id="offline-status">Checking…</span></div><span id="offline-dot" class="dot" style="width:12px;height:12px;margin:0;background:var(--surface-3)"></span></div>
             <div class="set-row"><div class="lbl"><b>Your progress</b><span>${allLearned} words mastered · ${allHard} still learning · ${Store.liveStreak()}-day streak</span></div></div>
+${SYNC_URL ? `<div class="set-row"><div class="lbl"><b>Sync between devices</b><span id="sync-status">${this.syncText()}</span></div>
+              ${Sync.on ? '<button class="btn btn-sm" data-action="sync-manage">Show code</button>' : '<div class="btn-row"><button class="btn btn-sm btn-primary" data-action="sync-on">Turn on</button><button class="btn btn-sm" data-action="sync-join-open">Join</button></div>'}</div>` : ''}
             <div class="set-row"><div class="lbl"><b>Back up progress</b><span>Save a file, or restore from one on another device</span></div>
               <div class="btn-row"><button class="btn btn-sm" data-action="export">Export</button><button class="btn btn-sm" data-action="import">Import</button></div></div>
             <div class="set-row"><div class="lbl"><b>Reset everything</b><span>Clears mastered words, practice list and streak</span></div>

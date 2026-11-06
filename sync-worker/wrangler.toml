@@ -1,0 +1,12 @@
+name = "glitch-deutsch-sync"
+main = "src/index.js"
+compatibility_date = "2025-06-01"
+
+# One Durable Object per sync code: it holds that code's progress and handles one request at a time.
+[[durable_objects.bindings]]
+name = "ROOMS"
+class_name = "SyncRoom"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["SyncRoom"]
